@@ -1,0 +1,35 @@
+name: MAIN
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+  release:
+    types:
+      - published
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+  # ON CHANGED FILES
+  build_labextension:
+    uses: ./.github/workflows/build.yml
+    needs: init
+
+  dockerize_labextension:
+    needs: build_labextension
+    uses: ./.github/workflows/docker.yml
+    secrets: inherit
+
+
+  release_labextension:
+    needs: build_labextension
+    if: startsWith(github.event.release.tag_name, 'grader-labextension')
+    uses: ./.github/workflows/publish_labextension.yml
+    secrets: inherit

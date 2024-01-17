@@ -1,156 +1,61 @@
-name: Build
+# This workflow will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build Service
 
 on:
-  push:
-    branches: main
-  pull_request:
-    branches: '*'
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-
+    # BUILD
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
     - name: Install dependencies
-      run: python -m pip install -U "jupyterlab>=4.0.0,<5"
-
-    - name: Lint the extension
+      working-directory: ./grader_service
       run: |
-        set -eux
-        jlpm
-        jlpm run lint:check
+        python -m pip install --upgrade pip
+        pip install build wheel twine hatch
+    - name: Build package
+      working-directory: ./grader_service
+      run: python -m build -n
 
-    - name: Test the extension
+    # TEST
+    - name: Install dependencies
+      working-directory: ./grader_service
       run: |
-        set -eux
-        jlpm run test
-
-    - name: Build the extension
+        python -m venv venv
+        source venv/bin/activate
+        pip install ipykernel
+        python -m ipykernel install --user --name=python3
+        pip install . 
+        pip install -r ../requirements-test.txt
+    - name: Run tests
+      working-directory: ./grader_service
       run: |
-        set -eux
-        python -m pip install .[test]
+        source venv/bin/activate
+        pytest ./grader_service/tests
 
-        pytest -vv -r ap --cov grader_labextension
-        jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "grader_labextension.*OK"
-
-        jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "grader-labextension.*OK"
-        python -m jupyterlab.browser_check
-
-    - name: Package the extension
-      run: |
-        set -eux
-
-        pip install build
-        python -m build
-        pip uninstall -y "grader_labextension" jupyterlab
-
-    - name: Upload extension packages
+    # Upload Artifacts
+    - name: Archive service artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: extension-artifacts
-        path: dist/grader_labextension*
-        if-no-files-found: error
-
-  test_isolated:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Install Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
-    - uses: actions/download-artifact@v3
-      with:
-        name: extension-artifacts
-    - name: Install and Test
-      run: |
-        set -eux
-        # Remove NodeJS, twice to take care of system and locally installed node versions.
-        sudo rm -rf $(which node)
-        sudo rm -rf $(which node)
-
-        pip install "jupyterlab>=4.0.0,<5" grader_labextension*.whl
-
-
-        jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "grader_labextension.*OK"
-
-        jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "grader-labextension.*OK"
-        python -m jupyterlab.browser_check --no-browser-test
-
-  integration-tests:
-    name: Integration tests
-    needs: build
-    runs-on: ubuntu-latest
-
-    env:
-      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-
-    - name: Download extension package
-      uses: actions/download-artifact@v3
-      with:
-        name: extension-artifacts
-
-    - name: Install the extension
-      run: |
-        set -eux
-        python -m pip install "jupyterlab>=4.0.0,<5" grader_labextension*.whl
-
-    - name: Install dependencies
-      working-directory: ui-tests
-      env:
-        YARN_ENABLE_IMMUTABLE_INSTALLS: 0
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-      run: jlpm install
-
-    - name: Set up browser cache
-      uses: actions/cache@v3
-      with:
+        name: dist-service
+        retention-days: 1
         path: |
-          ${{ github.workspace }}/pw-browsers
-        key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
-
-    - name: Install browser
-      run: jlpm playwright install chromium
-      working-directory: ui-tests
-
-    - name: Execute integration tests
-      working-directory: ui-tests
-      run: |
-        jlpm playwright test
-
-    - name: Upload Playwright Test report
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: grader_labextension-playwright-tests
-        path: |
-          ui-tests/test-results
-          ui-tests/playwright-report
-
-  check_links:
-    name: Check Links
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v3
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1
+          grader_service/dist
+          !grader_service/dist/**/*.md
