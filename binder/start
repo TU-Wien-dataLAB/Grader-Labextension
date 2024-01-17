@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+mkdir "./grader_service_dir"
+export GRADER_SERVICE_DIRECTORY="$(pwd)/grader_service_dir"
+export JUPYTERHUB_API_TOKEN="1234"
+export JUPYTERHUB_API_URL="http://127.0.0.1:4010"
+
+python3 binder/hub_auth_mock.py &
+
+cd grader_service_dir
+grader-service-migrate
+cd ..
+grader-service -f binder/grader_service_config.py &
+
+sleep 2
+
+echo "$@"
+exec "$@"

@@ -11,8 +11,8 @@ from http import HTTPStatus
 from urllib.parse import unquote, quote
 from tornado.web import HTTPError
 
-from grader_convert.converters.base import GraderConvertException
-from grader_convert.converters.generate_assignment import GenerateAssignment
+from grader_service.convert.converters.base import GraderConvertException
+from grader_service.convert.converters.generate_assignment import GenerateAssignment
 from .base_handler import ExtensionBaseHandler, cache
 from ..api.models.submission import Submission
 from ..registry import register_handler
