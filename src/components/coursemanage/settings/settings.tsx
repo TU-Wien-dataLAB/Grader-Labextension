@@ -11,10 +11,10 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Tooltip, Typography, 
+  Tooltip, Typography,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import {
@@ -196,7 +196,7 @@ export const SettingsComponent = () => {
             helperText={formik.touched.name && formik.errors.name}
           />
 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -220,13 +220,13 @@ export const SettingsComponent = () => {
               value={formik.values.due_date}
               onChange={(date: Date) => {
                 formik.setFieldValue('due_date', date);
-                if(new Date(date).getTime() < Date.now()){
-                  enqueueSnackbar("You selected date in past!",{
+                if (new Date(date).getTime() < Date.now()) {
+                  enqueueSnackbar("You selected date in past!", {
                     variant: 'warning'
                   });
                 }
               }}
-              
+
             />
           </LocalizationProvider>
 

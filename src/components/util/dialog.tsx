@@ -8,7 +8,7 @@ import * as React from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import {
   Button,
@@ -316,7 +316,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                 helperText={formik.touched.name && formik.errors.name}
               />
 
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -337,8 +337,8 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                   ampm={false}
                   disabled={formik.values.due_date === null}
                   label='DateTimePicker'
-                  value={formik.values.due_date}
-                  onChange={(date: Date) => {
+                  value={formik.values?.due_date}
+                  onChange={(date) => {
                     formik.setFieldValue('due_date', date);
                     if (new Date(date).getTime() < Date.now()) {
                       handleOpenSnackBar();
