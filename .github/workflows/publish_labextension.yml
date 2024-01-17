@@ -30,9 +30,8 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: dist-labextension
-        path: grader_labextension/dist
+        path: ./dist
     - name: Publish the Python package
-      working-directory: ./grader_labextension
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_LAB_SETUP_TOKEN }}

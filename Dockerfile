@@ -4,7 +4,10 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-FROM jupyter/scipy-notebook
+ARG REGISTRY=quay.io
+ARG OWNER=jupyter
+ARG BASE_CONTAINER=$REGISTRY/$OWNER/datascience-notebook
+FROM $BASE_CONTAINER
 
 USER root
 
@@ -15,13 +18,11 @@ RUN apt-get update &&\
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# INSTALL grader-service
-COPY ./grader_labextension /grader_labextension
-COPY ./grader_convert /grader_convert
+COPY ./ /Grader-Labextension
 
-RUN python3 -m pip install /grader_labextension
+RUN python3 -m pip install /Grader-Labextension
+RUN rm -rf /Grader-Labextension
 
-USER jovyanFROM ubuntu:latest
-LABEL authors="matthiasmatt"
+WORKDIR /home/jovyan
 
-ENTRYPOINT ["top", "-b"]
+USER jovyan
