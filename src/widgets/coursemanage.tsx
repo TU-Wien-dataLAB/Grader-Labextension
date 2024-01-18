@@ -9,7 +9,7 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { closeSnackbar, SnackbarProvider } from 'notistack';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { getRoutes } from '../components/coursemanage/routes';
-import { Box, Typography, AppBar, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import { loadString } from '../services/storage.service';
 import { Router } from '@remix-run/router';
 import { DialogProvider } from '../components/util/dialog-provider';
@@ -26,7 +26,7 @@ export class CourseManageView extends ReactWidget {
 
   constructor(options: CourseManageView.IOptions = {}) {
     super();
-    this.id = options.id || "course-manage-view";
+    this.id = options.id || 'course-manage-view';
     this.addClass('GradingWidget');
 
     const savedPath = loadString('course-manage-react-router-path');
@@ -38,10 +38,10 @@ export class CourseManageView extends ReactWidget {
     this.router = createMemoryRouter(getRoutes(), { initialEntries: [path] });
 
     const themeManager = GlobalObjects.themeManager;
-    this.theme = (themeManager.isLight(themeManager.theme)) ? 'light' : 'dark';
+    this.theme = themeManager.isLight(themeManager.theme) ? 'light' : 'dark';
 
     themeManager.themeChanged.connect(() => {
-      this.theme = (themeManager.isLight(themeManager.theme)) ? 'light' : 'dark';
+      this.theme = themeManager.isLight(themeManager.theme) ? 'light' : 'dark';
     }, this);
   }
 
@@ -49,15 +49,21 @@ export class CourseManageView extends ReactWidget {
     return (
       <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
         <CssBaseline />
-        <SnackbarProvider maxSnack={3}
-                          // the parent of the parent is the main dock panel in JupyterLab
-                          domRoot={this.node.parentNode.parentElement}
-                          action={(snackbarId) => (
-                            <Button variant='outlined' size='small' style={{ color: 'white', borderColor: 'white' }}
-                                    onClick={() => closeSnackbar(snackbarId)}>
-                              Dismiss
-                            </Button>
-                          )}>
+        <SnackbarProvider
+          maxSnack={3}
+          // the parent of the parent is the main dock panel in JupyterLab
+          domRoot={this.node.parentNode.parentElement}
+          action={snackbarId => (
+            <Button
+              variant="outlined"
+              size="small"
+              style={{ color: 'white', borderColor: 'white' }}
+              onClick={() => closeSnackbar(snackbarId)}
+            >
+              Dismiss
+            </Button>
+          )}
+        >
           <DialogProvider>
             <RouterProvider router={this.router} />
           </DialogProvider>

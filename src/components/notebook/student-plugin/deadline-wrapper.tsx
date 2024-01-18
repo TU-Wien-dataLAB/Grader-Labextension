@@ -22,18 +22,22 @@ export const DeadlineWrapper = (props: IDeadlineWrapperProps) => {
   React.useEffect(() => {
     if (lecture === null) {
       getAllLectures().then(response => {
-        const l = response.find(l => l.code === props.notebookPaths[lectureSubPaths]);
+        const l = response.find(
+          l => l.code === props.notebookPaths[lectureSubPaths]
+        );
         if (l === undefined) {
           return;
         }
         setLecture(l);
         if (l === null) {
-            return;
+          return;
         }
         const assignmentIdIndex = lectureSubPaths + 2;
-        getAssignment(l.id, +props.notebookPaths[assignmentIdIndex]).then(response => {
-          setAssignment(response);
-        });
+        getAssignment(l.id, +props.notebookPaths[assignmentIdIndex]).then(
+          response => {
+            setAssignment(response);
+          }
+        );
       });
     }
   }, [props]);

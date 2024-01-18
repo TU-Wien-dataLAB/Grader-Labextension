@@ -5,12 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import { SectionTitle } from '../util/section-title';
-import {
-  Box,
-  Button,
-  Stack, Tooltip,
-  Typography
-} from '@mui/material';
+import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
 import * as React from 'react';
 import { Lecture } from '../../model/lecture';
 import { Assignment } from '../../model/assignment';
@@ -27,10 +22,12 @@ import { getFiles, lectureBasePath } from '../../services/file.service';
 import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
 
 export const Feedback = () => {
-  const { lecture, assignment, submissions } = useRouteLoaderData('assignment') as {
-    lecture: Lecture,
-    assignment: Assignment,
-    submissions: Submission[],
+  const { lecture, assignment, submissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    lecture: Lecture;
+    assignment: Assignment;
+    submissions: Submission[];
   };
   const assignmentLink = `/lecture/${lecture.id}/assignment/${assignment.id}`;
 
@@ -49,46 +46,42 @@ export const Feedback = () => {
   });
 
   React.useEffect(() => {
-    getProperties(
-      lecture.id,
-      assignment.id,
-      submission.id
-    ).then(properties => {
+    getProperties(lecture.id, assignment.id, submission.id).then(properties => {
       const gradeBook = new GradeBook(properties);
       setGradeBook(gradeBook);
     });
   }, [lecture, assignment, submission]);
 
   return (
-    <Box sx={{overflow: 'auto'}}>
+    <Box sx={{ overflow: 'auto' }}>
       <SectionTitle title={'Feedback for ' + assignment.name} />
       <Box sx={{ m: 2, mt: 12 }}>
-        <Stack direction='row' spacing={2} sx={{ ml: 2 }}>
+        <Stack direction="row" spacing={2} sx={{ ml: 2 }}>
           <Stack sx={{ mt: 0.5 }}>
             <Typography
-              textAlign='right'
-              color='text.secondary'
+              textAlign="right"
+              color="text.secondary"
               sx={{ fontSize: 12, height: 35 }}
             >
               Lecture
             </Typography>
             <Typography
-              textAlign='right'
-              color='text.secondary'
+              textAlign="right"
+              color="text.secondary"
               sx={{ fontSize: 12, height: 35 }}
             >
               Assignment
             </Typography>
             <Typography
-              textAlign='right'
-              color='text.secondary'
+              textAlign="right"
+              color="text.secondary"
               sx={{ fontSize: 12, height: 35 }}
             >
               Points
             </Typography>
             <Typography
-              textAlign='right'
-              color='text.secondary'
+              textAlign="right"
+              color="text.secondary"
               sx={{ fontSize: 12, height: 35 }}
             >
               Extra Credit
@@ -96,18 +89,18 @@ export const Feedback = () => {
           </Stack>
           <Stack>
             <Typography
-              color='text.primary'
+              color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
               {lecture.name}
             </Typography>
             <Typography
-              color='text.primary'
+              color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
               {assignment.name}
               <Typography
-                color='text.secondary'
+                color="text.secondary"
                 sx={{
                   display: 'inline-block',
                   fontSize: 14,
@@ -119,19 +112,19 @@ export const Feedback = () => {
               </Typography>
             </Typography>
             <Typography
-              color='text.primary'
+              color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
               {gradeBook?.getPoints()}
               <Typography
-                color='text.secondary'
+                color="text.secondary"
                 sx={{ display: 'inline-block', fontSize: 14, ml: 0.25 }}
               >
                 /{gradeBook?.getMaxPoints()}
               </Typography>
             </Typography>
             <Typography
-              color='text.primary'
+              color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
               {gradeBook?.getExtraCredits()}
@@ -139,17 +132,17 @@ export const Feedback = () => {
           </Stack>
         </Stack>
       </Box>
-      <Typography sx={{ m: 2, mb: 0 }}>
-        Feedback Files
-      </Typography>
+      <Typography sx={{ m: 2, mb: 0 }}>Feedback Files</Typography>
 
-      <FilesList path={path} sx={{ m: 2, overflow: 'auto'}} />
-      
+      <FilesList path={path} sx={{ m: 2, overflow: 'auto' }} />
+
       <Stack direction={'row'} spacing={2} sx={{ m: 2 }}>
-        <Button variant='outlined' component={Link as any} to={assignmentLink}>Back</Button>
+        <Button variant="outlined" component={Link as any} to={assignmentLink}>
+          Back
+        </Button>
         <Button
-          variant='outlined'
-          size='small'
+          variant="outlined"
+          size="small"
           color={'primary'}
           onClick={() => {
             pullFeedback(lecture, assignment, submission).then(() => {
@@ -162,12 +155,12 @@ export const Feedback = () => {
         {path !== null && (
           <Tooltip title={'Show files in JupyterLab file browser'}>
             <Button
-              variant='outlined'
-              size='small'
+              variant="outlined"
+              size="small"
               color={'primary'}
               onClick={() => openBrowser(path)}
             >
-              <OpenInBrowserIcon fontSize='small' sx={{ mr: 1 }} />
+              <OpenInBrowserIcon fontSize="small" sx={{ mr: 1 }} />
               Show in Filebrowser
             </Button>
           </Tooltip>

@@ -44,12 +44,12 @@ export const EditSubmission = () => {
     manualGradeSubmission,
     setManualGradeSubmission
   } = useOutletContext() as {
-    lecture: Lecture,
-    assignment: Assignment,
-    rows: Submission[],
-    setRows: React.Dispatch<React.SetStateAction<Submission[]>>,
-    manualGradeSubmission: Submission,
-    setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>
+    lecture: Lecture;
+    assignment: Assignment;
+    rows: Submission[];
+    setRows: React.Dispatch<React.SetStateAction<Submission[]>>;
+    manualGradeSubmission: Submission;
+    setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
   const path = `${lectureBasePath}${lecture.code}/edit/${assignment.id}/${manualGradeSubmission.id}`;
   const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
@@ -90,7 +90,6 @@ export const EditSubmission = () => {
     );
   };
 
-
   const handlePullEditedSubmission = async () => {
     await pullSubmissionFiles(lecture, assignment, submission).then(
       response => {
@@ -108,7 +107,11 @@ export const EditSubmission = () => {
   };
 
   const setEditRepository = async () => {
-    await createOrOverrideEditRepository(lecture.id, assignment.id, submission.id).then(
+    await createOrOverrideEditRepository(
+      lecture.id,
+      assignment.id,
+      submission.id
+    ).then(
       response => {
         enqueueSnackbar('Successfully Created Edit Repository', {
           variant: 'success'
@@ -126,18 +129,18 @@ export const EditSubmission = () => {
   return (
     <Stack direction={'column'} sx={{ flex: '1 1 100%' }}>
       <Box sx={{ m: 2, mt: 5 }}>
-        <Stack direction='row' spacing={2} sx={{ ml: 2 }}>
+        <Stack direction="row" spacing={2} sx={{ ml: 2 }}>
           <Stack sx={{ mt: 0.5 }}>
             <Typography
-              textAlign='right'
-              color='text.secondary'
+              textAlign="right"
+              color="text.secondary"
               sx={{ fontSize: 12, height: 35 }}
             >
               Username
             </Typography>
             <Typography
-              textAlign='right'
-              color='text.secondary'
+              textAlign="right"
+              color="text.secondary"
               sx={{ fontSize: 12, height: 35 }}
             >
               Assignment
@@ -145,14 +148,14 @@ export const EditSubmission = () => {
           </Stack>
           <Stack>
             <Typography
-              color='text.primary'
+              color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
               {submission.username}
             </Typography>
 
             <Typography
-              color='text.primary'
+              color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
               {assignment.name}
@@ -160,24 +163,25 @@ export const EditSubmission = () => {
           </Stack>
         </Stack>
       </Box>
-      <Stack direction = {'row'} justifyContent='space-between'>
-      <Typography sx={{ m: 2, mb: 0 }}>Submission Files</Typography>
-      <Button
-        sx = {{mr: 2}}
-        variant='outlined'
-        size="small"
-        onClick={(event) => openLogs(event, manualGradeSubmission.id)}>
+      <Stack direction={'row'} justifyContent="space-between">
+        <Typography sx={{ m: 2, mb: 0 }}>Submission Files</Typography>
+        <Button
+          sx={{ mr: 2 }}
+          variant="outlined"
+          size="small"
+          onClick={event => openLogs(event, manualGradeSubmission.id)}
+        >
           Show Logs
         </Button>
       </Stack>
-      
+
       <FilesList path={path} sx={{ m: 2 }} />
 
       <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
         <LoadingButton
           loading={loading}
           color={submission.edited ? 'error' : 'primary'}
-          variant='outlined'
+          variant="outlined"
           onClick={async () => {
             setLoading(true);
             await setEditRepository();
@@ -190,8 +194,8 @@ export const EditSubmission = () => {
 
         <LoadingButton
           loading={loading}
-          color='primary'
-          variant='outlined'
+          color="primary"
+          variant="outlined"
           disabled={!submission.edited}
           onClick={async () => {
             setLoading(true);
@@ -203,8 +207,8 @@ export const EditSubmission = () => {
         </LoadingButton>
 
         <Button
-          variant='outlined'
-          color='success'
+          variant="outlined"
+          color="success"
           disabled={!submission.edited}
           onClick={async () => {
             showDialog(
@@ -222,19 +226,21 @@ export const EditSubmission = () => {
       </Stack>
       <Box sx={{ flex: '1 1 100%' }}></Box>
       <Toolbar>
-        <Button variant='outlined' component={Link as any} to={submissionsLink}>Back</Button>
+        <Button variant="outlined" component={Link as any} to={submissionsLink}>
+          Back
+        </Button>
       </Toolbar>
       <Dialog
         open={showLogs}
         onClose={() => setShowLogs(false)}
-        aria-labelledby='alert-dialog-title'
-        aria-describedby='alert-dialog-description'
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id='alert-dialog-title'>{'Logs'}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Logs'}</DialogTitle>
         <DialogContent>
           <Typography
-            id='alert-dialog-description'
-            sx={{ fontSize: 10, fontFamily: '\'Roboto Mono\', monospace' }}
+            id="alert-dialog-description"
+            sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
           >
             {logs}
           </Typography>

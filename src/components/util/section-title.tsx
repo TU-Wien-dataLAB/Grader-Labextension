@@ -14,8 +14,10 @@ export interface IModalTitle {
 
 export const SectionTitle = (props: IModalTitle) => {
   return (
-    <Box sx={{m: 3, top: 3 }}>
-      <Typography display="inline-block" variant="h4">{props.title}</Typography>
+    <Box sx={{ m: 3, top: 3 }}>
+      <Typography display="inline-block" variant="h4">
+        {props.title}
+      </Typography>
       {props.children}
     </Box>
   );

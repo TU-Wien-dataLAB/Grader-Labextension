@@ -15,17 +15,18 @@ import { AssignmentStatus } from './assignment-status';
 import { Submission } from '../../../model/submission';
 import { useRouteLoaderData } from 'react-router-dom';
 
-
 export const OverviewComponent = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
-    lecture: Lecture,
-    assignments: Assignment[],
-    users: { instructors: string[], tutors: string[], students: string[] }
+    lecture: Lecture;
+    assignments: Assignment[];
+    users: { instructors: string[]; tutors: string[]; students: string[] };
   };
-  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData('assignment') as {
-    assignment: Assignment,
-    allSubmissions: Submission[],
-    latestSubmissions: Submission[]
+  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    assignment: Assignment;
+    allSubmissions: Submission[];
+    latestSubmissions: Submission[];
   };
 
   const [assignmentState, setAssignmentState] = React.useState(assignment);
@@ -34,9 +35,8 @@ export const OverviewComponent = () => {
     setAssignmentState(assignment);
   };
 
-
   return (
-    <Box sx={{ flex: 1,  overflow: 'auto' }}>
+    <Box sx={{ flex: 1, overflow: 'auto' }}>
       <SectionTitle title={assignmentState.name}></SectionTitle>
       <Box sx={{ ml: 3, mr: 3, mb: 3, mt: 3 }}>
         <Grid container spacing={3}>

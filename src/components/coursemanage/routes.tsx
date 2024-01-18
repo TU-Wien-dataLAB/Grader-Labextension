@@ -1,14 +1,25 @@
 import * as React from 'react';
-import { createRoutesFromElements, Route, useNavigation } from 'react-router-dom';
+import {
+  createRoutesFromElements,
+  Route,
+  useNavigation
+} from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 import { LinkRouter, Page } from '../util/breadcrumbs';
 import ErrorPage from '../util/error';
 import { CourseManageComponent } from './coursemanage.component';
 import { UserPermissions } from '../../services/permission.service';
-import { getAllLectures, getLecture, getUsers } from '../../services/lectures.service';
+import {
+  getAllLectures,
+  getLecture,
+  getUsers
+} from '../../services/lectures.service';
 import { enqueueSnackbar } from 'notistack';
-import { getAllAssignments, getAssignment } from '../../services/assignments.service';
+import {
+  getAllAssignments,
+  getAssignment
+} from '../../services/assignments.service';
 import { LectureComponent } from './lecture';
 import { getAllSubmissions } from '../../services/submissions.service';
 import { AssignmentModalComponent } from './assignment-modal';
@@ -21,7 +32,8 @@ import { ManualGrading } from './grading/manual-grading';
 import { EditSubmission } from './grading/edit-submission';
 import { CreateSubmission } from './grading/create-submission';
 
-const shouldReload = (request: Request) => new URL(request.url).searchParams.get('reload') === 'true';
+const shouldReload = (request: Request) =>
+  new URL(request.url).searchParams.get('reload') === 'true';
 
 const loadPermissions = async () => {
   try {
@@ -86,7 +98,7 @@ function ExamplePage({ to }) {
       )}
 
       <span>Next Page: </span>
-      <LinkRouter underline='hover' color='inherit' to={to} key={to}>
+      <LinkRouter underline="hover" color="inherit" to={to} key={to}>
         {to}
       </LinkRouter>
     </Box>
@@ -96,14 +108,17 @@ function ExamplePage({ to }) {
 export const getRoutes = () => {
   const routes = createRoutesFromElements(
     // this is a layout route without a path (see: https://reactrouter.com/en/main/start/concepts#layout-routes)
-    <Route element={<Page id={'course-manage'} />} errorElement={<ErrorPage id={'course-manage'} />}>
+    <Route
+      element={<Page id={'course-manage'} />}
+      errorElement={<ErrorPage id={'course-manage'} />}
+    >
       <Route
         id={'root'}
         path={'/*'}
         loader={loadPermissions}
         handle={{
-          crumb: (data) => 'Lectures',
-          link: (params) => '/'
+          crumb: data => 'Lectures',
+          link: params => '/'
         }}
       >
         <Route index element={<CourseManageComponent />}></Route>
@@ -113,14 +128,11 @@ export const getRoutes = () => {
           loader={({ params }) => loadLecture(+params.lid)}
           handle={{
             // functions in handle have to handle undefined data (error page is displayed afterwards)
-            crumb: (data) => data?.lecture.name,
-            link: (params) => `lecture/${params?.lid}/`
+            crumb: data => data?.lecture.name,
+            link: params => `lecture/${params?.lid}/`
           }}
         >
-          <Route
-            index
-            element={<LectureComponent />}
-          ></Route>
+          <Route index element={<LectureComponent />}></Route>
           <Route
             id={'assignment'}
             path={'assignment/:aid/*'}
@@ -128,45 +140,78 @@ export const getRoutes = () => {
             loader={({ params }) => loadAssignment(+params.lid, +params.aid)}
             handle={{
               // functions in handle have to handle undefined data (error page is displayed afterwards)
-              crumb: (data) => data?.assignment.name,
-              link: (params) =>
-                `assignment/${params.aid}/`
+              crumb: data => data?.assignment.name,
+              link: params => `assignment/${params.aid}/`
             }}
           >
-            <Route index path={''} element={<OverviewComponent />} handle={{
-              crumb: (data) => 'Overview',
-              link: (params) => ''
-            }}></Route>
-            <Route path={'files'} element={<FileView />} handle={{
-              crumb: (data) => 'Files',
-              link: (params) => 'files/'
-            }}></Route>
-            <Route id={'submissions/*'} path={'submissions'} element={<GradingComponent />} handle={{
-              crumb: (data) => 'Submissions',
-              link: (params) => 'submissions/'
-            }}>
+            <Route
+              index
+              path={''}
+              element={<OverviewComponent />}
+              handle={{
+                crumb: data => 'Overview',
+                link: params => ''
+              }}
+            ></Route>
+            <Route
+              path={'files'}
+              element={<FileView />}
+              handle={{
+                crumb: data => 'Files',
+                link: params => 'files/'
+              }}
+            ></Route>
+            <Route
+              id={'submissions/*'}
+              path={'submissions'}
+              element={<GradingComponent />}
+              handle={{
+                crumb: data => 'Submissions',
+                link: params => 'submissions/'
+              }}
+            >
               <Route index path={''} element={<GradingTable />} />
-              <Route path={'manual'} element={<ManualGrading />} handle={{
-                crumb: (data) => 'Grading View',
-                link: (params) => `manual/`
-              }}></Route>
-              <Route path={'edit'} element={<EditSubmission />} handle={{
-                crumb: (data) => 'Edit Submission',
-                link: (params) => `edit/`
-              }}></Route>
-              <Route path={'create'} element={<CreateSubmission />} handle={{
-                crumb: (data) => 'Create Submission',
-                link: (params) => `create/`
-              }}></Route>
+              <Route
+                path={'manual'}
+                element={<ManualGrading />}
+                handle={{
+                  crumb: data => 'Grading View',
+                  link: params => 'manual/'
+                }}
+              ></Route>
+              <Route
+                path={'edit'}
+                element={<EditSubmission />}
+                handle={{
+                  crumb: data => 'Edit Submission',
+                  link: params => 'edit/'
+                }}
+              ></Route>
+              <Route
+                path={'create'}
+                element={<CreateSubmission />}
+                handle={{
+                  crumb: data => 'Create Submission',
+                  link: params => 'create/'
+                }}
+              ></Route>
             </Route>
-            <Route path={'stats'} element={<StatsComponent />} handle={{
-              crumb: (data) => 'Stats',
-              link: (params) => 'stats/'
-            }}></Route>
-            <Route path={'settings'} element={<SettingsComponent />} handle={{
-              crumb: (data) => 'Settings',
-              link: (params) => 'settings/'
-            }}></Route>
+            <Route
+              path={'stats'}
+              element={<StatsComponent />}
+              handle={{
+                crumb: data => 'Stats',
+                link: params => 'stats/'
+              }}
+            ></Route>
+            <Route
+              path={'settings'}
+              element={<SettingsComponent />}
+              handle={{
+                crumb: data => 'Settings',
+                link: params => 'settings/'
+              }}
+            ></Route>
           </Route>
         </Route>
       </Route>

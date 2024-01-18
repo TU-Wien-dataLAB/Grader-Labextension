@@ -16,7 +16,7 @@ export class GradeBook {
   }
 
   public getExtraFiles(): string[] {
-    return this.properties['extra_files']
+    return this.properties['extra_files'];
   }
 
   public setComment(notebook: string, cellId: string, comment: string) {
@@ -42,9 +42,10 @@ export class GradeBook {
   }
 
   private createTaskGrade(notebook: string, cellId: string, score: number) {
-    const maxScore = this.properties['notebooks'][notebook]['task_cells_dict'][
-      cellId
-    ]['max_score'];
+    const maxScore =
+      this.properties['notebooks'][notebook]['task_cells_dict'][cellId][
+        'max_score'
+      ];
     const grade: any = {
       cell_id: cellId,
       notebook_id: notebook,
@@ -73,9 +74,10 @@ export class GradeBook {
   }
 
   public getExtraCredit(notebook: string, cellId: string): number {
-    const extraCredit = this.properties['notebooks'][notebook]['grades_dict'][
-      cellId
-    ]['extra_credit'];
+    const extraCredit =
+      this.properties['notebooks'][notebook]['grades_dict'][cellId][
+        'extra_credit'
+      ];
     if (extraCredit) {
       return extraCredit;
     } else {
@@ -145,7 +147,9 @@ export class GradeBook {
   }
 
   public getGradeCellMaxScore(notebook: string, cellId: string): number {
-    return this.properties['notebooks'][notebook]['grade_cells_dict'][cellId]['max_score']
+    return this.properties['notebooks'][notebook]['grade_cells_dict'][cellId][
+      'max_score'
+    ];
   }
 
   public getNotebookPoints(notebook: string): number {
@@ -169,9 +173,8 @@ export class GradeBook {
     let sum = 0;
 
     // add task cells to grades dict if they are not there
-    const task_cells_dict = this.properties['notebooks'][notebook][
-      'task_cells_dict'
-    ];
+    const task_cells_dict =
+      this.properties['notebooks'][notebook]['task_cells_dict'];
     for (const cellId of Object.keys(task_cells_dict)) {
       if (
         this.properties['notebooks'][notebook]['grades_dict'][cellId] ===
@@ -191,7 +194,8 @@ export class GradeBook {
 
   public getNotebookMaxPointsCells(notebook: string): number {
     let sum = 0;
-    const grades_dict = this.properties['notebooks'][notebook]['grade_cells_dict'];
+    const grades_dict =
+      this.properties['notebooks'][notebook]['grade_cells_dict'];
     for (const cellId of Object.keys(grades_dict)) {
       sum += this.getGradeCellMaxScore(notebook, cellId);
     }

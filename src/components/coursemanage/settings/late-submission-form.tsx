@@ -1,6 +1,14 @@
 import { SubmissionPeriod } from '../../../model/submissionPeriod';
 import React from 'react';
-import { Box, Button, IconButton, InputLabel, Stack, TextField, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  InputLabel,
+  Stack,
+  TextField,
+  Tooltip
+} from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import moment from 'moment';
 import { AssignmentSettings } from '../../../model/assignmentSettings';
@@ -15,12 +23,17 @@ export interface ILateSubmissionInfo {
   scaling: number;
 }
 
-const values_from_duration = (period: string, scaling: number): ILateSubmissionInfo => {
+const values_from_duration = (
+  period: string,
+  scaling: number
+): ILateSubmissionInfo => {
   const d = moment.duration(period);
   return { days: d.days(), hours: d.hours(), scaling: scaling || 0.0 };
 };
 
-export const getLateSubmissionInfo = (lateSubmissions: SubmissionPeriod[]): ILateSubmissionInfo[] => {
+export const getLateSubmissionInfo = (
+  lateSubmissions: SubmissionPeriod[]
+): ILateSubmissionInfo[] => {
   lateSubmissions = lateSubmissions || [];
   return lateSubmissions.map(l => values_from_duration(l.period, l.scaling));
 };
@@ -36,7 +49,11 @@ export const LateSubmissionForm = (props: ILateSubmissionFormProps) => {
     formik.setFieldValue('settings', settings);
   };
 
-  const updateLateSubmissionValue = (i: number, key: keyof ILateSubmissionInfo, value: number) => {
+  const updateLateSubmissionValue = (
+    i: number,
+    key: keyof ILateSubmissionInfo,
+    value: number
+  ) => {
     const period = formik.values.settings.late_submission[i];
     const late_sub_info = values_from_duration(period.period, period.scaling);
     late_sub_info[key] = value;
@@ -53,13 +70,20 @@ export const LateSubmissionForm = (props: ILateSubmissionFormProps) => {
     let hours = 0;
     const numPeriods = formik.values?.settings?.late_submission?.length;
     if (numPeriods > 0) {
-      const prevPeriod = formik.values?.settings?.late_submission[numPeriods - 1];
-      const prevInfo = values_from_duration(prevPeriod.period, prevPeriod.scaling);
+      const prevPeriod =
+        formik.values?.settings?.late_submission[numPeriods - 1];
+      const prevInfo = values_from_duration(
+        prevPeriod.period,
+        prevPeriod.scaling
+      );
       scaling = prevInfo.scaling / 2;
       days = prevInfo.days + 1;
       hours = prevInfo.hours;
     }
-    formik.values.settings.late_submission.push({ period: duration_from_values(days, hours), scaling: scaling });
+    formik.values.settings.late_submission.push({
+      period: duration_from_values(days, hours),
+      scaling: scaling
+    });
     updateSettings(formik.values.settings);
   };
 
@@ -70,27 +94,72 @@ export const LateSubmissionForm = (props: ILateSubmissionFormProps) => {
 
   return (
     <>
-      {formik.values.settings.late_submission.map((l: SubmissionPeriod, i: number) => {
-        const late_sub_info = values_from_duration(l.period, l.scaling);
-        return <Stack direction={'row'} spacing={2}>
-          <TextField id={`days_${i}`} label={'Days'} value={late_sub_info.days} type={'number'}
-                     inputProps={{pattern: "^\\d*$"}}
-                     error={i in (formik.errors?.late_submission?.days || {})}
-                     helperText={i in (formik.errors?.late_submission?.days || {}) && formik.errors.late_submission?.days[i]}
-                     onChange={e => updateLateSubmissionValue(i, 'days', +e.target.value)} />
-          <TextField id={`hours${i}`} label={'Hours'} value={late_sub_info.hours} type={'number'}
-                     inputProps={{pattern: "^\\d*$"}}
-                     error={i in (formik.errors?.late_submission?.hours || {})}
-                     helperText={i in (formik.errors?.late_submission?.hours || {}) && formik.errors.late_submission?.hours[i]}
-                     onChange={e => updateLateSubmissionValue(i, 'hours', +e.target.value)} />
-          <TextField id={`scaling${i}`} label={'Scaling'} value={late_sub_info.scaling} type={'number'}
-                     inputProps={{ maxLength: 5, step: '0.001', min: 0.0, max: 1.0, pattern: "^\\d*\\.\\d{0,3}?$" }}
-                     error={i in (formik.errors?.late_submission?.scaling || {})}
-                     helperText={i in (formik.errors?.late_submission?.scaling || {}) && formik.errors.late_submission?.scaling[i]}
-                     onChange={e => updateLateSubmissionValue(i, 'scaling', +e.target.value)} />
-          <IconButton onClick={() => removeLateSubmission(i)}><ClearIcon /></IconButton>
-        </Stack>;
-      })}
-      <Button variant={'outlined'} onClick={() => addLateSubmission()}>Add Late Submission Period</Button>
-    </>);
+      {formik.values.settings.late_submission.map(
+        (l: SubmissionPeriod, i: number) => {
+          const late_sub_info = values_from_duration(l.period, l.scaling);
+          return (
+            <Stack direction={'row'} spacing={2}>
+              <TextField
+                id={`days_${i}`}
+                label={'Days'}
+                value={late_sub_info.days}
+                type={'number'}
+                inputProps={{ pattern: '^\\d*$' }}
+                error={i in (formik.errors?.late_submission?.days || {})}
+                helperText={
+                  i in (formik.errors?.late_submission?.days || {}) &&
+                  formik.errors.late_submission?.days[i]
+                }
+                onChange={e =>
+                  updateLateSubmissionValue(i, 'days', +e.target.value)
+                }
+              />
+              <TextField
+                id={`hours${i}`}
+                label={'Hours'}
+                value={late_sub_info.hours}
+                type={'number'}
+                inputProps={{ pattern: '^\\d*$' }}
+                error={i in (formik.errors?.late_submission?.hours || {})}
+                helperText={
+                  i in (formik.errors?.late_submission?.hours || {}) &&
+                  formik.errors.late_submission?.hours[i]
+                }
+                onChange={e =>
+                  updateLateSubmissionValue(i, 'hours', +e.target.value)
+                }
+              />
+              <TextField
+                id={`scaling${i}`}
+                label={'Scaling'}
+                value={late_sub_info.scaling}
+                type={'number'}
+                inputProps={{
+                  maxLength: 5,
+                  step: '0.001',
+                  min: 0.0,
+                  max: 1.0,
+                  pattern: '^\\d*\\.\\d{0,3}?$'
+                }}
+                error={i in (formik.errors?.late_submission?.scaling || {})}
+                helperText={
+                  i in (formik.errors?.late_submission?.scaling || {}) &&
+                  formik.errors.late_submission?.scaling[i]
+                }
+                onChange={e =>
+                  updateLateSubmissionValue(i, 'scaling', +e.target.value)
+                }
+              />
+              <IconButton onClick={() => removeLateSubmission(i)}>
+                <ClearIcon />
+              </IconButton>
+            </Stack>
+          );
+        }
+      )}
+      <Button variant={'outlined'} onClick={() => addLateSubmission()}>
+        Add Late Submission Period
+      </Button>
+    </>
+  );
 };

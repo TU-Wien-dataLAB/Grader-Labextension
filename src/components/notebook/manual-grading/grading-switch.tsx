@@ -4,37 +4,35 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {Cell} from '@jupyterlab/cells';
-import {PanelLayout} from '@lumino/widgets';
-import {GradeBook} from '../../../services/gradebook';
+import { Cell } from '@jupyterlab/cells';
+import { PanelLayout } from '@lumino/widgets';
+import { GradeBook } from '../../../services/gradebook';
 import {
   getProperties,
   getSubmission,
   updateProperties,
   updateSubmission
 } from '../../../services/submissions.service';
-import {IModeSwitchProps} from '../slider';
-import {showErrorMessage} from '@jupyterlab/apputils';
+import { IModeSwitchProps } from '../slider';
+import { showErrorMessage } from '@jupyterlab/apputils';
 import * as React from 'react';
-import {Notebook, NotebookPanel} from '@jupyterlab/notebook';
-import {Lecture} from '../../../model/lecture';
-import {Assignment} from '../../../model/assignment';
-import {
-  getAssignment
-} from '../../../services/assignments.service';
-import {getAllLectures} from '../../../services/lectures.service';
-import {DataWidget} from './data-widget/data-widget';
-import {GradeWidget} from './grade-widget/grade-widget';
-import {GlobalObjects} from '../../..';
-import {Box, Button, Grid, Stack, Typography} from "@mui/material";
-import {AntSwitch} from "../create-assignment/creation-switch";
-import {Validator} from "../create-assignment/validator";
+import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
+import { Lecture } from '../../../model/lecture';
+import { Assignment } from '../../../model/assignment';
+import { getAssignment } from '../../../services/assignments.service';
+import { getAllLectures } from '../../../services/lectures.service';
+import { DataWidget } from './data-widget/data-widget';
+import { GradeWidget } from './grade-widget/grade-widget';
+import { GlobalObjects } from '../../..';
+import { Box, Button, Grid, Stack, Typography } from '@mui/material';
+import { AntSwitch } from '../create-assignment/creation-switch';
+import { Validator } from '../create-assignment/validator';
 import { lectureSubPaths } from '../../../services/file.service';
 
 export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
   public state = {
     mode: false,
-    saveButtonText: 'Save',
+    saveButtonText: 'Save'
   };
   protected notebook: Notebook;
   protected notebookpanel: NotebookPanel;
@@ -58,7 +56,9 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
 
   public async componentDidMount() {
     const lectures = await getAllLectures();
-    this.lecture = lectures.find(l => l.code === this.notebookPaths[lectureSubPaths]);
+    this.lecture = lectures.find(
+      l => l.code === this.notebookPaths[lectureSubPaths]
+    );
     this.assignment = await getAssignment(
       this.lecture.id,
       +this.notebookPaths[lectureSubPaths + 2]
@@ -84,7 +84,7 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
       return;
     }
     model.setMetadata('updated', false);
-    this.setState({saveButtonText: 'Saving'});
+    this.setState({ saveButtonText: 'Saving' });
     try {
       await updateProperties(
         this.lecture.id,
@@ -92,11 +92,8 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
         this.subID,
         this.gradeBook.properties
       );
-      this.setState({saveButtonText: 'Saved'});
-      setTimeout(
-        () => this.setState({saveButtonText: 'Save'}),
-        2000
-      );
+      this.setState({ saveButtonText: 'Saved' });
+      setTimeout(() => this.setState({ saveButtonText: 'Save' }), 2000);
       const submission = await getSubmission(
         this.lecture.id,
         this.assignment.id,
@@ -110,11 +107,14 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
         submission
       );
     } catch (err) {
-      this.setState({saveButtonText: 'Save'});
+      this.setState({ saveButtonText: 'Save' });
       if (err instanceof Error) {
         showErrorMessage('Error saving properties', err);
       } else {
-          console.error('Error while trying to interpret type unknown as error', err);
+        console.error(
+          'Error while trying to interpret type unknown as error',
+          err
+        );
       }
     }
   }
@@ -128,9 +128,9 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
     this.gradeBook = new GradeBook(properties);
 
     // TODO This is a dirty bugfix which generates grade dict entries for task cells which should exist
-    this.gradeBook.getMaxPoints()
+    this.gradeBook.getMaxPoints();
 
-    this.setState({mode: !this.state.mode}, () => {
+    this.setState({ mode: !this.state.mode }, () => {
       this.onChange(this.state.mode);
       this.notebook.widgets.map((c: Cell) => {
         const currentLayout = c.layout as PanelLayout;
@@ -140,7 +140,10 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
             new DataWidget(
               c,
               this.gradeBook,
-              this.notebookPaths[lectureSubPaths + 4].split('.').slice(0, -1).join('.')
+              this.notebookPaths[lectureSubPaths + 4]
+                .split('.')
+                .slice(0, -1)
+                .join('.')
             )
           );
           currentLayout.addWidget(
@@ -148,7 +151,10 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
               c,
               this.notebook,
               this.gradeBook,
-              this.notebookPaths[lectureSubPaths + 4].split('.').slice(0, -1).join('.')
+              this.notebookPaths[lectureSubPaths + 4]
+                .split('.')
+                .slice(0, -1)
+                .join('.')
             )
           );
         } else {
@@ -164,20 +170,19 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
 
   public render() {
     return (
-        <Stack direction="row" spacing={1}  alignItems={"center"} >
-          <AntSwitch checked={this.state.mode} onChange={this.handleChange}/>
-          <Typography variant="caption" >Grading Mode</Typography>
-          <Button
-              className="grader-toolbar-button"
-              onClick={() => this.saveProperties()}
-              variant="outlined"
-              color="success"
-              size="small"
-          >
-            {this.state.saveButtonText}
-          </Button>
+      <Stack direction="row" spacing={1} alignItems={'center'}>
+        <AntSwitch checked={this.state.mode} onChange={this.handleChange} />
+        <Typography variant="caption">Grading Mode</Typography>
+        <Button
+          className="grader-toolbar-button"
+          onClick={() => this.saveProperties()}
+          variant="outlined"
+          color="success"
+          size="small"
+        >
+          {this.state.saveButtonText}
+        </Button>
       </Stack>
-    )
-      ;
+    );
   }
 }

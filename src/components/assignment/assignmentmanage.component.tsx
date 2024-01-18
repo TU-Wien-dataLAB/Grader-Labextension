@@ -8,7 +8,15 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Lecture } from '../../model/lecture';
 import { useNavigate, useRouteLoaderData } from 'react-router-dom';
-import { FormControlLabel, FormGroup, Stack, Switch, TableCell, TableRow, Typography } from '@mui/material';
+import {
+  FormControlLabel,
+  FormGroup,
+  Stack,
+  Switch,
+  TableCell,
+  TableRow,
+  Typography
+} from '@mui/material';
 import Box from '@mui/material/Box';
 import { ButtonTr, GraderTable } from '../util/table';
 
@@ -34,7 +42,7 @@ const LectureTable = (props: ILectureTableProps) => {
             component={ButtonTr}
             onClick={() => navigate(`/lecture/${row.id}`)}
           >
-            <TableCell style={{ width: 100 }} component='th' scope='row'>
+            <TableCell style={{ width: 100 }} component="th" scope="row">
               {row.id}
             </TableCell>
             <TableCell>{row.name}</TableCell>
@@ -60,7 +68,7 @@ export const AssignmentManageComponent = () => {
   return (
     <Stack flexDirection={'column'} sx={{ m: 5, flex: 1, overflow: 'hidden' }}>
       <Stack direction={'row'} spacing={2}>
-        <Typography variant='h6' sx={{ mb: 1 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
           Lectures
         </Typography>
         <FormGroup>
@@ -71,7 +79,7 @@ export const AssignmentManageComponent = () => {
                 onChange={ev => setShowComplete(ev.target.checked)}
               />
             }
-            label='Completed Lectures'
+            label="Completed Lectures"
           />
         </FormGroup>
       </Stack>
@@ -81,7 +89,6 @@ export const AssignmentManageComponent = () => {
           showComplete ? allLectures.completedLectures : allLectures.lectures
         }
       />
-
     </Stack>
   );
 };
