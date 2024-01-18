@@ -34,18 +34,22 @@ export interface IStatsSubComponentProps {
 
 export const StatsComponent = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
-    lecture: Lecture,
-    assignments: Assignment[],
-    users: { instructors: string[], tutors: string[], students: string[] }
+    lecture: Lecture;
+    assignments: Assignment[];
+    users: { instructors: string[]; tutors: string[]; students: string[] };
   };
-  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData('assignment') as {
-    assignment: Assignment,
-    allSubmissions: Submission[],
-    latestSubmissions: Submission[]
+  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    assignment: Assignment;
+    allSubmissions: Submission[];
+    latestSubmissions: Submission[];
   };
 
-  const [allSubmissionsState, setAllSubmissionsState] = React.useState(allSubmissions);
-  const [latestSubmissionsState, setLatestSubmissionsState] = React.useState(latestSubmissions);
+  const [allSubmissionsState, setAllSubmissionsState] =
+    React.useState(allSubmissions);
+  const [latestSubmissionsState, setLatestSubmissionsState] =
+    React.useState(latestSubmissions);
   const [gb, setGb] = React.useState(null as GradeBook);
   const [usersState, setUsersState] = React.useState(users);
 
@@ -58,9 +62,7 @@ export const StatsComponent = () => {
     );
     setUsersState(await getUsers(lecture.id));
     setGb(
-      new GradeBook(
-        await getAssignmentProperties(lecture.id, assignment.id)
-      )
+      new GradeBook(await getAssignmentProperties(lecture.id, assignment.id))
     );
   };
 
@@ -84,26 +86,24 @@ export const StatsComponent = () => {
   }, [users]);
 
   React.useEffect(() => {
-    getAssignmentProperties(lecture.id, assignment.id).then(
-      properties => {
-        setGb(new GradeBook(properties));
-      }
-    );
+    getAssignmentProperties(lecture.id, assignment.id).then(properties => {
+      setGb(new GradeBook(properties));
+    });
   }, []);
 
   return (
-    <Box sx={{ flex: 1, overflow: 'auto'}}>
+    <Box sx={{ flex: 1, overflow: 'auto' }}>
       <SectionTitle title={`${assignment.name} Stats`}>
-        <Box sx={{ ml: 2 }} display='inline-block'>
-          <Tooltip title='Reload'>
-            <IconButton aria-label='reload' onClick={updateSubmissions}>
+        <Box sx={{ ml: 2 }} display="inline-block">
+          <Tooltip title="Reload">
+            <IconButton aria-label="reload" onClick={updateSubmissions}>
               <ReplayIcon />
             </IconButton>
           </Tooltip>
         </Box>
       </SectionTitle>
       <Box sx={{ ml: 3, mr: 3, mb: 3, mt: 3 }}>
-        <Grid container spacing={2} alignItems='stretch'>
+        <Grid container spacing={2} alignItems="stretch">
           <Grid xs={12}>
             <SubmissionTimeSeries
               lecture={lecture}

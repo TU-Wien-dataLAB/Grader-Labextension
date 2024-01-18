@@ -8,7 +8,11 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-prototype-builtins */
-import { ILayoutRestorer, JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
+import {
+  ILayoutRestorer,
+  JupyterFrontEnd,
+  JupyterFrontEndPlugin
+} from '@jupyterlab/application';
 
 import {
   Dialog,
@@ -21,7 +25,12 @@ import {
 } from '@jupyterlab/apputils';
 
 import { ILauncher } from '@jupyterlab/launcher';
-import { INotebookTools, INotebookTracker, Notebook, NotebookPanel } from '@jupyterlab/notebook';
+import {
+  INotebookTools,
+  INotebookTracker,
+  Notebook,
+  NotebookPanel
+} from '@jupyterlab/notebook';
 
 import { CourseManageView } from './widgets/coursemanage';
 
@@ -40,7 +49,10 @@ import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { UserPermissions } from './services/permission.service';
 import { AssignmentManageView } from './widgets/assignmentmanage';
 import { CreationWidget } from './components/notebook/create-assignment/creation-widget';
-import { listIcon, undoIcon } from '@jupyterlab/ui-components/lib/icon/iconimports';
+import {
+  listIcon,
+  undoIcon
+} from '@jupyterlab/ui-components/lib/icon/iconimports';
 import { HintWidget } from './components/notebook/student-plugin/hint-widget';
 import { DeadlineWidget } from './components/notebook/student-plugin/deadline-widget';
 import { lectureSubPaths } from './services/file.service';
@@ -152,14 +164,18 @@ const extension: JupyterFrontEndPlugin<void> = {
     // the MUI theme provider is set in the corresponding widgets
     // the CSS color-scheme property only applies to native input elements automatically so this does only apply to those (i.e. notebook grading mode and creation mode)
     themeManager.themeChanged.connect(() => {
-      document.documentElement.dataset.theme = (themeManager.isLight(themeManager.theme)) ? 'light' : 'dark';
+      document.documentElement.dataset.theme = themeManager.isLight(
+        themeManager.theme
+      )
+        ? 'light'
+        : 'dark';
     }, this);
 
-    const assignmentTracker = new WidgetTracker<MainAreaWidget<AssignmentManageView>>(
-      {
-        namespace: 'grader-assignments'
-      }
-    );
+    const assignmentTracker = new WidgetTracker<
+      MainAreaWidget<AssignmentManageView>
+    >({
+      namespace: 'grader-assignments'
+    });
 
     restorer.restore(assignmentTracker, {
       command: AssignmentsCommandIDs.open,
@@ -217,7 +233,8 @@ const extension: JupyterFrontEndPlugin<void> = {
           return;
         }
         const notebook: Notebook = tracker.currentWidget.content;
-        const contentsModel: Omit<IModel, 'content'> = notebookPanel.context.contentsModel;
+        const contentsModel: Omit<IModel, 'content'> =
+          notebookPanel.context.contentsModel;
         if (contentsModel === null) {
           return;
         }
@@ -390,7 +407,7 @@ const extension: JupyterFrontEndPlugin<void> = {
       },
       execute: () => {
         showDialog({
-          title: 'Do you want to revert the cell to it\'s original state?',
+          title: "Do you want to revert the cell to it's original state?",
           body: 'This will overwrite your current changes!',
           buttons: [Dialog.cancelButton(), Dialog.okButton({ label: 'Revert' })]
         }).then(result => {

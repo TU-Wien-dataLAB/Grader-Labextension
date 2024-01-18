@@ -74,8 +74,8 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
   return (
     <Card elevation={0}>
       <CardContent sx={{ overflowY: 'auto' }}>
-        <Stepper activeStep={props.activeStep} orientation='horizontal'>
-          {steps.map((step) => (
+        <Stepper activeStep={props.activeStep} orientation="horizontal">
+          {steps.map(step => (
             <Step key={step.label}>
               <StepLabel>{step.label}</StepLabel>
             </Step>

@@ -35,9 +35,9 @@ export const GradeComponent = (props: GradeComponentProps) => {
     props.toolData.type === 'solution';
 
   return (
-    <div style={{marginLeft: "72px"}}>
+    <div style={{ marginLeft: '72px' }}>
       {props.toolData.type !== 'readonly' && props.toolData.type !== '' && (
-        <div style={{ marginTop: 2, marginBottom: 1}}>
+        <div style={{ marginTop: 2, marginBottom: 1 }}>
           {showCommment && (
             <CommentComponent
               model={model}
@@ -67,7 +67,7 @@ export const GradeComponent = (props: GradeComponentProps) => {
               nbname={props.nbname}
             />
           )}
-          <hr style={{borderTop: "1px", color: "lightgray"}}/>
+          <hr style={{ borderTop: '1px', color: 'lightgray' }} />
         </div>
       )}
     </div>

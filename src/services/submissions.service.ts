@@ -40,16 +40,13 @@ export async function pullSubmissionFiles(
   assignment: Assignment,
   submission: Submission
 ) {
-  let url = `/lectures/${lecture.id}/assignments/${assignment.id}/pull/edit`
+  let url = `/lectures/${lecture.id}/assignments/${assignment.id}/pull/edit`;
 
   const searchParams = new URLSearchParams({
     subid: String(submission.id)
   });
   url += '?' + searchParams;
-  return request<void>(
-    HTTPMethod.GET,
-    url
-  );
+  return request<void>(HTTPMethod.GET, url);
 }
 
 export async function createSubmissionFiles(
@@ -57,15 +54,12 @@ export async function createSubmissionFiles(
   assignment: Assignment,
   username: string
 ) {
-  let url = `/lectures/${lecture.id}/assignments/${assignment.id}/push/edit`
+  let url = `/lectures/${lecture.id}/assignments/${assignment.id}/push/edit`;
   const searchParams = new URLSearchParams({
     for_user: username
   });
   url += '?' + searchParams;
-  return request<void>(
-    HTTPMethod.PUT,
-    url
-  );
+  return request<void>(HTTPMethod.PUT, url);
 }
 
 export async function pushSubmissionFiles(
@@ -73,15 +67,12 @@ export async function pushSubmissionFiles(
   assignment: Assignment,
   submission: Submission
 ) {
-  let url = `/lectures/${lecture.id}/assignments/${assignment.id}/push/edit`
+  let url = `/lectures/${lecture.id}/assignments/${assignment.id}/push/edit`;
   const searchParams = new URLSearchParams({
     subid: String(submission.id)
   });
   url += '?' + searchParams;
-  return request<void>(
-    HTTPMethod.PUT,
-    url
-  );
+  return request<void>(HTTPMethod.PUT, url);
 }
 
 export function getSubmissions(
@@ -159,7 +150,8 @@ export function getLogs(
 export function createOrOverrideEditRepository(
   lectureId: number,
   assignmentId: number,
-  submissionId: number): Promise<Submission> {
+  submissionId: number
+): Promise<Submission> {
   const url = `/lectures/${lectureId}/assignments/${assignmentId}/submissions/${submissionId}/edit`;
   return request<Submission>(HTTPMethod.PUT, url, {});
 }

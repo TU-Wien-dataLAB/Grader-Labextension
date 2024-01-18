@@ -24,9 +24,7 @@ export interface IFilesProps {
  * Renders the file view and additional buttons to submit, push, pull or reset the assignment.
  * @param props Props of the assignment files component
  */
-export const Files = (
-  props: IFilesProps
-) => {
+export const Files = (props: IFilesProps) => {
   const path = `${lectureBasePath}${props.lecture.code}/assignments/${props.assignment.id}`;
 
   /**
@@ -35,7 +33,13 @@ export const Files = (
   openBrowser(path);
   return (
     <div>
-      <FilesList path={path} sx={{ m: 2, mt: 1 }} lecture={props.lecture} shouldContain={props.files} assignment={props.assignment} />
+      <FilesList
+        path={path}
+        sx={{ m: 2, mt: 1 }}
+        lecture={props.lecture}
+        shouldContain={props.files}
+        assignment={props.assignment}
+      />
     </div>
   );
 };

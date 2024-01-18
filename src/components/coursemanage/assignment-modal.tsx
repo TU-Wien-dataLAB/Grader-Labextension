@@ -14,7 +14,13 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { Submission } from '../../model/submission';
-import { Link, Outlet, useMatch, useParams, useRouteLoaderData } from 'react-router-dom';
+import {
+  Link,
+  Outlet,
+  useMatch,
+  useParams,
+  useRouteLoaderData
+} from 'react-router-dom';
 
 function a11yProps(index: any) {
   return {
@@ -24,10 +30,12 @@ function a11yProps(index: any) {
 }
 
 export const AssignmentModalComponent = () => {
-  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData('assignment') as {
-    assignment: Assignment,
-    allSubmissions: Submission[],
-    latestSubmissions: Submission[]
+  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    assignment: Assignment;
+    allSubmissions: Submission[];
+    latestSubmissions: Submission[];
   };
 
   const params = useParams();
@@ -53,39 +61,81 @@ export const AssignmentModalComponent = () => {
   return (
     <Stack flexDirection={'column'} sx={{ flex: 1, overflowY: 'auto' }}>
       <Box
-        sx={{ flex: 1, bgcolor: 'background.paper', display: 'flex', overflow: 'hidden' }}
+        sx={{
+          flex: 1,
+          bgcolor: 'background.paper',
+          display: 'flex',
+          overflow: 'hidden'
+        }}
       >
         <Tabs
-          orientation='vertical'
+          orientation="vertical"
           value={value}
-          sx={{ borderRight: 1, borderColor: 'divider', minWidth: '200px', marginTop: 5 }}
+          sx={{
+            borderRight: 1,
+            borderColor: 'divider',
+            minWidth: '200px',
+            marginTop: 5
+          }}
         >
-          <Tab label='Overview' icon={<DashboardIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-            {...a11yProps(0)} component={Link as any} to={''} />
-          <Tab label='Files' icon={<FolderIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-            {...a11yProps(1)} component={Link as any} to={'files'} />
-          <Tab label='Submissions' icon={
-            <Badge
-              color='secondary'
-              badgeContent={latestSubmissions?.length}
-              showZero={latestSubmissions !== null}
-            >
-              <FormatListNumberedIcon />
-            </Badge>
-          }
-            iconPosition='start' sx={{ justifyContent: 'flex-start' }} {...a11yProps(2)} component={Link as any}
-            to={'submissions'} />
-          <Tab label='Stats' icon={<QueryStatsIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-            {...a11yProps(3)} component={Link as any} to={'stats'} />
-          <Tab label='Settings' icon={<SettingsIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-            {...a11yProps(4)} component={Link as any} to={'settings'} />
+          <Tab
+            label="Overview"
+            icon={<DashboardIcon />}
+            iconPosition="start"
+            sx={{ justifyContent: 'flex-start' }}
+            {...a11yProps(0)}
+            component={Link as any}
+            to={''}
+          />
+          <Tab
+            label="Files"
+            icon={<FolderIcon />}
+            iconPosition="start"
+            sx={{ justifyContent: 'flex-start' }}
+            {...a11yProps(1)}
+            component={Link as any}
+            to={'files'}
+          />
+          <Tab
+            label="Submissions"
+            icon={
+              <Badge
+                color="secondary"
+                badgeContent={latestSubmissions?.length}
+                showZero={latestSubmissions !== null}
+              >
+                <FormatListNumberedIcon />
+              </Badge>
+            }
+            iconPosition="start"
+            sx={{ justifyContent: 'flex-start' }}
+            {...a11yProps(2)}
+            component={Link as any}
+            to={'submissions'}
+          />
+          <Tab
+            label="Stats"
+            icon={<QueryStatsIcon />}
+            iconPosition="start"
+            sx={{ justifyContent: 'flex-start' }}
+            {...a11yProps(3)}
+            component={Link as any}
+            to={'stats'}
+          />
+          <Tab
+            label="Settings"
+            icon={<SettingsIcon />}
+            iconPosition="start"
+            sx={{ justifyContent: 'flex-start' }}
+            {...a11yProps(4)}
+            component={Link as any}
+            to={'settings'}
+          />
         </Tabs>
-        <Box sx={{ display: "flex", flexGrow: 1, overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
           <Outlet />
         </Box>
       </Box>
     </Stack>
-
   );
-
 };

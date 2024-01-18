@@ -8,7 +8,15 @@ import * as React from 'react';
 import { Lecture } from '../../model/lecture';
 import { Assignment } from '../../model/assignment';
 import { Submission } from '../../model/submission';
-import { Box, Button, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { SubmissionList } from './submission-list';
 import { AssignmentStatus } from './assignment-status';
@@ -22,7 +30,11 @@ import {
   resetAssignment
 } from '../../services/assignments.service';
 import { getFiles, lectureBasePath } from '../../services/file.service';
-import { getAllSubmissions, getProperties, submitAssignment } from '../../services/submissions.service';
+import {
+  getAllSubmissions,
+  getProperties,
+  submitAssignment
+} from '../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
 import { showDialog } from '../util/dialog-provider';
 import { RepoType } from '../util/repo-type';
@@ -51,20 +63,16 @@ const calculateActiveStep = (submissions: Submission[]) => {
   return 0;
 };
 
-interface ISubmissionsLeft{
+interface ISubmissionsLeft {
   subLeft: number;
 }
-const SubmissionsLeftChip = (props: ISubmissionsLeft) =>{
-  const output = props.subLeft + ' submission' + (props.subLeft === 1 ? ' left' : 's left'); 
-  return(
-    <Chip
-      sx={{ ml: 2 }}
-      size='medium'
-      icon={<WarningIcon />}
-      label={output}
-                      />
-  )
-}
+const SubmissionsLeftChip = (props: ISubmissionsLeft) => {
+  const output =
+    props.subLeft + ' submission' + (props.subLeft === 1 ? ' left' : 's left');
+  return (
+    <Chip sx={{ ml: 2 }} size="medium" icon={<WarningIcon />} label={output} />
+  );
+};
 
 /**
  * Renders the components available in the extended assignment modal view
@@ -73,21 +81,24 @@ export const AssignmentComponent = () => {
   const navigate = useNavigate();
   const reloadPage = () => navigate(0);
 
-  const { lecture, assignment, submissions } = useRouteLoaderData('assignment') as {
-    lecture: Lecture,
-    assignment: Assignment,
-    submissions: Submission[],
+  const { lecture, assignment, submissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    lecture: Lecture;
+    assignment: Assignment;
+    submissions: Submission[];
   };
 
   const [fileList, setFileList] = React.useState([] as string[]);
 
   React.useEffect(() => {
-    getAssignmentProperties(lecture.id, assignment.id).then(
-      properties => {
-        const gb = new GradeBook(properties);
-        setFileList([...gb.getNotebooks().map(n => n + ".ipynb"), ...gb.getExtraFiles()])
-      }
-    );
+    getAssignmentProperties(lecture.id, assignment.id).then(properties => {
+      const gb = new GradeBook(properties);
+      setFileList([
+        ...gb.getNotebooks().map(n => n + '.ipynb'),
+        ...gb.getExtraFiles()
+      ]);
+    });
   }, []);
 
   const path = `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`;
@@ -98,13 +109,15 @@ export const AssignmentComponent = () => {
   const [activeStatus, setActiveStatus] = React.useState(0);
   const [subLeft, setSubLeft] = React.useState(0);
 
-
   React.useEffect(() => {
     getAllSubmissions(lecture.id, assignment.id, 'none', false).then(
       response => {
         setSubmissions(response);
-        if(assignment.max_submissions - response.length < 0) setSubLeft(0);
-        else setSubLeft(assignment.max_submissions - response.length);
+        if (assignment.max_submissions - response.length < 0) {
+          setSubLeft(0);
+        } else {
+          setSubLeft(assignment.max_submissions - response.length);
+        }
       }
     );
     getFiles(path).then(files => {
@@ -116,7 +129,7 @@ export const AssignmentComponent = () => {
       setFiles(files);
     });
 
-    let active_step = calculateActiveStep(submissions);
+    const active_step = calculateActiveStep(submissions);
     setActiveStatus(active_step);
   }, []);
 
@@ -133,11 +146,7 @@ export const AssignmentComponent = () => {
             'Pre-Reset'
           );
           await resetAssignment(lecture, assignment);
-          await pullAssignment(
-            lecture.id,
-            assignment.id,
-            'assignment'
-          );
+          await pullAssignment(lecture.id, assignment.id, 'assignment');
           enqueueSnackbar('Successfully Reset Assignment', {
             variant: 'success'
           });
@@ -167,8 +176,11 @@ export const AssignmentComponent = () => {
           response => {
             console.log('Submitted');
             setSubmissions([response, ...allSubmissions]);
-            if(subLeft - 1 < 0) setSubLeft(0);
-            else setSubLeft(subLeft - 1);
+            if (subLeft - 1 < 0) {
+              setSubLeft(0);
+            } else {
+              setSubLeft(subLeft - 1);
+            }
             enqueueSnackbar('Successfully Submitted Assignment', {
               variant: 'success'
             });
@@ -184,11 +196,7 @@ export const AssignmentComponent = () => {
   };
 
   const pushAssignmentHandler = async () => {
-    await pushAssignment(
-      lecture.id,
-      assignment.id,
-      RepoType.ASSIGNMENT
-    ).then(
+    await pushAssignment(lecture.id, assignment.id, RepoType.ASSIGNMENT).then(
       () =>
         enqueueSnackbar('Successfully Pushed Assignment', {
           variant: 'success'
@@ -209,7 +217,9 @@ export const AssignmentComponent = () => {
         enqueueSnackbar('Successfully Pulled Repo', {
           variant: 'success'
         });
-        getFiles(`${lectureBasePath}${lecture.code}/assignments/${assignment.id}`).then(files => {
+        getFiles(
+          `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`
+        ).then(files => {
           setFiles(files);
         });
       },
@@ -237,7 +247,10 @@ export const AssignmentComponent = () => {
     if (late_submission === null || late_submission.length === 0) {
       late_submission = [{ period: 'P0D', scaling: undefined }];
     }
-    const late = moment(assignment.due_date).add(moment.duration(late_submission[late_submission.length - 1].period)).toDate().getTime();
+    const late = moment(assignment.due_date)
+      .add(moment.duration(late_submission[late_submission.length - 1].period))
+      .toDate()
+      .getTime();
     return late < Date.now();
   };
 
@@ -281,33 +294,38 @@ export const AssignmentComponent = () => {
           />
         </Box>
         <Box sx={{ mt: 2, ml: 2 }}>
-          <DeadlineDetail due_date={assignment.due_date} late_submissions={assignment.settings.late_submission || []} />
+          <DeadlineDetail
+            due_date={assignment.due_date}
+            late_submissions={assignment.settings.late_submission || []}
+          />
         </Box>
         <Box sx={{ mt: 4 }}>
-        <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} spacing={2} sx={{ ml: 2 }} >
-        <Typography variant={'h6'} sx={{ ml: 2 }}>
-            Files
-          </Typography>
-          <Tooltip title='Reload Files'>
-            <IconButton aria-label='reload' onClick={() => reloadFiles()}>
-              <ReplayIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-          <Files
-            lecture={lecture}
-            assignment={assignment}
-            files={fileList}
-          />
+          <Stack
+            direction={'row'}
+            justifyContent={'flex-start'}
+            alignItems={'center'}
+            spacing={2}
+            sx={{ ml: 2 }}
+          >
+            <Typography variant={'h6'} sx={{ ml: 2 }}>
+              Files
+            </Typography>
+            <Tooltip title="Reload Files">
+              <IconButton aria-label="reload" onClick={() => reloadFiles()}>
+                <ReplayIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+          <Files lecture={lecture} assignment={assignment} files={fileList} />
           <Stack direction={'row'} spacing={1} sx={{ m: 1, ml: 2 }}>
             {assignment.type === 'group' && (
               <Tooltip title={'Push Changes'}>
                 <Button
-                  variant='outlined'
-                  size='small'
+                  variant="outlined"
+                  size="small"
                   onClick={pushAssignmentHandler}
                 >
-                  <PublishRoundedIcon fontSize='small' sx={{ mr: 1 }} />
+                  <PublishRoundedIcon fontSize="small" sx={{ mr: 1 }} />
                   Push
                 </Button>
               </Tooltip>
@@ -316,70 +334,68 @@ export const AssignmentComponent = () => {
             {assignment.type === 'group' && (
               <Tooltip title={'Pull from Remote'}>
                 <Button
-                  variant='outlined'
-                  size='small'
+                  variant="outlined"
+                  size="small"
                   onClick={() => fetchAssignmentHandler('assignment')}
                 >
-                  <FileDownloadIcon fontSize='small' sx={{ mr: 1 }} />
+                  <FileDownloadIcon fontSize="small" sx={{ mr: 1 }} />
                   Pull
                 </Button>
               </Tooltip>
             )}
-            {!isAssignmentFetched() ?
+            {!isAssignmentFetched() ? (
               <Tooltip title={'Fetch Assignment'}>
                 <Button
-                  variant='outlined'
-                  color='primary'
-                  size='small'
+                  variant="outlined"
+                  color="primary"
+                  size="small"
                   onClick={() => fetchAssignmentHandler('assignment')}
                 >
-                  <FileDownloadIcon fontSize='small' sx={{ mr: 1 }} />
+                  <FileDownloadIcon fontSize="small" sx={{ mr: 1 }} />
                   Fetch
                 </Button>
               </Tooltip>
-              : null}
+            ) : null}
 
             <Tooltip title={'Submit Files in Assignment'}>
               <Button
-                variant='outlined'
-                color={(!isDeadlineOver()) ? 'success' : 'warning'}
-                size='small'
+                variant="outlined"
+                color={!isDeadlineOver() ? 'success' : 'warning'}
+                size="small"
                 disabled={
                   hasPermissions()
                     ? false
-                    : (
-                      isLateSubmissionOver() ||
+                    : isLateSubmissionOver() ||
                       isMaxSubmissionReached() ||
                       isAssignmentCompleted() ||
                       files.length == 0
-                    )
                 }
                 onClick={() => submitAssignmentHandler()}
               >
-                <GradingIcon fontSize='small' sx={{ mr: 1 }} />
+                <GradingIcon fontSize="small" sx={{ mr: 1 }} />
                 Submit
               </Button>
             </Tooltip>
 
             <Tooltip title={'Reset Assignment to Released Version'}>
               <Button
-                variant='outlined'
-                size='small'
-                color='error'
+                variant="outlined"
+                size="small"
+                color="error"
                 onClick={() => resetAssignmentHandler()}
               >
-                <RestartAltIcon fontSize='small' sx={{ mr: 1 }} />
+                <RestartAltIcon fontSize="small" sx={{ mr: 1 }} />
                 Reset
               </Button>
             </Tooltip>
             <Tooltip title={'Show files in JupyterLab file browser'}>
               <Button
-                variant='outlined'
-                size='small'
+                variant="outlined"
+                size="small"
                 color={'primary'}
                 onClick={() => openBrowser(path)}
               >
-                <OpenInBrowserIcon fontSize='small' sx={{ mr: 1 }} />
+                <OpenInBrowserIcon fontSize="small" sx={{ mr: 1 }} />
                 Show in Filebrowser
               </Button>
             </Tooltip>
@@ -390,29 +406,23 @@ export const AssignmentComponent = () => {
       <Box sx={{ mt: 4 }}>
         <Typography variant={'h6'} sx={{ ml: 2, mt: 3 }}>
           Submissions
-          
-          { assignment.max_submissions !== null
-              ? ( hasPermissions()
-                  ? (
-                      <Stack direction={'row'}>
-                      <SubmissionsLeftChip subLeft={subLeft}/>
-                      <Chip sx={{ml: 2}}
-                       color="success" variant="outlined"
-                       label={'As instructor you have unlimited submissions'}/>
-                      </Stack>
-                    )
-                  : (
-                    <SubmissionsLeftChip subLeft={subLeft}/>
-                  )
-                )
-              : null
-          }
-
+          {assignment.max_submissions !== null ? (
+            hasPermissions() ? (
+              <Stack direction={'row'}>
+                <SubmissionsLeftChip subLeft={subLeft} />
+                <Chip
+                  sx={{ ml: 2 }}
+                  color="success"
+                  variant="outlined"
+                  label={'As instructor you have unlimited submissions'}
+                />
+              </Stack>
+            ) : (
+              <SubmissionsLeftChip subLeft={subLeft} />
+            )
+          ) : null}
         </Typography>
-        <SubmissionList
-          submissions={allSubmissions}
-          sx={{ m: 2, mt: 1 }}
-        />
+        <SubmissionList submissions={allSubmissions} sx={{ m: 2, mt: 1 }} />
       </Box>
     </Box>
   );

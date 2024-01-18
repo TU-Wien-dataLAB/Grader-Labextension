@@ -40,14 +40,12 @@ export class SwitchModeFactory {
         );
       case 'source':
         return (
-
-              <CreationModeSwitch
-                notebook={props.notebook}
-                notebookpanel={props.notebookpanel}
-                mode={props.mode}
-                onChange={props.onChange}
-              />
-
+          <CreationModeSwitch
+            notebook={props.notebook}
+            notebookpanel={props.notebookpanel}
+            mode={props.mode}
+            onChange={props.onChange}
+          />
         );
       default:
         return null;

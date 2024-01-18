@@ -6,14 +6,14 @@
 
 // token: 0b79bab50daca910b000d4f1a2b675d604257e42
 
-import { Lecture } from "../model/lecture";
-import { HTTPMethod, request } from "./request.service";
+import { Lecture } from '../model/lecture';
+import { HTTPMethod, request } from './request.service';
 
 export enum Scope {
   student = 0,
   tutor = 1,
   instructor = 2,
-  admin = 3,
+  admin = 3
 }
 
 interface PermissionScopes {
@@ -25,7 +25,10 @@ export namespace UserPermissions {
 
   export async function loadPermissions(): Promise<void> {
     permissions = {};
-    let response = await request<{ lecture_code: string, scope: number }[]>(HTTPMethod.GET, '/permissions');
+    const response = await request<{ lecture_code: string; scope: number }[]>(
+      HTTPMethod.GET,
+      '/permissions'
+    );
     response.forEach(role => {
       permissions[role.lecture_code] = role.scope;
     });

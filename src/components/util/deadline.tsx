@@ -10,10 +10,12 @@ import {
   Chip,
   Collapse,
   createTheme,
-  List, ListItem,
+  List,
+  ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText, ListSubheader,
+  ListItemText,
+  ListSubheader,
   Typography
 } from '@mui/material';
 import AccessAlarmRoundedIcon from '@mui/icons-material/AccessAlarmRounded';
@@ -171,7 +173,9 @@ export const DeadlineComponent = (props: IDeadlineProps) => {
 
   const theme = createTheme({
     palette: {
-      mode: (GlobalObjects.themeManager.isLight(GlobalObjects.themeManager.theme)) ? 'light' : 'dark',
+      mode: GlobalObjects.themeManager.isLight(GlobalObjects.themeManager.theme)
+        ? 'light'
+        : 'dark',
       warning: {
         main: '#ffa726',
         contrastText: '#fff'
@@ -187,7 +191,7 @@ export const DeadlineComponent = (props: IDeadlineProps) => {
     <ThemeProvider theme={theme}>
       <Chip
         sx={props.sx}
-        size='small'
+        size="small"
         icon={<AccessAlarmRoundedIcon />}
         label={displayDate}
         color={color}
@@ -248,54 +252,75 @@ export function DeadlineDetail(props: IDeadlineDetailProps) {
   };
 
   if (props.late_submissions.length === 0) {
-    return <List component='nav' subheader={
-      <ListSubheader
-        sx={{ lineHeight: 1 }}
-        component='div'
-        id='late-submission-list-subheader'
+    return (
+      <List
+        component="nav"
+        subheader={
+          <ListSubheader
+            sx={{ lineHeight: 1 }}
+            component="div"
+            id="late-submission-list-subheader"
+          >
+            Deadline
+          </ListSubheader>
+        }
       >
-        Deadline
-      </ListSubheader>
-    }>
-      <ListItem onClick={handleClick}>
-        <ListItemIcon>
-          <AlarmIcon color={color === 'default' ? 'action' : color} />
-        </ListItemIcon>
-        <ListItemText primary={utcToLocalFormat(props.due_date)} />
-        <ListItemText primary={<Typography color={'text.secondary'}>{displayDuration}</Typography>} />
-      </ListItem>
-    </List>;
+        <ListItem onClick={handleClick}>
+          <ListItemIcon>
+            <AlarmIcon color={color === 'default' ? 'action' : color} />
+          </ListItemIcon>
+          <ListItemText primary={utcToLocalFormat(props.due_date)} />
+          <ListItemText
+            primary={
+              <Typography color={'text.secondary'}>
+                {displayDuration}
+              </Typography>
+            }
+          />
+        </ListItem>
+      </List>
+    );
   } else {
     return (
-      <List component='nav' subheader={
-        <ListSubheader
-          sx={{ lineHeight: 1 }}
-          component='div'
-          id='late-submission-list-subheader'
-        >
-          Deadline
-        </ListSubheader>
-      }>
+      <List
+        component="nav"
+        subheader={
+          <ListSubheader
+            sx={{ lineHeight: 1 }}
+            component="div"
+            id="late-submission-list-subheader"
+          >
+            Deadline
+          </ListSubheader>
+        }
+      >
         <ListItemButton onClick={handleClick}>
           <ListItemIcon>
             <AlarmIcon color={color === 'default' ? 'action' : color} />
           </ListItemIcon>
           <ListItemText primary={utcToLocalFormat(props.due_date)} />
-          <ListItemText primary={<Typography color={'text.secondary'}>{displayDuration}</Typography>} />
+          <ListItemText
+            primary={
+              <Typography color={'text.secondary'}>
+                {displayDuration}
+              </Typography>
+            }
+          />
           <Typography
-            color={'text.secondary'}>{`${props.late_submissions.length} Extension${props.late_submissions.length !== 1 ? 's' : ''}`}</Typography>
+            color={'text.secondary'}
+          >{`${props.late_submissions.length} Extension${props.late_submissions.length !== 1 ? 's' : ''}`}</Typography>
           {open ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
-        <Collapse in={open} timeout='auto'>
+        <Collapse in={open} timeout="auto">
           <List
             dense
-            component='div'
+            component="div"
             disablePadding
             subheader={
               <ListSubheader
                 sx={{ lineHeight: 1 }}
-                component='div'
-                id='late-submission-list-subheader'
+                component="div"
+                id="late-submission-list-subheader"
               >
                 Extensions
               </ListSubheader>
@@ -303,15 +328,21 @@ export function DeadlineDetail(props: IDeadlineDetailProps) {
           >
             {props.late_submissions.map(l => {
               const p = moment.duration(l.period);
-              const outputDays = p.days() > 1 ? `Days` : `Day`;
-              const outputHours = p.hours() == 1 ? `Hour` : `Hours`;
-              return <ListItem sx={{ pl: 4 }}>
-                <ListItemIcon>
-                  <AlarmAddIcon />
-                </ListItemIcon>
-                <ListItemText primary={`${p.days()} ${outputDays} ${p.hours()} ${outputHours}`} />
-                <ListItemText primary={`Penalty: ${((1 - l.scaling) * 100).toFixed(1)}%`} />
-              </ListItem>;
+              const outputDays = p.days() > 1 ? 'Days' : 'Day';
+              const outputHours = p.hours() == 1 ? 'Hour' : 'Hours';
+              return (
+                <ListItem sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <AlarmAddIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`${p.days()} ${outputDays} ${p.hours()} ${outputHours}`}
+                  />
+                  <ListItemText
+                    primary={`Penalty: ${((1 - l.scaling) * 100).toFixed(1)}%`}
+                  />
+                </ListItem>
+              );
             })}
           </List>
         </Collapse>
@@ -319,4 +350,3 @@ export function DeadlineDetail(props: IDeadlineDetailProps) {
     );
   }
 }
-

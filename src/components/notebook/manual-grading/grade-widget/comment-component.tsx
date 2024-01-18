@@ -24,10 +24,10 @@ export const CommentComponent = (props: ICommentComponentProps) => {
   );
 
   return (
-    <span style={{marginRight: "16px"}}>
+    <span style={{ marginRight: '16px' }}>
       <textarea
-        style={{width: "calc(100% - 8px)"}}
-        placeholder='Comment'
+        style={{ width: 'calc(100% - 8px)' }}
+        placeholder="Comment"
         rows={1}
         value={comment}
         onChange={e => {

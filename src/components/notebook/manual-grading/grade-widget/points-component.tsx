@@ -26,8 +26,8 @@ export const PointsComponent = (props: IPointsComponentProps) => {
     <span style={{ marginRight: '16px' }}>
       Points:
       <input
-        style={{marginLeft: "4px"}}
-        type='number'
+        style={{ marginLeft: '4px' }}
+        type="number"
         value={points}
         max={props.toolData.points}
         min={0}
@@ -55,8 +55,8 @@ export const ExtraCreditComponent = (props: IPointsComponentProps) => {
     <span style={{ marginRight: '16px' }}>
       Extra Credit:
       <input
-        style={{marginLeft: "4px"}}
-        type='number'
+        style={{ marginLeft: '4px' }}
+        type="number"
         value={extraCredit}
         max={10000}
         min={0}

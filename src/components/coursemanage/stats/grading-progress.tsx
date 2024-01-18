@@ -1,7 +1,14 @@
 import { filterUserSubmissions, IStatsSubComponentProps } from './stats';
 import React from 'react';
 import { Submission } from '../../../model/submission';
-import { Box, Card, CardContent, CardHeader, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Paper,
+  Typography
+} from '@mui/material';
 import {
   Legend,
   PolarAngleAxis,
@@ -116,28 +123,36 @@ export const GradingProgress = (props: IStatsSubComponentProps) => {
           height: '70%'
         }}
       >
-          <Box sx={{ height: '100%'}}>
-            <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart
-                cx="50%"
-                cy="50%"
-                innerRadius="30%"
-                outerRadius="90%"
-                barSize={15}
-                data={data}
-              >
-                <PolarAngleAxis
-                  type="number"
-                  domain={[0, 1]}
-                  angleAxisId={0}
-                  tick={false}
-                />
-                <RadialBar background={{ fill: darkMode ? "#555" : "#eee" }} dataKey="value" angleAxisId={0} />
-                <Tooltip content={<GradingProgressTooltip />} />
-                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
-              </RadialBarChart>
-            </ResponsiveContainer>
-          </Box>
+        <Box sx={{ height: '100%' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <RadialBarChart
+              cx="50%"
+              cy="50%"
+              innerRadius="30%"
+              outerRadius="90%"
+              barSize={15}
+              data={data}
+            >
+              <PolarAngleAxis
+                type="number"
+                domain={[0, 1]}
+                angleAxisId={0}
+                tick={false}
+              />
+              <RadialBar
+                background={{ fill: darkMode ? '#555' : '#eee' }}
+                dataKey="value"
+                angleAxisId={0}
+              />
+              <Tooltip content={<GradingProgressTooltip />} />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+              />
+            </RadialBarChart>
+          </ResponsiveContainer>
+        </Box>
       </CardContent>
     </Card>
   );

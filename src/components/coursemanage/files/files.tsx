@@ -41,7 +41,12 @@ import moment from 'moment';
 import { openBrowser, openTerminal } from '../overview/util';
 import { PageConfig } from '@jupyterlab/coreutils';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
-import { IGitLogObject, getGitLog, getRemoteStatus, lectureBasePath } from '../../../services/file.service';
+import {
+  IGitLogObject,
+  getGitLog,
+  getRemoteStatus,
+  lectureBasePath
+} from '../../../services/file.service';
 import { RepoType } from '../../util/repo-type';
 import { enqueueSnackbar } from 'notistack';
 import { GitLogModal } from './git-log';
@@ -77,15 +82,23 @@ export const Files = (props: IFilesProps) => {
     );
   };
   const updateRemoteStatus = async () => {
-    let status = await getRemoteStatus(props.lecture, props.assignment, RepoType.SOURCE, true);
-    setRepoStatus(status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent');
+    const status = await getRemoteStatus(
+      props.lecture,
+      props.assignment,
+      RepoType.SOURCE,
+      true
+    );
+    setRepoStatus(
+      status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+    );
   };
   React.useEffect(() => {
     updateGitLog();
   }, [assignmentState]);
 
-
-  openBrowser(`${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`);
+  openBrowser(
+    `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
+  );
 
   const [repoStatus, setRepoStatus] = React.useState(
     null as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
@@ -127,13 +140,16 @@ export const Files = (props: IFilesProps) => {
       this
     );
 
-    getRemoteStatus(props.lecture, props.assignment, RepoType.SOURCE, true).then(
-      status => {
-        setRepoStatus(
-          status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
-        );
-      }
-    );
+    getRemoteStatus(
+      props.lecture,
+      props.assignment,
+      RepoType.SOURCE,
+      true
+    ).then(status => {
+      setRepoStatus(
+        status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+      );
+    });
   }, [props.assignment, props.lecture]);
 
   /**
@@ -166,7 +182,6 @@ export const Files = (props: IFilesProps) => {
       setSelectedDir(dir);
     }
   };
-
 
   /**
    * Pushes files to the source und release repo.
@@ -230,8 +245,8 @@ export const Files = (props: IFilesProps) => {
         <Chip
           sx={{ mb: 1.0 }}
           label={'Up To Date'}
-          color='success'
-          size='small'
+          color="success"
+          size="small"
           icon={<CheckIcon />}
         />
       );
@@ -240,8 +255,8 @@ export const Files = (props: IFilesProps) => {
         <Chip
           sx={{ mb: 1.0 }}
           label={'Pull Needed'}
-          color='warning'
-          size='small'
+          color="warning"
+          size="small"
           icon={<GetAppRoundedIcon />}
         />
       );
@@ -250,8 +265,8 @@ export const Files = (props: IFilesProps) => {
         <Chip
           sx={{ mb: 1.0 }}
           label={'Push Needed'}
-          color='warning'
-          size='small'
+          color="warning"
+          size="small"
           icon={<PublishRoundedIcon />}
         />
       );
@@ -260,8 +275,8 @@ export const Files = (props: IFilesProps) => {
         <Chip
           sx={{ mb: 1.0 }}
           label={'Divergent'}
-          color='error'
-          size='small'
+          color="error"
+          size="small"
           icon={<ErrorOutlineIcon />}
         />
       );
@@ -291,7 +306,8 @@ export const Files = (props: IFilesProps) => {
             console.error('Error cannot interpret unknown as error', err);
           }
         }
-      });
+      }
+    );
   };
 
   const newUntitled = async () => {
@@ -304,13 +320,22 @@ export const Files = (props: IFilesProps) => {
   };
 
   return (
-    <Card elevation={3} sx={{ overflowX: 'auto', m: 3, flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <Card
+      elevation={3}
+      sx={{
+        overflowX: 'auto',
+        m: 3,
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       <CardHeader
-        title='Files'
+        title="Files"
         titleTypographyProps={{ display: 'inline' }}
         action={
-          <Tooltip title='Reload'>
-            <IconButton aria-label='reload' onClick={() => reloadPage()}>
+          <Tooltip title="Reload">
+            <IconButton aria-label="reload" onClick={() => reloadPage()}>
               <ReplayIcon />
             </IconButton>
           </Tooltip>
@@ -326,12 +351,12 @@ export const Files = (props: IFilesProps) => {
       />
       <CardContent sx={{ overflow: 'auto' }}>
         <Tabs
-          variant='fullWidth'
+          variant="fullWidth"
           value={selectedDir}
           onChange={(e, dir) => handleSwitchDir(dir)}
         >
-          <Tab label='Source' value='source' />
-          <Tab label='Release' value='release' />
+          <Tab label="Source" value="source" />
+          <Tab label="Release" value="release" />
         </Tabs>
         <Box>
           <FilesList
@@ -348,11 +373,11 @@ export const Files = (props: IFilesProps) => {
           >
             <Button
               sx={{ mt: -1, mr: 1 }}
-              variant='outlined'
-              size='small'
+              variant="outlined"
+              size="small"
               color={isCommitOverwrite() ? 'error' : 'primary'}
             >
-              <PublishRoundedIcon fontSize='small' sx={{ mr: 1 }} />
+              <PublishRoundedIcon fontSize="small" sx={{ mr: 1 }} />
               Push
             </Button>
           </Tooltip>
@@ -366,21 +391,21 @@ export const Files = (props: IFilesProps) => {
             color={isPullOverwrite() ? 'error' : 'primary'}
             sx={{ mt: -1 }}
             onClick={() => handlePullAssignment()}
-            variant='outlined'
-            size='small'
+            variant="outlined"
+            size="small"
           >
-            <GetAppRoundedIcon fontSize='small' sx={{ mr: 1 }} />
+            <GetAppRoundedIcon fontSize="small" sx={{ mr: 1 }} />
             Pull
           </Button>
         </Tooltip>
         <Tooltip title={'Create new notebook.'}>
           <Button
-            variant='outlined'
-            size='small'
+            variant="outlined"
+            size="small"
             sx={{ mt: -1 }}
             onClick={newUntitled}
           >
-            <AddIcon fontSize='small' sx={{ mr: 1 }} />
+            <AddIcon fontSize="small" sx={{ mr: 1 }} />
             Add new
           </Button>
         </Tooltip>
@@ -390,7 +415,9 @@ export const Files = (props: IFilesProps) => {
             sx={{ mt: -1, pt: 0, pb: 0 }}
             color={'primary'}
             onClick={() =>
-              openBrowser(`${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`)
+              openBrowser(
+                `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
+              )
             }
           >
             <OpenInBrowserIcon />

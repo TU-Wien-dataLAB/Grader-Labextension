@@ -11,7 +11,8 @@ import {
   Step,
   StepContent,
   StepLabel,
-  Stepper, Tooltip,
+  Stepper,
+  Tooltip,
   Typography
 } from '@mui/material';
 import * as React from 'react';
@@ -28,7 +29,6 @@ import { Lecture } from '../../../model/lecture';
 import { enqueueSnackbar } from 'notistack';
 import { DeadlineComponent } from '../../util/deadline';
 import { showDialog } from '../../util/dialog-provider';
-
 
 /**
  * Props for AssignmentStatusComponent.
@@ -146,8 +146,8 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
             handleRelease={handleReleaseAssignment}
           >
             <Tooltip title={'Release Assignment for Students'}>
-              <Button sx={{ mt: 1 }} variant='outlined' size='small'>
-                <NewReleasesRoundedIcon fontSize='small' sx={{ mr: 1 }} />
+              <Button sx={{ mt: 1 }} variant="outlined" size="small">
+                <NewReleasesRoundedIcon fontSize="small" sx={{ mr: 1 }} />
                 Release
               </Button>
             </Tooltip>
@@ -179,10 +179,10 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
                   'Error Revoking Assignment'
                 )
               }
-              variant='outlined'
-              size='small'
+              variant="outlined"
+              size="small"
             >
-              <UndoIcon fontSize='small' sx={{ mr: 1 }} />
+              <UndoIcon fontSize="small" sx={{ mr: 1 }} />
               Undo Release
             </Button>
           </Tooltip>
@@ -190,10 +190,10 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
             <Button
               sx={{ mt: 1 }}
               onClick={() => completeAssignment()}
-              variant='outlined'
-              size='small'
+              variant="outlined"
+              size="small"
             >
-              <TaskIcon fontSize='small' sx={{ mr: 1 }} />
+              <TaskIcon fontSize="small" sx={{ mr: 1 }} />
               Complete
             </Button>
           </Tooltip>
@@ -220,10 +220,10 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
                   'Error Releasing Assignment'
                 )
               }
-              variant='outlined'
-              size='small'
+              variant="outlined"
+              size="small"
             >
-              <UndoIcon fontSize='small' sx={{ mr: 1 }} />
+              <UndoIcon fontSize="small" sx={{ mr: 1 }} />
               Undo Complete
             </Button>
           </Tooltip>
@@ -255,18 +255,19 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
         alignItems: { xs: 'center' },
         minWidth: '150px',
         overflowY: 'auto'
-      }}>
+      }}
+    >
       <Typography fontSize={24}> Overview </Typography>
       <Stepper
         activeStep={getActiveStep(assignment.status)}
-        orientation='vertical'
+        orientation="vertical"
       >
         {steps.map((step, index) => (
           <Step key={step.label}>
             <StepLabel
               optional={
                 index === 2 ? (
-                  <Typography variant='caption'>Last step</Typography>
+                  <Typography variant="caption">Last step</Typography>
                 ) : null
               }
             >
@@ -281,11 +282,12 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
         ))}
       </Stepper>
       <Typography sx={{ mt: 5, fontSize: 24 }}> Deadline </Typography>
-      <DeadlineComponent due_date={props.assignment.due_date}
-                         compact={false}
-                         component={'chip'}
-                         sx={{ mt: 2 }} />
+      <DeadlineComponent
+        due_date={props.assignment.due_date}
+        compact={false}
+        component={'chip'}
+        sx={{ mt: 2 }}
+      />
     </Box>
-
   );
 };
