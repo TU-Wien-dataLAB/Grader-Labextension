@@ -28,7 +28,9 @@
 .collapse-icon {
   float: right;
   color: var(--text-color);
-  transition: transform .2s cubic-bezier(.4,1,.75,.9), -webkit-transform .2s cubic-bezier(.4,1,.75,.9);
+  transition:
+    transform 0.2s cubic-bezier(0.4, 1, 0.75, 0.9),
+    -webkit-transform 0.2s cubic-bezier(0.4, 1, 0.75, 0.9);
 }
 
 .collapse-icon-open {
