@@ -6,7 +6,6 @@
 
 import * as React from 'react';
 import { Badge, Box, Stack, Tab, Tabs } from '@mui/material';
-import PropTypes from 'prop-types';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FolderIcon from '@mui/icons-material/Folder';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
@@ -16,9 +15,8 @@ import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { Submission } from '../../model/submission';
 import { Link, Outlet, useMatch, useParams, useRouteLoaderData } from 'react-router-dom';
-import { useRef } from 'react';
 
-function a11yProps(index) {
+function a11yProps(index: any) {
   return {
     id: `vertical-tab-${index}`,
     'aria-controls': `vertical-tabpanel-${index}`
@@ -26,11 +24,6 @@ function a11yProps(index) {
 }
 
 export const AssignmentModalComponent = () => {
-  const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
-    lecture: Lecture,
-    assignments: Assignment[],
-    users: { instructors: string[], tutors: string[], students: string[] }
-  };
   const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData('assignment') as {
     assignment: Assignment,
     allSubmissions: Submission[],
@@ -68,9 +61,9 @@ export const AssignmentModalComponent = () => {
           sx={{ borderRight: 1, borderColor: 'divider', minWidth: '200px', marginTop: 5 }}
         >
           <Tab label='Overview' icon={<DashboardIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-               {...a11yProps(0)} component={Link as any} to={''} />
+            {...a11yProps(0)} component={Link as any} to={''} />
           <Tab label='Files' icon={<FolderIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-               {...a11yProps(1)} component={Link as any} to={'files'} />
+            {...a11yProps(1)} component={Link as any} to={'files'} />
           <Tab label='Submissions' icon={
             <Badge
               color='secondary'
@@ -80,12 +73,12 @@ export const AssignmentModalComponent = () => {
               <FormatListNumberedIcon />
             </Badge>
           }
-               iconPosition='start' sx={{ justifyContent: 'flex-start' }} {...a11yProps(2)} component={Link as any}
-               to={'submissions'} />
+            iconPosition='start' sx={{ justifyContent: 'flex-start' }} {...a11yProps(2)} component={Link as any}
+            to={'submissions'} />
           <Tab label='Stats' icon={<QueryStatsIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-               {...a11yProps(3)} component={Link as any} to={'stats'} />
+            {...a11yProps(3)} component={Link as any} to={'stats'} />
           <Tab label='Settings' icon={<SettingsIcon />} iconPosition='start' sx={{ justifyContent: 'flex-start' }}
-               {...a11yProps(4)} component={Link as any} to={'settings'} />
+            {...a11yProps(4)} component={Link as any} to={'settings'} />
         </Tabs>
         <Box sx={{ display: "flex", flexGrow: 1, overflow: 'hidden' }}>
           <Outlet />

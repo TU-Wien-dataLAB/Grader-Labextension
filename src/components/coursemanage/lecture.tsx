@@ -5,45 +5,26 @@
 // LICENSE file in the root directory of this source tree.
 
 import {
-  Button, IconButton,
+  IconButton,
   Card,
-  CardActions,
-  CardContent,
-  Collapse,
-  Grid,
   LinearProgress, Stack, TableCell, TableRow,
   Typography,
-  Box, Tooltip
+  Tooltip
 } from '@mui/material';
 import * as React from 'react';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
-import {
-  createAssignment, deleteAssignment,
-  getAllAssignments
-} from '../../services/assignments.service';
+import { deleteAssignment } from '../../services/assignments.service';
 import { CreateDialog, EditLectureDialog } from '../util/dialog';
-import {
-  getLecture,
-  getUsers,
-  updateLecture
-} from '../../services/lectures.service';
+import { updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
-import {
-  deleteKey,
-  loadBoolean,
-  storeBoolean
-} from '../../services/storage.service';
 import { useNavigate, useNavigation, useRouteLoaderData } from 'react-router-dom';
 import { ButtonTr, GraderTable } from '../util/table';
 import { DeadlineComponent } from '../util/deadline';
-import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
-import { useEffect } from 'react';
-import { Submission } from '../../model/submission';
 
 
 interface IAssignmentTableProps {
@@ -119,9 +100,9 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                         e.stopPropagation();
                       }}
                     >
-                    <CloseIcon
-                      sx={{ color: (row.status === 'released' || row.status === 'complete') ? grey[500] : red[500] }} />
-                  </IconButton>
+                      <CloseIcon
+                        sx={{ color: (row.status === 'released' || row.status === 'complete') ? grey[500] : red[500] }} />
+                    </IconButton>
                   </span>
                 </Tooltip>
               </TableCell>
@@ -135,7 +116,7 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
 
 
 export const LectureComponent = () => {
-  const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
+  const { lecture, assignments } = useRouteLoaderData('lecture') as {
     lecture: Lecture,
     assignments: Assignment[],
     users: { instructors: string[], tutors: string[], students: string[] }

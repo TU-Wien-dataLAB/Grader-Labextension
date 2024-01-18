@@ -9,7 +9,7 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { closeSnackbar, SnackbarProvider } from 'notistack';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { getRoutes } from '../components/coursemanage/routes';
-import { Box, Typography, AppBar, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import { loadString } from '../services/storage.service';
 import { Router } from '@remix-run/router';
 import { DialogProvider } from '../components/util/dialog-provider';
@@ -50,14 +50,14 @@ export class CourseManageView extends ReactWidget {
       <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
         <CssBaseline />
         <SnackbarProvider maxSnack={3}
-                          // the parent of the parent is the main dock panel in JupyterLab
-                          domRoot={this.node.parentNode.parentElement}
-                          action={(snackbarId) => (
-                            <Button variant='outlined' size='small' style={{ color: 'white', borderColor: 'white' }}
-                                    onClick={() => closeSnackbar(snackbarId)}>
-                              Dismiss
-                            </Button>
-                          )}>
+          // the parent of the parent is the main dock panel in JupyterLab
+          domRoot={this.node.parentNode.parentElement}
+          action={(snackbarId) => (
+            <Button variant='outlined' size='small' style={{ color: 'white', borderColor: 'white' }}
+              onClick={() => closeSnackbar(snackbarId)}>
+              Dismiss
+            </Button>
+          )}>
           <DialogProvider>
             <RouterProvider router={this.router} />
           </DialogProvider>
