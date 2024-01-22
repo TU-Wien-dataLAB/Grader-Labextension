@@ -19,7 +19,7 @@
 }
 
 .cell-error {
-  background-color: rgb(255, 112, 112);
+  background-color: rgb(255 112 112);
 }
 
 .nbgrader-NotebookPanelWidget {
@@ -51,7 +51,7 @@
   color: var(--jp-ui-font-color0);
   border: var(--jp-border-width) solid var(--jp-border-color1);
   flex: 1 1 auto;
-  padding: 0 8px 0 8px;
+  padding: 0 8px;
   outline: none;
 }
 
@@ -90,7 +90,7 @@
   color: var(--jp-ui-font-color0);
   border: var(--jp-border-width) solid var(--jp-border-color1);
   flex: 1 1 auto;
-  padding: 0 8px 0 8px;
+  padding: 0 8px;
   outline: none;
 }
 
@@ -154,14 +154,14 @@
   color: white;
 }
 
+.nbgrader-LockButton {
+  opacity: 0;
+}
+
 .nbgrader-CellHeader > .nbgrader-LockButton {
   margin: auto 0;
   padding: 0.25em;
   cursor: default;
-}
-
-.nbgrader-LockButton {
-  opacity: 0;
 }
 
 .nbgrader-LockButton.nbgrader-mod-locked {

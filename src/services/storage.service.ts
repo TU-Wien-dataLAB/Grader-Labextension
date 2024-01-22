@@ -1,14 +1,18 @@
-import {Lecture} from "../model/lecture";
-import {Assignment} from "../model/assignment";
+import { Lecture } from '../model/lecture';
+import { Assignment } from '../model/assignment';
 
-function getKey(key: string, lecture?: Lecture, assignment?: Assignment): string {
+function getKey(
+  key: string,
+  lecture?: Lecture,
+  assignment?: Assignment
+): string {
   if (lecture) {
     key = key + `-l${lecture.id}`;
   }
   if (assignment) {
     key = key + `-a${assignment.id}`;
   }
-  return "grader:" + key
+  return 'grader:' + key;
 }
 
 export function deleteKey(key: string) {
@@ -16,34 +20,61 @@ export function deleteKey(key: string) {
   localStorage.removeItem(key);
 }
 
-export function storeString(key: string, value: string, lecture?: Lecture, assignment?: Assignment): void {
+export function storeString(
+  key: string,
+  value: string,
+  lecture?: Lecture,
+  assignment?: Assignment
+): void {
   key = getKey(key, lecture, assignment);
   localStorage.setItem(key, value);
 }
 
-export function loadString(key: string, lecture?: Lecture, assignment?: Assignment): string | null {
+export function loadString(
+  key: string,
+  lecture?: Lecture,
+  assignment?: Assignment
+): string | null {
   key = getKey(key, lecture, assignment);
   return localStorage.getItem(key);
 }
 
-export function storeBoolean(key: string, value: boolean, lecture?: Lecture, assignment?: Assignment): void {
-  storeString(key, String(value), lecture, assignment)
+export function storeBoolean(
+  key: string,
+  value: boolean,
+  lecture?: Lecture,
+  assignment?: Assignment
+): void {
+  storeString(key, String(value), lecture, assignment);
 }
 
-export function loadBoolean(key: string, lecture?: Lecture, assignment?: Assignment): boolean | null {
+export function loadBoolean(
+  key: string,
+  lecture?: Lecture,
+  assignment?: Assignment
+): boolean | null {
   const v = loadString(key, lecture, assignment);
   if (v === null) {
     return null;
   } else {
-    return v === "true";
+    return v === 'true';
   }
 }
 
-export function storeNumber(key: string, value: number, lecture?: Lecture, assignment?: Assignment): void {
+export function storeNumber(
+  key: string,
+  value: number,
+  lecture?: Lecture,
+  assignment?: Assignment
+): void {
   storeString(key, String(value), lecture, assignment);
 }
 
-export function loadNumber(key: string, lecture?: Lecture, assignment?: Assignment): number | null {
+export function loadNumber(
+  key: string,
+  lecture?: Lecture,
+  assignment?: Assignment
+): number | null {
   const v = loadString(key, lecture, assignment);
   if (v === null) {
     return null;
@@ -52,11 +83,19 @@ export function loadNumber(key: string, lecture?: Lecture, assignment?: Assignme
   }
 }
 
-export function storeObject<T>(key: string, value: T, lecture?: Lecture, assignment?: Assignment): void {
+export function storeObject<T>(
+  key: string,
+  value: T,
+  lecture?: Lecture,
+  assignment?: Assignment
+): void {
   storeString(key, JSON.stringify(value), lecture, assignment);
 }
 
-export function loadObject<T>(key: string, lecture?: Lecture, assignment?: Assignment): T | null {
+export function loadObject<T>(
+  key: string,
+  lecture?: Lecture,
+  assignment?: Assignment
+): T | null {
   return JSON.parse(loadString(key, lecture, assignment));
 }
-

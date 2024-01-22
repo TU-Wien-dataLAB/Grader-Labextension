@@ -26,7 +26,7 @@ export class AssignmentManageView extends ReactWidget {
 
   constructor(options: AssignmentManageView.IOptions = {}) {
     super();
-    this.id = options.id || "assignment-view";
+    this.id = options.id || 'assignment-view';
     this.addClass('GradingWidget');
 
     const savedPath = loadString('assignment-manage-react-router-path');
@@ -38,10 +38,10 @@ export class AssignmentManageView extends ReactWidget {
     this.router = createMemoryRouter(getRoutes(), { initialEntries: [path] });
 
     const themeManager = GlobalObjects.themeManager;
-    this.theme = (themeManager.isLight(themeManager.theme)) ? 'light' : 'dark';
+    this.theme = themeManager.isLight(themeManager.theme) ? 'light' : 'dark';
 
     themeManager.themeChanged.connect(() => {
-      this.theme = (themeManager.isLight(themeManager.theme)) ? 'light' : 'dark';
+      this.theme = themeManager.isLight(themeManager.theme) ? 'light' : 'dark';
     }, this);
   }
 
@@ -49,15 +49,21 @@ export class AssignmentManageView extends ReactWidget {
     return (
       <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
         <CssBaseline />
-        <SnackbarProvider maxSnack={3}
-                          // the parent of the parent is the main dock panel in JupyterLab
-                          domRoot={this.node.parentNode.parentElement}
-                          action={(snackbarId) => (
-                            <Button variant='outlined' size='small' style={{ color: 'white', borderColor: 'white' }}
-                                    onClick={() => closeSnackbar(snackbarId)}>
-                              Dismiss
-                            </Button>
-                          )}>
+        <SnackbarProvider
+          maxSnack={3}
+          // the parent of the parent is the main dock panel in JupyterLab
+          domRoot={this.node.parentNode.parentElement}
+          action={snackbarId => (
+            <Button
+              variant="outlined"
+              size="small"
+              style={{ color: 'white', borderColor: 'white' }}
+              onClick={() => closeSnackbar(snackbarId)}
+            >
+              Dismiss
+            </Button>
+          )}
+        >
           <DialogProvider>
             <RouterProvider router={this.router} />
           </DialogProvider>

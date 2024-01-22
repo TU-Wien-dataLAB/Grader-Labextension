@@ -6,19 +6,19 @@ import {
   ListItemText,
   Tooltip,
   Stack,
-  Typography,
+  Typography
 } from '@mui/material';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import WarningIcon from '@mui/icons-material/Warning';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Contents } from '@jupyterlab/services';
 import DangerousIcon from '@mui/icons-material/Dangerous';
-import {File, getRelativePathAssignment} from '../../services/file.service';
+import { File, getRelativePathAssignment } from '../../services/file.service';
 
 interface IFileItemProps {
   file: File;
   inContained: (file: string) => boolean;
-  missingFiles?: File[],
+  missingFiles?: File[];
   extraFileHelp: string;
   missingFileHelp: string;
   openFile: (path: string) => void;
@@ -32,11 +32,10 @@ const FileItem = ({
   missingFileHelp,
   openFile,
   allowFiles,
-  missingFiles,
+  missingFiles
 }: IFileItemProps) => {
-
   const inMissing = (filePath: string) => {
-    return missingFiles.some((missingFile) => missingFile.path === filePath);
+    return missingFiles.some(missingFile => missingFile.path === filePath);
   };
 
   //console.log("Missing files (file-item): " + missingFiles.map(f => f.path));
@@ -44,13 +43,12 @@ const FileItem = ({
     <ListItem disablePadding>
       <ListItemButton onClick={() => openFile(file.path)} dense={true}>
         <ListItemIcon>
-          <KeyboardArrowRightIcon sx={{visibility:'hidden'}}/>
+          <KeyboardArrowRightIcon sx={{ visibility: 'hidden' }} />
           <InsertDriveFileRoundedIcon />
         </ListItemIcon>
-        <ListItemText 
+        <ListItemText
           primary={<Typography>{file.name}</Typography>}
-          secondary=
-          {
+          secondary={
             <Stack direction={'row'} spacing={2}>
               {inMissing(file.path) && (
                 <Tooltip title={missingFileHelp}>
@@ -63,19 +61,22 @@ const FileItem = ({
                 </Tooltip>
               )}
               {
-            <Stack direction={'row'} spacing={2}>
-              {!inContained(getRelativePathAssignment(file.path)) && !allowFiles && (
-                <Tooltip title={extraFileHelp}>
-                  <Stack direction={'row'} spacing={2} flex={0}>
-                    <WarningIcon color={'warning'} fontSize={'small'} />
-                    <Typography sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}>
-                      Extra File
-                    </Typography>
-                  </Stack>
-                </Tooltip>
-              )}
-            </Stack>
-          }
+                <Stack direction={'row'} spacing={2}>
+                  {!inContained(getRelativePathAssignment(file.path)) &&
+                    !allowFiles && (
+                      <Tooltip title={extraFileHelp}>
+                        <Stack direction={'row'} spacing={2} flex={0}>
+                          <WarningIcon color={'warning'} fontSize={'small'} />
+                          <Typography
+                            sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
+                          >
+                            Extra File
+                          </Typography>
+                        </Stack>
+                      </Tooltip>
+                    )}
+                </Stack>
+              }
             </Stack>
           }
         />

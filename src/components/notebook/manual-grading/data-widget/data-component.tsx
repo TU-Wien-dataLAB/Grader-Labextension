@@ -25,24 +25,20 @@ export const DataComponent = (props: IDataComponentProps) => {
     toolData.type !== '';
 
   return (
-    <div style={{ 'margin': '16px 0px 8px 72px' }}>
-      <span style={{marginRight: "16px"}}>
-        Type: {toolData.type}
-      </span>
+    <div style={{ margin: '16px 0px 8px 72px' }}>
+      <span style={{ marginRight: '16px' }}>Type: {toolData.type}</span>
 
-      <span style={{marginRight: "16px"}}>
-        ID: {toolData.id}
-      </span>
+      <span style={{ marginRight: '16px' }}>ID: {toolData.id}</span>
 
       {toolData.type === 'tests' && (
-        <span style={{marginRight: "16px"}}>
-            Autograded Points:{' '}
+        <span style={{ marginRight: '16px' }}>
+          Autograded Points:{' '}
           {props.gradebook.getAutoGradeScore(props.nbname, toolData.id)}
         </span>
       )}
 
       {gradableCell && (
-        <span style={{marginRight: "16px"}}>
+        <span style={{ marginRight: '16px' }}>
           Max Points: {toolData.points}
         </span>
       )}

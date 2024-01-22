@@ -8,10 +8,10 @@ import {
   Stack,
   Tooltip,
   Typography,
-  List,
+  List
 } from '@mui/material';
 import { Contents } from '@jupyterlab/services';
-import IModel = Contents.IModel; 
+import IModel = Contents.IModel;
 import FolderIcon from '@mui/icons-material/Folder';
 import FileItem from './file-item';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -28,7 +28,6 @@ interface IFolderItemProps {
   missingFileHelp: string;
 }
 
-
 const FolderItem = ({
   folder,
   missingFiles,
@@ -43,7 +42,10 @@ const FolderItem = ({
   const [nestedFiles, setNestedFiles] = useState([]);
 
   const missingFilesByDirectory = missingFiles.reduce((acc, missingFile) => {
-    const directoryPath = missingFile.path.substring(0, missingFile.path.lastIndexOf("/"));
+    const directoryPath = missingFile.path.substring(
+      0,
+      missingFile.path.lastIndexOf('/')
+    );
     if (!acc[directoryPath]) {
       acc[directoryPath] = [];
     }
@@ -55,9 +57,10 @@ const FolderItem = ({
     if (!open) {
       try {
         const nestedFiles = await getFiles(folder.path);
-        const missingFilesForDirectory = missingFilesByDirectory[folder.path] || [];
+        const missingFilesForDirectory =
+          missingFilesByDirectory[folder.path] || [];
         // Update nested files with missing files if there are any that should be in this folder
-        const folderContents = nestedFiles.concat(missingFilesForDirectory); 
+        const folderContents = nestedFiles.concat(missingFilesForDirectory);
         setNestedFiles(folderContents);
       } catch (error) {
         console.error('Error fetching nested files:', error);
@@ -73,48 +76,41 @@ const FolderItem = ({
       <ListItem disablePadding>
         <ListItemButton onClick={handleToggle} dense={true}>
           <ListItemIcon>
-          {open ? (
-              <KeyboardArrowUpIcon />
-            ) : (
-              <KeyboardArrowRightIcon />
-            )}
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowRightIcon />}
             <FolderIcon />
           </ListItemIcon>
-          <ListItemText
-            primary={<Typography>{folder.name}</Typography>}
-          />
+          <ListItemText primary={<Typography>{folder.name}</Typography>} />
         </ListItemButton>
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <List sx={{ml: 3}}>
-        {nestedFiles.length > 0 &&
-          nestedFiles.map((file) =>
-            file.type === 'directory' ? (
-              <FolderItem
-                key={file.path}
-                folder={file}
-                missingFiles={missingFiles || []}
-                missingFileHelp={missingFileHelp}
-                inContained={inContained}
-                openFile={openFile}
-                allowFiles={allowFiles}
-                extraFileHelp={extraFileHelp}
-              />
-            ) : (
-              <FileItem
-                key={file.path}
-                file={file}
-                missingFiles={missingFiles || []}
-                missingFileHelp={missingFileHelp}
-                inContained={inContained}
-                extraFileHelp={extraFileHelp}
-                openFile={openFile}
-                allowFiles={allowFiles}   
-              />
-            )
-          )}
+        <List sx={{ ml: 3 }}>
+          {nestedFiles.length > 0 &&
+            nestedFiles.map(file =>
+              file.type === 'directory' ? (
+                <FolderItem
+                  key={file.path}
+                  folder={file}
+                  missingFiles={missingFiles || []}
+                  missingFileHelp={missingFileHelp}
+                  inContained={inContained}
+                  openFile={openFile}
+                  allowFiles={allowFiles}
+                  extraFileHelp={extraFileHelp}
+                />
+              ) : (
+                <FileItem
+                  key={file.path}
+                  file={file}
+                  missingFiles={missingFiles || []}
+                  missingFileHelp={missingFileHelp}
+                  inContained={inContained}
+                  extraFileHelp={extraFileHelp}
+                  openFile={openFile}
+                  allowFiles={allowFiles}
+                />
+              )
+            )}
         </List>
-     
       </Collapse>
     </>
   );

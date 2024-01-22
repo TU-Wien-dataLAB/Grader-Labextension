@@ -9,7 +9,14 @@ import {
   TooltipProps,
   Brush
 } from 'recharts';
-import { Box, Card, CardContent, CardHeader, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Paper,
+  Typography
+} from '@mui/material';
 import { IStatsSubComponentProps } from './stats';
 import moment from 'moment';
 import { Submission } from '../../../model/submission';
@@ -81,13 +88,11 @@ export const SubmissionTimeSeries = (props: IStatsSubComponentProps) => {
   return (
     <Card sx={{ height: 300, width: '100%' }}>
       <CardHeader title={'Submissions'} />
-      <CardContent
-          sx={{height:'70%'}}
-      >
+      <CardContent sx={{ height: '70%' }}>
         {data.length === 0 ? (
           <Typography color={'text.secondary'}>No Data Available</Typography>
         ) : (
-          <Box sx={{ height: '100%'}}>
+          <Box sx={{ height: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 height={150}
@@ -103,7 +108,11 @@ export const SubmissionTimeSeries = (props: IStatsSubComponentProps) => {
                 <defs>
                   <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={'#0088FE'} stopOpacity={0.8} />
-                    <stop offset="95%" stopColor={'#0088FE'} stopOpacity={0.2} />
+                    <stop
+                      offset="95%"
+                      stopColor={'#0088FE'}
+                      stopOpacity={0.2}
+                    />
                   </linearGradient>
                 </defs>
                 <XAxis
@@ -126,8 +135,11 @@ export const SubmissionTimeSeries = (props: IStatsSubComponentProps) => {
                 <Brush
                   height={15}
                   startIndex={
-                    loadNumber('stats-sub-brush-start', null, props.assignment) ||
-                    0
+                    loadNumber(
+                      'stats-sub-brush-start',
+                      null,
+                      props.assignment
+                    ) || 0
                   }
                   onChange={e => {
                     storeNumber(
@@ -138,7 +150,7 @@ export const SubmissionTimeSeries = (props: IStatsSubComponentProps) => {
                     );
                   }}
                   fill={darkMode ? '#333' : '#eee'}
-                  stroke={darkMode ? "#fff": "#666"}
+                  stroke={darkMode ? '#fff' : '#666'}
                   fillOpacity={darkMode ? 0.4 : 0.2}
                 />
               </AreaChart>

@@ -39,13 +39,13 @@
   justify-content: center;
   padding: 3px;
   border-radius: 50%;
-  box-shadow: 0 7.5px 20px rgba(51, 51, 51, 0.1);
+  box-shadow: 0 7.5px 20px rgb(51 51 51 / 10%);
   transition: 0.2s ease-in-out all;
-  background-color: #cccccc;
+  background-color: #ccc;
 }
 
 .cellPlayButton:hover .cellPlayButton-icon {
-  box-shadow: 0 7.5px 20px rgba(51, 51, 51, 0.5);
+  box-shadow: 0 7.5px 20px rgb(51 51 51 / 50%);
 }
 
 .elementToFadeInAndOut {
@@ -61,13 +61,15 @@
   animation: fadeinout 0.7s linear forwards;
 }
 
-@-webkit-keyframes fadeinout {
+@keyframes fadeinout {
   0% {
     opacity: 0.6;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 0;
   }
@@ -77,9 +79,11 @@
   0% {
     opacity: 0.6;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 0;
   }
@@ -90,13 +94,15 @@
   animation: display 0.7s linear forwards;
 }
 
-@-webkit-keyframes display {
+@keyframes display {
   0% {
     opacity: 0.2;
   }
+
   50% {
     opacity: 0.6;
   }
+
   100% {
     opacity: 1;
   }
@@ -106,9 +112,11 @@
   0% {
     opacity: 0.2;
   }
+
   50% {
     opacity: 0.6;
   }
+
   100% {
     opacity: 1;
   }

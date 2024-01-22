@@ -7,10 +7,7 @@
 import * as React from 'react';
 import { Cell } from '@jupyterlab/cells';
 import { CellModel, CellType } from '../model';
-import {
-  Alert
-} from '@mui/material';
-
+import { Alert } from '@mui/material';
 
 export interface ICreationComponentProps {
   cell: Cell;
@@ -67,7 +64,7 @@ export const CreationComponent = (props: ICreationComponentProps) => {
     updateMetadata();
   });
 
-  const alertStyle = { width: "100%", mt: 2 };
+  const alertStyle = { width: '100%', mt: 2 };
   const gradableCell =
     type !== ('readonly' as CellType) &&
     type !== ('solution' as CellType) &&
@@ -75,7 +72,10 @@ export const CreationComponent = (props: ICreationComponentProps) => {
   const solutionCell = type === 'solution' || type === 'manual';
 
   return (
-    <div className={"creation-container"} style={{ marginTop: '16px', marginBottom: '8px', marginLeft: '24px' }}>
+    <div
+      className={'creation-container'}
+      style={{ marginTop: '16px', marginBottom: '8px', marginLeft: '24px' }}
+    >
       <style>{`
         input:invalid { border: 1px solid red; border-radius: 2px; background: rgba(255,0,0,0.2); }
         .creation-container > span > * { margin-right: 16px; }
@@ -88,17 +88,17 @@ export const CreationComponent = (props: ICreationComponentProps) => {
             setType(e.target.value as CellType);
           }}
         >
-          <option value=''>-</option>
-          <option value='readonly'>Readonly</option>
+          <option value="">-</option>
+          <option value="readonly">Readonly</option>
           {props.cell.model.type === 'code' && (
-            <option value='solution'>Autograded answer</option>
+            <option value="solution">Autograded answer</option>
           )}
           {props.cell.model.type === 'code' && (
-            <option value='tests'>Autograded tests</option>
+            <option value="tests">Autograded tests</option>
           )}
-          <option value='manual'>Manual graded answer</option>
+          <option value="manual">Manual graded answer</option>
           {props.cell.model.type === 'markdown' && (
-            <option value='task'>Manual graded task</option>
+            <option value="task">Manual graded task</option>
           )}
         </select>
       </span>
@@ -106,16 +106,16 @@ export const CreationComponent = (props: ICreationComponentProps) => {
       {type !== '' && (
         <span>
           <input
-            placeholder='ID'
+            placeholder="ID"
             type={'text'}
             value={id}
             onChange={e => setId(e.target.value)}
             required
-          // onInput={(event) => {
-          //   const input = event.currentTarget;
-          //   input.setCustomValidity(input.value === '' ? 'Cell ID is required' : '');
-          //   input.reportValidity();
-          // }}
+            // onInput={(event) => {
+            //   const input = event.currentTarget;
+            //   input.setCustomValidity(input.value === '' ? 'Cell ID is required' : '');
+            //   input.reportValidity();
+            // }}
           ></input>
         </span>
       )}
@@ -124,9 +124,9 @@ export const CreationComponent = (props: ICreationComponentProps) => {
         <span>
           Points:
           <input
-            placeholder='Points'
+            placeholder="Points"
             value={points}
-            type='number'
+            type="number"
             max={10000}
             min={0}
             step={0.25}
@@ -150,7 +150,7 @@ export const CreationComponent = (props: ICreationComponentProps) => {
       {solutionCell && (
         <span>
           <input
-            placeholder='Optional hint'
+            placeholder="Optional hint"
             value={hint}
             disabled={!hintChecked}
             onChange={e => setHint(e.target.value)}
@@ -160,7 +160,7 @@ export const CreationComponent = (props: ICreationComponentProps) => {
 
       {type === '' && (
         <span>
-          <Alert variant='outlined' sx={alertStyle} severity='warning'>
+          <Alert variant="outlined" sx={alertStyle} severity="warning">
             Type not set
           </Alert>
         </span>
@@ -168,7 +168,7 @@ export const CreationComponent = (props: ICreationComponentProps) => {
 
       {points === 0 && (
         <span>
-          <Alert variant='outlined' sx={alertStyle} severity='warning'>
+          <Alert variant="outlined" sx={alertStyle} severity="warning">
             Gradable cell with zero points
           </Alert>
         </span>

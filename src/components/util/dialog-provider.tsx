@@ -1,14 +1,29 @@
 import * as React from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { enqueueSnackbar } from 'notistack';
 
 interface ProviderContext {
-  showDialog: (title: string, message: string, onAgree: (() => Promise<void>) | (() => void)) => void;
+  showDialog: (
+    title: string,
+    message: string,
+    onAgree: (() => Promise<void>) | (() => void)
+  ) => void;
 }
 
 const DialogContext = React.createContext<ProviderContext>({
-  showDialog: (title: string, message: string, onAgree: (() => Promise<void>) | (() => void)) => {
+  showDialog: (
+    title: string,
+    message: string,
+    onAgree: (() => Promise<void>) | (() => void)
+  ) => {
     return;
   }
 });
@@ -24,9 +39,15 @@ export const DialogProvider = (props: IDialogProviderProps) => {
   const [open, setOpen] = React.useState(false);
   const [title, setTitle] = React.useState('');
   const [message, setMessage] = React.useState('');
-  const [onAgree, setOnAgree] = React.useState<(() => Promise<void>) | (() => void)>(undefined);
+  const [onAgree, setOnAgree] = React.useState<
+    (() => Promise<void>) | (() => void)
+  >(undefined);
 
-  showDialog = (title: string, message: string, onAgree: (() => Promise<void>) | (() => void)) => {
+  showDialog = (
+    title: string,
+    message: string,
+    onAgree: (() => Promise<void>) | (() => void)
+  ) => {
     setTitle(title);
     setMessage(message);
     setOnAgree(() => onAgree);
@@ -41,12 +62,12 @@ export const DialogProvider = (props: IDialogProviderProps) => {
         open={open}
         onClose={closeDialog}
         onBackdropClick={closeDialog}
-        aria-labelledby='alert-dialog-title'
-        aria-describedby='alert-dialog-description'
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id='alert-dialog-title'>{title}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
         <DialogContent>
-          <DialogContentText id='alert-dialog-description'>
+          <DialogContentText id="alert-dialog-description">
             {message}
           </DialogContentText>
         </DialogContent>
@@ -60,8 +81,8 @@ export const DialogProvider = (props: IDialogProviderProps) => {
               try {
                 await onAgree();
               } catch (e: any) {
-                const m = (e?.message) ? e?.message : "An Error occurred!";
-                enqueueSnackbar("error", m);
+                const m = e?.message ? e?.message : 'An Error occurred!';
+                enqueueSnackbar('error', m);
               }
 
               setLoading(false);
@@ -77,4 +98,3 @@ export const DialogProvider = (props: IDialogProviderProps) => {
     </DialogContext.Provider>
   );
 };
-

@@ -63,7 +63,7 @@ export const SubmissionList = (props: ISubmissionListProps) => {
               value.feedback_available ? (
                 <Button
                   startIcon={<ChatRoundedIcon />}
-                  size='small'
+                  size="small"
                   onClick={() => navigate(`feedback/${value.id}`)}
                 >
                   Open feedback
@@ -89,7 +89,7 @@ export const SubmissionList = (props: ISubmissionListProps) => {
 
   return (
     <Paper elevation={0} sx={props.sx}>
-      <Card sx={{ mt: 1 }} variant='outlined'>
+      <Card sx={{ mt: 1 }} variant="outlined">
         {props.submissions.length === 0 ? (
           <Typography variant={'body1'} color={grey[500]} sx={{ ml: 1 }}>
             No Submissions Yet

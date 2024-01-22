@@ -11,11 +11,14 @@ export function createLecture(lecture: Lecture): Promise<Lecture> {
   return request<Lecture>(HTTPMethod.POST, '/lectures', lecture);
 }
 
-export function getAllLectures(complete: boolean = false, reload = false): Promise<Lecture[]> {
+export function getAllLectures(
+  complete: boolean = false,
+  reload = false
+): Promise<Lecture[]> {
   let url = '/lectures';
   if (complete) {
-    let searchParams = new URLSearchParams({
-      'complete': String(complete)
+    const searchParams = new URLSearchParams({
+      complete: String(complete)
     });
     url += '?' + searchParams;
   }
@@ -23,10 +26,17 @@ export function getAllLectures(complete: boolean = false, reload = false): Promi
 }
 
 export function updateLecture(lecture: Lecture): Promise<Lecture> {
-  return request<Lecture, Lecture>(HTTPMethod.PUT, `/lectures/${lecture.id}`, lecture);
+  return request<Lecture, Lecture>(
+    HTTPMethod.PUT,
+    `/lectures/${lecture.id}`,
+    lecture
+  );
 }
 
-export function getLecture(lectureId: number, reload = false): Promise<Lecture> {
+export function getLecture(
+  lectureId: number,
+  reload = false
+): Promise<Lecture> {
   return request<Lecture>(HTTPMethod.GET, `/lectures/${lectureId}`, reload);
 }
 
@@ -34,10 +44,12 @@ export function deleteLecture(lectureId: number): void {
   request<void>(HTTPMethod.DELETE, `/lectures/${lectureId}`);
 }
 
-export function getUsers(lectureId: number): Promise<{ instructors: string[], tutors: string[], students: string[] }> {
+export function getUsers(
+  lectureId: number
+): Promise<{ instructors: string[]; tutors: string[]; students: string[] }> {
   return request<{
-    instructors: string[],
-    tutors: string[],
-    students: string[]
+    instructors: string[];
+    tutors: string[];
+    students: string[];
   }>(HTTPMethod.GET, `/lectures/${lectureId}/users`);
 }

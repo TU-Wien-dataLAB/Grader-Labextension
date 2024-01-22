@@ -6,12 +6,14 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControlLabel, IconButton,
+  FormControlLabel,
+  IconButton,
   InputLabel,
   MenuItem,
   Stack,
   TextField,
-  Tooltip, Typography,
+  Tooltip,
+  Typography
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
@@ -26,7 +28,11 @@ import { Lecture } from '../../../model/lecture';
 import * as yup from 'yup';
 import { SectionTitle } from '../../util/section-title';
 import { useNavigate, useRouteLoaderData } from 'react-router-dom';
-import { getLateSubmissionInfo, ILateSubmissionInfo, LateSubmissionForm } from './late-submission-form';
+import {
+  getLateSubmissionInfo,
+  ILateSubmissionInfo,
+  LateSubmissionForm
+} from './late-submission-form';
 import { FormikValues } from 'formik/dist/types';
 import moment from 'moment';
 import { red } from '@mui/material/colors';
@@ -45,9 +51,7 @@ const validationSchema = yup.object({
     .min(4, 'Name should be 4-50 character length')
     .max(50, 'Name should be 4-50 character length')
     .required('Name is required'),
-  due_date: yup
-    .date()
-    .nullable(),
+  due_date: yup.date().nullable(),
   type: yup.mixed().oneOf(['user', 'group']),
   automatic_grading: yup.mixed().oneOf(['unassisted', 'auto', 'full_auto']),
   max_submissions: yup
@@ -55,7 +59,6 @@ const validationSchema = yup.object({
     .nullable()
     .min(1, 'Students must be able to at least submit once')
 });
-
 
 //export interface ISettingsProps {
 //  root: HTMLElement;
@@ -65,26 +68,28 @@ export const SettingsComponent = () => {
   const navigate = useNavigate();
 
   const { lecture, assignments } = useRouteLoaderData('lecture') as {
-    lecture: Lecture,
-    assignments: Assignment[],
+    lecture: Lecture;
+    assignments: Assignment[];
   };
 
-  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData('assignment') as {
-    assignment: Assignment,
-    allSubmissions: Submission[],
-    latestSubmissions: Submission[]
+  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    assignment: Assignment;
+    allSubmissions: Submission[];
+    latestSubmissions: Submission[];
   };
 
-  const [checked, setChecked] = React.useState(
-    assignment.due_date !== null
-  );
+  const [checked, setChecked] = React.useState(assignment.due_date !== null);
   const [checkedLimit, setCheckedLimit] = React.useState(
     Boolean(assignment.max_submissions)
   );
 
   const validateLateSubmissions = (values: FormikValues) => {
-    const late_submissions: ILateSubmissionInfo[] = getLateSubmissionInfo(values.settings.late_submission);
-    let error = { late_submission: { days: {}, hours: {}, scaling: {} } };
+    const late_submissions: ILateSubmissionInfo[] = getLateSubmissionInfo(
+      values.settings.late_submission
+    );
+    const error = { late_submission: { days: {}, hours: {}, scaling: {} } };
     let nErrors = 0;
     for (let i = 0; i < late_submissions.length; i++) {
       const info = late_submissions[i];
@@ -105,24 +110,32 @@ export const SettingsComponent = () => {
         nErrors++;
       }
       if (info.scaling <= 0 || info.scaling >= 1) {
-        error.late_submission.scaling[i] = 'scaling has to be between 0 and 1 exclusive';
+        error.late_submission.scaling[i] =
+          'scaling has to be between 0 and 1 exclusive';
         nErrors++;
       }
       if (parseFloat(info.scaling.toFixed(3)) !== info.scaling) {
-        error.late_submission.scaling[i] = 'scaling can only be specified up to 3 decimal points';
+        error.late_submission.scaling[i] =
+          'scaling can only be specified up to 3 decimal points';
         nErrors++;
       }
-      if (moment.duration({ days: info.days, hours: info.hours }) <= moment.duration(0)) {
+      if (
+        moment.duration({ days: info.days, hours: info.hours }) <=
+        moment.duration(0)
+      ) {
         error.late_submission.days[i] = 'period cannot be 0';
         error.late_submission.hours[i] = 'period cannot be 0';
         nErrors++;
       }
       if (i > 0) {
         const prevInfo = late_submissions[i - 1];
-        if (moment.duration({ days: info.days, hours: info.hours }) <= moment.duration({
-          days: prevInfo.days,
-          hours: prevInfo.hours
-        })) {
+        if (
+          moment.duration({ days: info.days, hours: info.hours }) <=
+          moment.duration({
+            days: prevInfo.days,
+            hours: prevInfo.hours
+          })
+        ) {
           error.late_submission.days[i] = 'periods have to be increasing';
           error.late_submission.hours[i] = 'periods have to be increasing';
           nErrors++;
@@ -140,14 +153,11 @@ export const SettingsComponent = () => {
     return error;
   };
 
-
   const formik = useFormik({
     initialValues: {
       name: assignment.name,
       due_date:
-        assignment.due_date !== null
-          ? new Date(assignment.due_date)
-          : null,
+        assignment.due_date !== null ? new Date(assignment.due_date) : null,
       type: assignment.type,
       automatic_grading: assignment.automatic_grading,
       max_submissions: assignment.max_submissions || null,
@@ -159,10 +169,7 @@ export const SettingsComponent = () => {
       if (values.max_submissions !== null) {
         values.max_submissions = +values.max_submissions;
       }
-      const updatedAssignment: Assignment = Object.assign(
-        assignment,
-        values
-      );
+      const updatedAssignment: Assignment = Object.assign(assignment, values);
       updateAssignment(lecture.id, updatedAssignment).then(
         response => {
           enqueueSnackbar('Successfully Updated Assignment', {
@@ -181,15 +188,15 @@ export const SettingsComponent = () => {
 
   return (
     <Box sx={{ m: 5, flex: 1, overflow: 'auto' }}>
-      <SectionTitle title='Settings' />
+      <SectionTitle title="Settings" />
       <form onSubmit={formik.handleSubmit}>
         <Stack spacing={2} sx={{ ml: 2, mr: 2 }}>
           <TextField
-            variant='outlined'
+            variant="outlined"
             fullWidth
-            id='name'
-            name='name'
-            label='Assignment Name'
+            id="name"
+            name="name"
+            label="Assignment Name"
             value={formik.values.name}
             onChange={formik.handleChange}
             error={formik.touched.name && Boolean(formik.errors.name)}
@@ -211,22 +218,21 @@ export const SettingsComponent = () => {
                   }}
                 />
               }
-              label='Set Deadline'
+              label="Set Deadline"
             />
             <DateTimePicker
               ampm={false}
-              label='DateTimePicker'
+              label="DateTimePicker"
               disabled={!checked}
               value={formik.values.due_date}
               onChange={(date: Date) => {
                 formik.setFieldValue('due_date', date);
                 if (new Date(date).getTime() < Date.now()) {
-                  enqueueSnackbar("You selected date in past!", {
+                  enqueueSnackbar('You selected date in past!', {
                     variant: 'warning'
                   });
                 }
               }}
-
             />
           </LocalizationProvider>
 
@@ -244,17 +250,17 @@ export const SettingsComponent = () => {
                 }}
               />
             }
-            label='Limit Number of Submissions'
+            label="Limit Number of Submissions"
           />
 
           <TextField
-            variant='outlined'
+            variant="outlined"
             fullWidth
             disabled={!checkedLimit}
             type={'number'}
-            id='max-submissions'
-            name='max_submissions'
-            placeholder='Submissions'
+            id="max-submissions"
+            name="max_submissions"
+            placeholder="Submissions"
             value={formik.values.max_submissions || null}
             InputProps={{ inputProps: { min: 1 } }}
             onChange={e => {
@@ -269,7 +275,7 @@ export const SettingsComponent = () => {
             }
           />
 
-          <InputLabel id='demo-simple-select-label-auto'>
+          <InputLabel id="demo-simple-select-label-auto">
             Auto-Grading Behaviour
             <Tooltip title={gradingBehaviourHelp}>
               <HelpOutlineOutlinedIcon
@@ -280,10 +286,10 @@ export const SettingsComponent = () => {
           </InputLabel>
           <TextField
             select
-            id='assignment-type-select'
+            id="assignment-type-select"
             value={formik.values.automatic_grading}
-            label='Auto-Grading Behaviour'
-            placeholder='Grading'
+            label="Auto-Grading Behaviour"
+            placeholder="Grading"
             onChange={e => {
               formik.setFieldValue('automatic_grading', e.target.value);
             }}
@@ -303,17 +309,21 @@ export const SettingsComponent = () => {
                 }}
               />
             }
-            label='Allow file upload by students'
+            label="Allow file upload by students"
           />
 
           <Stack direction={'column'} spacing={2}>
             <InputLabel>
               Late Submissions
-              <Tooltip title={'Late submissions are defined by a period (in days and hours) and a scaling factor. ' +
-                'When a submission falls in the late submission periods you specified, the scaling factor of the ' +
-                'last period that still matches the submission time is used to calculate the points of the submission by multiplying the total points by ' +
-                'that scaling factor. After the last late submission period is over, the submission is rejected precisely ' +
-                'the same way as if no late submission periods were specified.'}>
+              <Tooltip
+                title={
+                  'Late submissions are defined by a period (in days and hours) and a scaling factor. ' +
+                  'When a submission falls in the late submission periods you specified, the scaling factor of the ' +
+                  'last period that still matches the submission time is used to calculate the points of the submission by multiplying the total points by ' +
+                  'that scaling factor. After the last late submission period is over, the submission is rejected precisely ' +
+                  'the same way as if no late submission periods were specified.'
+                }
+              >
                 <HelpOutlineOutlinedIcon
                   fontSize={'small'}
                   sx={{ ml: 1.5, mt: 1.0 }}
@@ -321,40 +331,55 @@ export const SettingsComponent = () => {
               </Tooltip>
             </InputLabel>
             <Stack direction={'column'} spacing={2} sx={{ pl: 3 }}>
-              {(formik.values.due_date !== null)
-                ? <LateSubmissionForm formik={formik} />
-                : <Typography sx={{ color: red[500] }}>Deadline not set! To configure late submissions set a deadline
-                  first!</Typography>}
+              {formik.values.due_date !== null ? (
+                <LateSubmissionForm formik={formik} />
+              ) : (
+                <Typography sx={{ color: red[500] }}>
+                  Deadline not set! To configure late submissions set a deadline
+                  first!
+                </Typography>
+              )}
             </Stack>
           </Stack>
         </Stack>
         <Stack direction={'row'} spacing={2} sx={{ mt: 2 }}>
-          <Button sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }} color='primary' variant='contained' type='submit'>
+          <Button
+            sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
+            color="primary"
+            variant="contained"
+            type="submit"
+          >
             Save changes
           </Button>
           <Box sx={{ flex: '1 1 100%' }}></Box>
-          <Tooltip title={assignment.status === 'released' || assignment.status === 'complete'
-            ? 'Released or Completed Assignments cannot be deleted'
-            : `Delete Assignment ${assignment.name}`
-          }>
-            <span> {/* span because of https://mui.com/material-ui/react-tooltip/#disabled-elements */}
+          <Tooltip
+            title={
+              assignment.status === 'released' ||
+              assignment.status === 'complete'
+                ? 'Released or Completed Assignments cannot be deleted'
+                : `Delete Assignment ${assignment.name}`
+            }
+          >
+            <span>
+              {' '}
+              {/* span because of https://mui.com/material-ui/react-tooltip/#disabled-elements */}
               <Button
                 sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
-                aria-label='delete assignment'
+                aria-label="delete assignment"
                 size={'small'}
                 color={'error'}
-                variant='contained'
-                disabled={assignment.status === 'released' || assignment.status === 'complete'}
-                onClick={(e) => {
+                variant="contained"
+                disabled={
+                  assignment.status === 'released' ||
+                  assignment.status === 'complete'
+                }
+                onClick={e => {
                   showDialog(
                     'Delete Assignment',
                     'Do you wish to delete this assignment?',
                     async () => {
                       try {
-                        await deleteAssignment(
-                          lecture.id,
-                          assignment.id
-                        );
+                        await deleteAssignment(lecture.id, assignment.id);
                         enqueueSnackbar('Successfully Deleted Assignment', {
                           variant: 'success'
                         });
@@ -364,7 +389,8 @@ export const SettingsComponent = () => {
                           variant: 'error'
                         });
                       }
-                    });
+                    }
+                  );
                   e.stopPropagation();
                 }}
               >
@@ -373,7 +399,6 @@ export const SettingsComponent = () => {
             </span>
           </Tooltip>
         </Stack>
-
       </form>
     </Box>
   );
