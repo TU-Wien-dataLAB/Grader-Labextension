@@ -30,7 +30,8 @@ export interface IHeaderCell {
   width?: number;
 }
 
-export const headerWidth = (headers: IHeaderCell[], name: string) => headers.find(h => h.name === name).width;
+export const headerWidth = (headers: IHeaderCell[], name: string) =>
+  headers.find(h => h.name === name).width;
 
 interface IGraderTableProps<T> {
   headers: IHeaderCell[];
@@ -41,20 +42,18 @@ interface IGraderTableProps<T> {
 export function GraderTable<T>(props: IGraderTableProps<T>) {
   return (
     <Box sx={{ flex: 1, overflow: 'scroll' }}>
-      <Table aria-label='simple table' stickyHeader>
+      <Table aria-label="simple table" stickyHeader>
         <TableHead>
           <TableRow>
-            {props.headers.map(header =>
+            {props.headers.map(header => (
               <TableCell style={{ width: header.width }}>
-                <Typography color='primary'>{header.name}</Typography>
+                <Typography color="primary">{header.name}</Typography>
               </TableCell>
-            )}
+            ))}
           </TableRow>
         </TableHead>
-        <TableBody>
-          {props.rows.map((row) => props.rowFunc(row))}
-        </TableBody>
+        <TableBody>{props.rows.map(row => props.rowFunc(row))}</TableBody>
       </Table>
     </Box>
   );
-};
+}

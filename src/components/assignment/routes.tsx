@@ -1,15 +1,25 @@
 import * as React from 'react';
-import { createRoutesFromElements, Route, useNavigation } from 'react-router-dom';
+import {
+  createRoutesFromElements,
+  Route,
+  useNavigation
+} from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 import { LinkRouter, Page } from '../util/breadcrumbs';
 import ErrorPage from '../util/error';
 
 import { UserPermissions } from '../../services/permission.service';
-import { getAllLectures, getLecture, getUsers } from '../../services/lectures.service';
-import { getAllAssignments, getAssignment } from '../../services/assignments.service';
+import {
+  getAllLectures,
+  getLecture,
+  getUsers
+} from '../../services/lectures.service';
+import {
+  getAllAssignments,
+  getAssignment
+} from '../../services/assignments.service';
 import { getAllSubmissions } from '../../services/submissions.service';
-
 
 import { enqueueSnackbar } from 'notistack';
 import { Assignment } from '../../model/assignment';
@@ -53,11 +63,19 @@ export const loadLecture = async (lectureId: number) => {
 /*
  * Load submissions for all assignments in a lecture
  * */
-export const loadSubmissions = async (lecture: Lecture, assignments: Assignment[]) => {
+export const loadSubmissions = async (
+  lecture: Lecture,
+  assignments: Assignment[]
+) => {
   try {
     const submissions = await Promise.all(
-      assignments.map(async (assignment) => {
-        const submissions = await getAllSubmissions(lecture.id, assignment.id, 'none', false);
+      assignments.map(async assignment => {
+        const submissions = await getAllSubmissions(
+          lecture.id,
+          assignment.id,
+          'none',
+          false
+        );
         return { assignment, submissions };
       })
     );
@@ -70,7 +88,10 @@ export const loadSubmissions = async (lecture: Lecture, assignments: Assignment[
   }
 };
 
-export const loadAssignment = async (lectureId: number, assignmentId: number) => {
+export const loadAssignment = async (
+  lectureId: number,
+  assignmentId: number
+) => {
   try {
     const [lecture, assignment, submissions] = await Promise.all([
       getLecture(lectureId),
@@ -101,7 +122,7 @@ function ExamplePage({ to }) {
       )}
 
       <span>Next Page: </span>
-      <LinkRouter underline='hover' color='inherit' to={to} key={to}>
+      <LinkRouter underline="hover" color="inherit" to={to} key={to}>
         {to}
       </LinkRouter>
     </Box>
@@ -123,14 +144,17 @@ const testFetchAssignment = async (lectureId: number, assignmentId: number) => {
 export const getRoutes = () => {
   const routes = createRoutesFromElements(
     // this is a layout route without a path (see: https://reactrouter.com/en/main/start/concepts#layout-routes)
-    <Route element={<Page id={'assignment-manage'} />} errorElement={<ErrorPage id={'assignment-manage'} />}>
+    <Route
+      element={<Page id={'assignment-manage'} />}
+      errorElement={<ErrorPage id={'assignment-manage'} />}
+    >
       <Route
         id={'root'}
         path={'/*'}
         loader={loadPermissions}
         handle={{
-          crumb: (data) => 'Lectures',
-          link: (params) => '/'
+          crumb: data => 'Lectures',
+          link: params => '/'
         }}
       >
         <Route index element={<AssignmentManageComponent />}></Route>
@@ -140,28 +164,29 @@ export const getRoutes = () => {
           loader={({ params }) => loadLecture(+params.lid)}
           handle={{
             // functions in handle have to handle undefined data (error page is displayed afterwards)
-            crumb: (data) => data?.lecture.name,
-            link: (params) => `lecture/${params?.lid}/`
+            crumb: data => data?.lecture.name,
+            link: params => `lecture/${params?.lid}/`
           }}
         >
-          <Route
-            index
-            element={<LectureComponent />}
-          ></Route>
+          <Route index element={<LectureComponent />}></Route>
           <Route
             id={'assignment'}
             path={'assignment/:aid/*'}
             loader={({ params }) => loadAssignment(+params.lid, +params.aid)}
             handle={{
-              crumb: (data) => data?.assignment.name,
-              link: (params) => `assignment/${params?.aid}/`
+              crumb: data => data?.assignment.name,
+              link: params => `assignment/${params?.aid}/`
             }}
           >
             <Route index element={<AssignmentComponent />} />
-            <Route path={'feedback/:sid'} element={<Feedback />} handle={{
-              crumb: (data) => 'Feedback',
-              link: (params) => `feedback/${params?.sid}/`
-            }}></Route>
+            <Route
+              path={'feedback/:sid'}
+              element={<Feedback />}
+              handle={{
+                crumb: data => 'Feedback',
+                link: params => `feedback/${params?.sid}/`
+              }}
+            ></Route>
           </Route>
         </Route>
       </Route>

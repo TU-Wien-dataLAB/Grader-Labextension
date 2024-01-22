@@ -1,10 +1,8 @@
 .flexbox-panel {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-flow: row wrap;
+  place-content: center center;
   align-items: flex-start;
-  align-content: center;
 }
 
 .flexbox-item {
@@ -13,19 +11,13 @@
 }
 
 .flex-item:nth-child(1) {
-  flex-grow: 0;
-  flex-shrink: 1;
-  flex-basis: auto;
+  flex: 0 1 auto;
 }
 
 .flex-item:nth-child(2) {
-  flex-grow: 0;
-  flex-shrink: 1;
-  flex-basis: auto;
+  flex: 0 1 auto;
 }
 
 .flex-item:nth-child(3) {
-  flex-grow: 0;
-  flex-shrink: 1;
-  flex-basis: auto;
+  flex: 0 1 auto;
 }

@@ -7,7 +7,10 @@
 import {
   IconButton,
   Card,
-  LinearProgress, Stack, TableCell, TableRow,
+  LinearProgress,
+  Stack,
+  TableCell,
+  TableRow,
   Typography,
   Tooltip
 } from '@mui/material';
@@ -19,18 +22,21 @@ import { CreateDialog, EditLectureDialog } from '../util/dialog';
 import { updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
-import { useNavigate, useNavigation, useRouteLoaderData } from 'react-router-dom';
+import {
+  useNavigate,
+  useNavigation,
+  useRouteLoaderData
+} from 'react-router-dom';
 import { ButtonTr, GraderTable } from '../util/table';
 import { DeadlineComponent } from '../util/deadline';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
 
-
 interface IAssignmentTableProps {
   lecture: Lecture;
   rows: Assignment[];
-  setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>,
+  setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
 }
 
 const AssignmentTable = (props: IAssignmentTableProps) => {
@@ -54,54 +60,81 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
             <TableRow
               key={row.name}
               component={ButtonTr}
-              onClick={() => navigate(`/lecture/${props.lecture.id}/assignment/${row.id}`)}
+              onClick={() =>
+                navigate(`/lecture/${props.lecture.id}/assignment/${row.id}`)
+              }
             >
-              <TableCell component='th' scope='row'>
-                <Typography variant={'subtitle2'} sx={{ fontSize: 16 }}>{row.name}</Typography>
+              <TableCell component="th" scope="row">
+                <Typography variant={'subtitle2'} sx={{ fontSize: 16 }}>
+                  {row.name}
+                </Typography>
               </TableCell>
               <TableCell>{row.points}</TableCell>
-              <TableCell><DeadlineComponent component={'chip'} due_date={row.due_date} compact={true} /></TableCell>
+              <TableCell>
+                <DeadlineComponent
+                  component={'chip'}
+                  due_date={row.due_date}
+                  compact={true}
+                />
+              </TableCell>
               <TableCell>{row.status}</TableCell>
               <TableCell>
-                <IconButton aria-label='detail view' size={'small'}>
+                <IconButton aria-label="detail view" size={'small'}>
                   <SearchIcon />
                 </IconButton>
               </TableCell>
               <TableCell>
-                <Tooltip title={row.status === 'released' || row.status === 'complete'
-                  ? 'Released or Completed Assignments cannot be deleted'
-                  : `Delete Assignment ${row.name}`
-                }>
-                  <span> {/* span because of https://mui.com/material-ui/react-tooltip/#disabled-elements */}
+                <Tooltip
+                  title={
+                    row.status === 'released' || row.status === 'complete'
+                      ? 'Released or Completed Assignments cannot be deleted'
+                      : `Delete Assignment ${row.name}`
+                  }
+                >
+                  <span>
+                    {' '}
+                    {/* span because of https://mui.com/material-ui/react-tooltip/#disabled-elements */}
                     <IconButton
-                      aria-label='delete assignment'
+                      aria-label="delete assignment"
                       size={'small'}
-                      disabled={row.status === 'released' || row.status === 'complete'}
-                      onClick={(e) => {
+                      disabled={
+                        row.status === 'released' || row.status === 'complete'
+                      }
+                      onClick={e => {
                         showDialog(
                           'Delete Assignment',
                           'Do you wish to delete this assignment?',
                           async () => {
                             try {
-                              await deleteAssignment(
-                                props.lecture.id,
-                                row.id
+                              await deleteAssignment(props.lecture.id, row.id);
+                              enqueueSnackbar(
+                                'Successfully Deleted Assignment',
+                                {
+                                  variant: 'success'
+                                }
                               );
-                              enqueueSnackbar('Successfully Deleted Assignment', {
-                                variant: 'success'
-                              });
-                              props.setAssignments(props.rows.filter(a => a.id !== row.id));
+                              props.setAssignments(
+                                props.rows.filter(a => a.id !== row.id)
+                              );
                             } catch (error: any) {
                               enqueueSnackbar(error.message, {
                                 variant: 'error'
                               });
                             }
-                          });
+                          }
+                        );
                         e.stopPropagation();
                       }}
                     >
                       <CloseIcon
-                        sx={{ color: (row.status === 'released' || row.status === 'complete') ? grey[500] : red[500] }} />
+                        sx={{
+                          color:
+                            row.status === 'released' ||
+                            row.status === 'complete'
+                              ? grey[500]
+                              : red[500]
+                        }}
+                      />
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -114,12 +147,11 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
   );
 };
 
-
 export const LectureComponent = () => {
   const { lecture, assignments } = useRouteLoaderData('lecture') as {
-    lecture: Lecture,
-    assignments: Assignment[],
-    users: { instructors: string[], tutors: string[], students: string[] }
+    lecture: Lecture;
+    assignments: Assignment[];
+    users: { instructors: string[]; tutors: string[]; students: string[] };
   };
   const navigation = useNavigation();
 
@@ -153,7 +185,13 @@ export const LectureComponent = () => {
           </Typography>
         ) : null}
       </Typography>
-      <Stack direction={'row'} justifyContent={'flex-end'} alignItems={'center'} spacing={2} sx={{ mb: 1 }}>
+      <Stack
+        direction={'row'}
+        justifyContent={'flex-end'}
+        alignItems={'center'}
+        spacing={2}
+        sx={{ mb: 1 }}
+      >
         <CreateDialog
           lecture={lectureState}
           handleSubmit={assigment => {
@@ -180,8 +218,14 @@ export const LectureComponent = () => {
         />
       </Stack>
 
-      <Stack><Typography variant={'h6'}>Assignments</Typography></Stack>
-      <AssignmentTable lecture={lectureState} rows={assignmentsState} setAssignments={setAssignments} />
+      <Stack>
+        <Typography variant={'h6'}>Assignments</Typography>
+      </Stack>
+      <AssignmentTable
+        lecture={lectureState}
+        rows={assignmentsState}
+        setAssignments={setAssignments}
+      />
     </Stack>
   );
 };

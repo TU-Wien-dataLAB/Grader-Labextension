@@ -19,7 +19,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Stack, createTheme
+  Stack,
+  createTheme
 } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { GlobalObjects } from '../../../index';
@@ -97,14 +98,21 @@ export const Validator = (props: ValidatorProps) => {
       if (toolData.type !== 'solution' && toolData.type !== 'manual') {
         if (/#+\s?[BEGIN|END]{1,}\sSOLUTION/gim.test(cellText)) {
           wrongTypeSolution += 1;
-          layout.addWidget(new ErrorWidget(c, 'Solution region must be in solution cell'));
+          layout.addWidget(
+            new ErrorWidget(c, 'Solution region must be in solution cell')
+          );
         }
       }
       //check if ### BEGIN/END HIDDEN TESTS is placed wrong
       if (toolData.type !== 'tests') {
         if (/#+\s?[BEGIN|END]{1,}\sHIDDEN\stest/gim.test(cellText)) {
           wrongTypeTest += 1;
-          layout.addWidget(new ErrorWidget(c, 'Hidden test region must be in autograded test cell'));
+          layout.addWidget(
+            new ErrorWidget(
+              c,
+              'Hidden test region must be in autograded test cell'
+            )
+          );
         }
       }
     });
@@ -170,12 +178,22 @@ export const Validator = (props: ValidatorProps) => {
 
   const [theme, setTheme] = React.useState(
     createTheme({
-      palette: { mode: (GlobalObjects.themeManager.isLight(GlobalObjects.themeManager.theme)) ? 'light' : 'dark' }
+      palette: {
+        mode: GlobalObjects.themeManager.isLight(
+          GlobalObjects.themeManager.theme
+        )
+          ? 'light'
+          : 'dark'
+      }
     })
   );
 
   GlobalObjects.themeManager.themeChanged.connect(() => {
-    const palette = (GlobalObjects.themeManager.isLight(GlobalObjects.themeManager.theme)) ? 'light' : 'dark';
+    const palette = GlobalObjects.themeManager.isLight(
+      GlobalObjects.themeManager.theme
+    )
+      ? 'light'
+      : 'dark';
     setTheme(createTheme({ palette: { mode: palette } }));
   }, this);
 
@@ -184,11 +202,11 @@ export const Validator = (props: ValidatorProps) => {
       <CssBaseline />
       <Box>
         <MuiButton
-          className='grader-toolbar-button'
+          className="grader-toolbar-button"
           onClick={validateNotebook}
-          variant='outlined'
-          color='success'
-          size='small'
+          variant="outlined"
+          color="success"
+          size="small"
           sx={{ fontSize: '0.1rem' }}
         >
           Validate
@@ -196,15 +214,17 @@ export const Validator = (props: ValidatorProps) => {
         <Dialog
           open={dialogOpen}
           onClose={handleClose}
-          aria-labelledby='alert-dialog-title'
-          aria-describedby='alert-dialog-description'
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
         >
-          <DialogTitle id='alert-dialog-title'>{'Validation Report'}</DialogTitle>
+          <DialogTitle id="alert-dialog-title">
+            {'Validation Report'}
+          </DialogTitle>
           <DialogContent>
             <Stack spacing={2}>
               {results.length === 0 && (
                 <Box sx={{ width: '450px' }}>
-                  <Alert severity='success'>
+                  <Alert severity="success">
                     <AlertTitle>No errors found</AlertTitle>
                   </Alert>
                 </Box>

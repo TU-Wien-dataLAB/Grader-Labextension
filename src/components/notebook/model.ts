@@ -13,7 +13,6 @@ import { JSONObject, ReadonlyJSONObject } from '@lumino/coreutils';
 const NBGRADER_KEY = 'nbgrader';
 export const NBGRADER_SCHEMA_VERSION = 3;
 
-
 /**
  * A namespace for conversions between {@link NbgraderData} and
  * {@link ToolData} and for reading and writing to notebook cells' metadata.
@@ -60,7 +59,9 @@ export namespace CellModel {
    *
    * @returns The nbgrader data, or null if it doesn't exist.
    */
-  export function getNbgraderData(cellMetadata: Partial<ICellMetadata>): NbgraderData {
+  export function getNbgraderData(
+    cellMetadata: Partial<ICellMetadata>
+  ): NbgraderData {
     if (cellMetadata == null) {
       return null;
     }
@@ -247,7 +248,7 @@ namespace PrivateNbgraderData {
       !PrivateNbgraderData.isTask(nbgraderData) &&
       cellType !== 'code' &&
       PrivateNbgraderData.isSolution(nbgraderData) !=
-      PrivateNbgraderData.isGrade(nbgraderData)
+        PrivateNbgraderData.isGrade(nbgraderData)
     );
   }
 

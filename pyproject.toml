@@ -44,6 +44,31 @@ test = [
     "pytest-jupyter[server]>=0.6.0"
 ]
 
+[tool.tbump.version]
+current = "0.3.0"
+
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  \-?
+  (?P<pre>((a|b|rc|dev|nightly)\d+)?)
+  '''
+
+[tool.tbump.git]
+message_template = "Bump labextension to {new_version}"
+tag_template = "grader-labextension-{new_version}"
+
+[[tool.tbump.file]]
+src = "package.json"
+search = "\"version\": \"{current_version}\""
+
+[[tool.tbump.file]]
+src = "binder/environment.yml"
+search = "grader-labextension=={current_version}"
+
 [tool.hatch.version]
 source = "nodejs"
 
@@ -59,8 +84,6 @@ exclude = [".github", "binder"]
 "install.json" = "share/jupyter/labextensions/grader-labextension/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 
-[tool.hatch.build.hooks.version]
-path = "grader_labextension/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]

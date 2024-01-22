@@ -14,7 +14,12 @@ import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
 import { Lecture } from '../../../model/lecture';
 import { Assignment } from '../../../model/assignment';
-import { Outlet, useNavigate, useOutletContext, useRouteLoaderData } from 'react-router-dom';
+import {
+  Outlet,
+  useNavigate,
+  useOutletContext,
+  useRouteLoaderData
+} from 'react-router-dom';
 import { Submission } from '../../../model/submission';
 import { utcToLocalFormat } from '../../../services/datetime.service';
 import {
@@ -31,13 +36,20 @@ import {
 } from '@mui/material';
 import { SectionTitle } from '../../util/section-title';
 import { enqueueSnackbar } from 'notistack';
-import { getAllSubmissions, getLogs } from '../../../services/submissions.service';
+import {
+  getAllSubmissions,
+  getLogs
+} from '../../../services/submissions.service';
 import { EnhancedTableToolbar } from './table-toolbar';
 import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
 import { green } from '@mui/material/colors';
 import AddIcon from '@mui/icons-material/Add';
-import { loadNumber, loadString, storeNumber, storeString } from '../../../services/storage.service';
-
+import {
+  loadNumber,
+  loadString,
+  storeNumber,
+  storeString
+} from '../../../services/storage.service';
 
 /**
  * Calculates chip color based on submission status.
@@ -47,10 +59,7 @@ import { loadNumber, loadString, storeNumber, storeString } from '../../../servi
 const getColor = (value: string) => {
   if (value === 'not_graded') {
     return 'warning';
-  } else if (
-    value === 'automatically_graded' ||
-    value === 'manually_graded'
-  ) {
+  } else if (value === 'automatically_graded' || value === 'manually_graded') {
     return 'success';
   } else if (value === 'grading_failed') {
     return 'error';
@@ -59,28 +68,35 @@ const getColor = (value: string) => {
 };
 
 export const getAutogradeChip = (submission: Submission) => {
-  return <Chip
-    sx={{ textTransform: 'capitalize' }}
-    variant='outlined'
-    label={submission.auto_status.split('_').join(' ')}
-    color={getColor(submission.auto_status)} />;
+  return (
+    <Chip
+      sx={{ textTransform: 'capitalize' }}
+      variant="outlined"
+      label={submission.auto_status.split('_').join(' ')}
+      color={getColor(submission.auto_status)}
+    />
+  );
 };
 
 export const getManualChip = (submission: Submission) => {
-  return <Chip
-    sx={{ textTransform: 'capitalize' }}
-    variant='outlined'
-    label={submission.manual_status.split('_').join(' ')}
-    color={getColor(submission.manual_status)}
-  />;
+  return (
+    <Chip
+      sx={{ textTransform: 'capitalize' }}
+      variant="outlined"
+      label={submission.manual_status.split('_').join(' ')}
+      color={getColor(submission.manual_status)}
+    />
+  );
 };
 
 export const getFeedbackChip = (submission: Submission) => {
-  return <Chip
-    variant='outlined'
-    label={submission.feedback_available ? 'Generated' : 'Not Generated'}
-    color={submission.feedback_available ? 'success' : 'error'}
-  />;
+  return (
+    <Chip
+      variant="outlined"
+      label={submission.feedback_available ? 'Generated' : 'Not Generated'}
+      color={submission.feedback_available ? 'success' : 'error'}
+    />
+  );
 };
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -98,10 +114,7 @@ type Order = 'asc' | 'desc';
 function getComparator<Key extends keyof Submission>(
   order: Order,
   orderBy: Key
-): (
-  a: Submission,
-  b: Submission
-) => number {
+): (a: Submission, b: Submission) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator<Submission>(a, b, orderBy)
     : (a, b) => -descendingComparator<Submission>(a, b, orderBy);
@@ -111,7 +124,10 @@ function getComparator<Key extends keyof Submission>(
 // stableSort() brings sort stability to non-modern browsers (notably IE11). If you
 // only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
 // with exampleArray.slice().sort(exampleComparator)
-function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
+function stableSort<T>(
+  array: readonly T[],
+  comparator: (a: T, b: T) => number
+) {
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -120,7 +136,7 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
     }
     return a[1] - b[1];
   });
-  return stabilizedThis.map((el) => el[0]);
+  return stabilizedThis.map(el => el[0]);
 }
 
 interface HeadCell {
@@ -183,7 +199,10 @@ const headCells: readonly HeadCell[] = [
 
 interface EnhancedTableProps {
   numSelected: number;
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Submission) => void;
+  onRequestSort: (
+    event: React.MouseEvent<unknown>,
+    property: keyof Submission
+  ) => void;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
   orderBy: string;
@@ -191,8 +210,14 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
-    props;
+  const {
+    onSelectAllClick,
+    order,
+    orderBy,
+    numSelected,
+    rowCount,
+    onRequestSort
+  } = props;
   const createSortHandler =
     (property: keyof Submission) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
@@ -201,9 +226,9 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding='checkbox'>
+        <TableCell padding="checkbox">
           <Checkbox
-            color='primary'
+            color="primary"
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
@@ -212,28 +237,31 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             }}
           />
         </TableCell>
-        {headCells.map((headCell) => (
+        {headCells.map(headCell => (
           <TableCell
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            {headCell.id !== 'edit'
-              ? <TableSortLabel
+            {headCell.id !== 'edit' ? (
+              <TableSortLabel
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : 'asc'}
                 onClick={createSortHandler(headCell.id)}
               >
                 {headCell.label}
                 {orderBy === headCell.id ? (
-                  <Box component='span' sx={visuallyHidden}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  <Box component="span" sx={visuallyHidden}>
+                    {order === 'desc'
+                      ? 'sorted descending'
+                      : 'sorted ascending'}
                   </Box>
                 ) : null}
               </TableSortLabel>
-              : headCell.label
-            }
+            ) : (
+              headCell.label
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -252,20 +280,27 @@ export default function GradingTable() {
     manualGradeSubmission,
     setManualGradeSubmission
   } = useOutletContext() as {
-    lecture: Lecture,
-    assignment: Assignment,
-    rows: Submission[],
-    setRows: React.Dispatch<React.SetStateAction<Submission[]>>,
-    manualGradeSubmission: Submission,
-    setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>
+    lecture: Lecture;
+    assignment: Assignment;
+    rows: Submission[];
+    setRows: React.Dispatch<React.SetStateAction<Submission[]>>;
+    manualGradeSubmission: Submission;
+    setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
 
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Submission>('id');
   const [selected, setSelected] = React.useState<readonly number[]>([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(loadNumber('grading-rows-per-page') || 10);
-  const [shownSubmissions, setShownSubmissions] = React.useState((loadString('grading-shown-submissions') || 'none') as 'none' | 'latest' | 'best');
+  const [rowsPerPage, setRowsPerPage] = React.useState(
+    loadNumber('grading-rows-per-page') || 10
+  );
+  const [shownSubmissions, setShownSubmissions] = React.useState(
+    (loadString('grading-shown-submissions') || 'none') as
+      | 'none'
+      | 'latest'
+      | 'best'
+  );
 
   const [showLogs, setShowLogs] = React.useState(false);
   const [logs, setLogs] = React.useState(undefined);
@@ -326,10 +361,9 @@ export default function GradingTable() {
     setOrderBy(property);
   };
 
-
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
+      const newSelected = rows.map(n => n.id);
       setSelected(newSelected);
       return;
     }
@@ -361,7 +395,9 @@ export default function GradingTable() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const n = parseInt(event.target.value, 10);
     setRowsPerPage(n);
     storeNumber('grading-rows-per-page', n);
@@ -378,31 +414,43 @@ export default function GradingTable() {
     return `${s.id} ${s.username} ${utcToLocalFormat(s.submitted_at)} ${s.auto_status.split('_').join(' ')} ${s.manual_status.split('_').join(' ')} ${s.feedback_available ? 'generated' : 'not generated'} ${s.score}`.toLowerCase();
   };
 
-  const filteredRows = React.useMemo(
-    () => {
-      const regexp = new RegExp(`.*${search}.*`);
-      return rows.filter(r => regexp.test(submissionString(r)))
-    }, [search, rows]);
+  const filteredRows = React.useMemo(() => {
+    const regexp = new RegExp(`.*${search}.*`);
+    return rows.filter(r => regexp.test(submissionString(r)));
+  }, [search, rows]);
 
   const visibleRows = React.useMemo(
     () =>
       stableSort(filteredRows, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
-      ), [order, orderBy, page, rowsPerPage, rows, search]);
+      ),
+    [order, orderBy, page, rowsPerPage, rows, search]
+  );
 
   return (
     <Stack sx={{ flex: 1, ml: 5, mr: 5, overflow: 'hidden' }}>
-      <Stack direction={'row'} justifyContent={'flex-end'} alignItems={'center'} spacing={2} sx={{ mb: 2 }}>
-      </Stack>
-      <EnhancedTableToolbar lecture={lecture} assignment={assignment} rows={rows}
-                            clearSelection={() => setSelected([])} selected={selected}
-                            shownSubmissions={shownSubmissions}
-                            switchShownSubmissions={switchShownSubmissions} setSearch={setSearch} />
+      <Stack
+        direction={'row'}
+        justifyContent={'flex-end'}
+        alignItems={'center'}
+        spacing={2}
+        sx={{ mb: 2 }}
+      ></Stack>
+      <EnhancedTableToolbar
+        lecture={lecture}
+        assignment={assignment}
+        rows={rows}
+        clearSelection={() => setSelected([])}
+        selected={selected}
+        shownSubmissions={shownSubmissions}
+        switchShownSubmissions={switchShownSubmissions}
+        setSearch={setSearch}
+      />
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         <Table
           // sx={{ minWidth: 750 }}
-          aria-labelledby='tableTitle'
+          aria-labelledby="tableTitle"
           stickyHeader
         >
           <EnhancedTableHead
@@ -421,56 +469,63 @@ export default function GradingTable() {
               return (
                 <TableRow
                   hover
-                  onClick={(event) => {
+                  onClick={event => {
                     setManualGradeSubmission(row);
                     navigate('manual');
-                  }
-                  }
-                  role='button'
+                  }}
+                  role="button"
                   aria-checked={isItemSelected}
                   tabIndex={-1}
                   key={row.id}
                   selected={isItemSelected}
                   sx={{ cursor: 'pointer' }}
                 >
-                  <TableCell padding='checkbox'>
+                  <TableCell padding="checkbox">
                     <Checkbox
-                      color='primary'
+                      color="primary"
                       checked={isItemSelected}
                       inputProps={{
                         'aria-labelledby': labelId
                       }}
-                      onClick={(event) => handleClick(event, row.id)}
+                      onClick={event => handleClick(event, row.id)}
                     />
                   </TableCell>
                   <TableCell
-                    component='th'
+                    component="th"
                     id={labelId}
-                    scope='row'
-                    padding='none'
-                    align='right'
+                    scope="row"
+                    padding="none"
+                    align="right"
                   >
                     {row.id}
                   </TableCell>
-                  <TableCell align='left'>{row.username}</TableCell>
-                  <TableCell align='right'>{utcToLocalFormat(row.submitted_at)}</TableCell>
-                  <TableCell align='left'><Chip
-                    sx={{ textTransform: 'capitalize' }}
-                    variant='outlined'
-                    label={row.auto_status.split('_').join(' ')}
-                    color={getColor(row.auto_status)}
-                    clickable={true}
-                    onClick={(event) => openLogs(event, row.id)}
-                  /></TableCell>
-                  <TableCell align='left'>{getManualChip(row)}</TableCell>
-                  <TableCell align='left'>{getFeedbackChip(row)}</TableCell>
-                  <TableCell align='right'>{row.score}</TableCell>
+                  <TableCell align="left">{row.username}</TableCell>
+                  <TableCell align="right">
+                    {utcToLocalFormat(row.submitted_at)}
+                  </TableCell>
+                  <TableCell align="left">
+                    <Chip
+                      sx={{ textTransform: 'capitalize' }}
+                      variant="outlined"
+                      label={row.auto_status.split('_').join(' ')}
+                      color={getColor(row.auto_status)}
+                      clickable={true}
+                      onClick={event => openLogs(event, row.id)}
+                    />
+                  </TableCell>
+                  <TableCell align="left">{getManualChip(row)}</TableCell>
+                  <TableCell align="left">{getFeedbackChip(row)}</TableCell>
+                  <TableCell align="right">{row.score}</TableCell>
                   <TableCell style={{ width: 55 }}>
-                    <IconButton aria-label='Edit' size={'small'} onClick={(event) => {
-                      event.stopPropagation();
-                      setManualGradeSubmission(row);
-                      navigate('edit');
-                    }}>
+                    <IconButton
+                      aria-label="Edit"
+                      size={'small'}
+                      onClick={event => {
+                        event.stopPropagation();
+                        setManualGradeSubmission(row);
+                        navigate('edit');
+                      }}
+                    >
                       <EditNoteOutlinedIcon sx={{ color: green[500] }} />
                     </IconButton>
                   </TableCell>
@@ -491,7 +546,7 @@ export default function GradingTable() {
       </Box>
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
-        component='div'
+        component="div"
         count={filteredRows.length}
         rowsPerPage={rowsPerPage}
         page={page}
@@ -501,14 +556,14 @@ export default function GradingTable() {
       <Dialog
         open={showLogs}
         onClose={() => setShowLogs(false)}
-        aria-labelledby='alert-dialog-title'
-        aria-describedby='alert-dialog-description'
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id='alert-dialog-title'>{'Logs'}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Logs'}</DialogTitle>
         <DialogContent>
           <Typography
-            id='alert-dialog-description'
-            sx={{ fontSize: 10, fontFamily: '\'Roboto Mono\', monospace' }}
+            id="alert-dialog-description"
+            sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
           >
             {logs}
           </Typography>
@@ -523,21 +578,36 @@ export default function GradingTable() {
 
 export const GradingComponent = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
-    lecture: Lecture,
-    assignments: Assignment[],
-    users: { instructors: string[], tutors: string[], students: string[] }
+    lecture: Lecture;
+    assignments: Assignment[];
+    users: { instructors: string[]; tutors: string[]; students: string[] };
   };
-  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData('assignment') as {
-    assignment: Assignment,
-    allSubmissions: Submission[],
-    latestSubmissions: Submission[]
+  const { assignment, allSubmissions, latestSubmissions } = useRouteLoaderData(
+    'assignment'
+  ) as {
+    assignment: Assignment;
+    allSubmissions: Submission[];
+    latestSubmissions: Submission[];
   };
 
   const [rows, setRows] = React.useState([] as Submission[]);
-  const [manualGradeSubmission, setManualGradeSubmission] = React.useState(undefined as Submission);
+  const [manualGradeSubmission, setManualGradeSubmission] = React.useState(
+    undefined as Submission
+  );
 
-  return <Stack direction={'column'} sx={{ flex: 1, overflow: 'hidden' }}>
-    <SectionTitle title='Grading' />
-    <Outlet context={{ lecture, assignment, rows, setRows, manualGradeSubmission, setManualGradeSubmission }} />
-  </Stack>;
+  return (
+    <Stack direction={'column'} sx={{ flex: 1, overflow: 'hidden' }}>
+      <SectionTitle title="Grading" />
+      <Outlet
+        context={{
+          lecture,
+          assignment,
+          rows,
+          setRows,
+          manualGradeSubmission,
+          setManualGradeSubmission
+        }}
+      />
+    </Stack>
+  );
 };

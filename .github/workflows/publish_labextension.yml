@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Build Labextension
+name: Upload Grader Labextension Package
 
 on:
   workflow_call:
@@ -15,16 +15,9 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
-
-    - uses: actions/checkout@v3
-
-    - name: Setup node
-      uses: actions/setup-node@v1
-      with:
-        node-version: '16.x'
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
@@ -32,16 +25,17 @@ jobs:
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build wheel twine hatch jupyter_packaging packaging setuptools hatch-nodejs-version hatch-jupyter-builder
-    - name: Build package
-      run: python -m build
-
-    # Upload Artifacts
-    - name: Archive labextension artifacts
-      uses: actions/upload-artifact@v3
+        pip install twine
+    - name: Download a labextension artifact
+      uses: actions/download-artifact@v3
       with:
         name: dist-labextension
-        retention-days: 1
-        path: |
-          ./dist
-          !./dist/**/*.md
+        path: ./dist
+    - name: Publish the Python package
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_LAB_SETUP_TOKEN }}
+      # skip existing for possible npm release
+      run: |
+        ls ./dist
+        twine upload --skip-existing dist/*

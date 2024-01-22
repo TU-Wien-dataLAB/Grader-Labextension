@@ -47,25 +47,36 @@ export const StudentSubmissions = (props: IStatsSubComponentProps) => {
         }}
       >
         <Box sx={{ height: '100%' }}>
-          <ResponsiveContainer width='100%' height='100%'>
+          <ResponsiveContainer width="100%" height="100%">
             <RadialBarChart
-              cx='50%'
-              cy='50%'
-              innerRadius='70%'
-              outerRadius='90%'
+              cx="50%"
+              cy="50%"
+              innerRadius="70%"
+              outerRadius="90%"
               barSize={15}
               data={[{ name: 'Submissions', value: data, fill: '#0088FE' }]}
             >
-              <text fill={darkMode ? "#fff" : "#000"} fontSize={40} x={'50%'} y={'50%'} dy={12} textAnchor='middle'>
+              <text
+                fill={darkMode ? '#fff' : '#000'}
+                fontSize={40}
+                x={'50%'}
+                y={'50%'}
+                dy={12}
+                textAnchor="middle"
+              >
                 {`${Math.floor(data * 100)}%`}
               </text>
               <PolarAngleAxis
-                type='number'
+                type="number"
                 domain={[0, 1]}
                 angleAxisId={0}
                 tick={false}
               />
-              <RadialBar background={{ fill: darkMode ? '#555' : '#eee' }} dataKey='value' angleAxisId={0} />
+              <RadialBar
+                background={{ fill: darkMode ? '#555' : '#eee' }}
+                dataKey="value"
+                angleAxisId={0}
+              />
             </RadialBarChart>
           </ResponsiveContainer>
         </Box>

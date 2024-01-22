@@ -6,7 +6,8 @@ import {
   Box,
   Card,
   CardContent,
-  CardHeader, Paper,
+  CardHeader,
+  Paper,
   TextField,
   Typography
 } from '@mui/material';
@@ -87,7 +88,10 @@ const ScoreDistributionTooltip = ({
   if (active && payload && payload.length) {
     return (
       <Paper className="custom-tooltip">
-        <Typography className="recharts-tooltip-label" style={{ color: '#0088FE' }}>
+        <Typography
+          className="recharts-tooltip-label"
+          style={{ color: '#0088FE' }}
+        >
           {payload[0].payload.name + ' Points'}
         </Typography>
         <Typography className="recharts-tooltip-label">{`${payload[0].value} Submission${
@@ -158,7 +162,7 @@ export const ScoreDistribution = (props: IStatsSubComponentProps) => {
         {data.reduce((acc, v) => acc + v.count, 0) === 0 ? (
           <Typography color={'text.secondary'}>No Data Available</Typography>
         ) : (
-          <Box sx={{ height: '100%'}}>
+          <Box sx={{ height: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 height={150}

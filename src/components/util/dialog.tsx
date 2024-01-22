@@ -39,9 +39,7 @@ import { Assignment } from '../../model/assignment';
 import { LoadingButton } from '@mui/lab';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
-import {
-  createAssignment
-} from '../../services/assignments.service';
+import { createAssignment } from '../../services/assignments.service';
 import { Lecture } from '../../model/lecture';
 import TypeEnum = Assignment.TypeEnum;
 import AutomaticGradingEnum = Assignment.AutomaticGradingEnum;
@@ -53,7 +51,6 @@ import { enqueueSnackbar } from 'notistack';
 import { showDialog } from './dialog-provider';
 import styled from '@mui/system/styled';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
-
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -93,12 +90,14 @@ export interface IEditLectureProps {
   handleSubmit: (updatedLecture: Lecture) => void;
 }
 
-const EditLectureNameTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
+const EditLectureNameTooltip = styled(
+  ({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  )
+)(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     maxWidth: 220
-  },
+  }
 }));
 
 export const EditLectureDialog = (props: IEditLectureProps) => {
@@ -124,9 +123,16 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
           props.lecture.code === props.lecture.name ? (
             <React.Fragment>
               <Typography color="inherit">Edit Lecture</Typography>
-              {"Note: "} <em>{"Lecture name is currently the same as lecture code. You should edit it to make it more readable."}</em>
+              {'Note: '}{' '}
+              <em>
+                {
+                  'Lecture name is currently the same as lecture code. You should edit it to make it more readable.'
+                }
+              </em>
             </React.Fragment>
-          ) : "Edit Lecture"
+          ) : (
+            'Edit Lecture'
+          )
         }
       >
         <IconButton
@@ -135,7 +141,7 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
             setOpen(true);
           }}
           onMouseDown={event => event.stopPropagation()}
-          aria-label='edit'
+          aria-label="edit"
         >
           <SettingsIcon />
         </IconButton>
@@ -146,11 +152,11 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
           <DialogContent>
             <Stack spacing={2}>
               <TextField
-                variant='outlined'
+                variant="outlined"
                 fullWidth
-                id='name'
-                name='name'
-                label='Lecture Name'
+                id="name"
+                name="name"
+                label="Lecture Name"
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 error={formik.touched.name && Boolean(formik.errors.name)}
@@ -166,14 +172,14 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
                     }}
                   />
                 }
-                label='Complete'
+                label="Complete"
               />
             </Stack>
           </DialogContent>
           <DialogActions>
             <Button
-              color='primary'
-              variant='outlined'
+              color="primary"
+              variant="outlined"
               onClick={() => {
                 setOpen(false);
               }}
@@ -181,7 +187,7 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
               Cancel
             </Button>
 
-            <Button color='primary' variant='contained' type='submit'>
+            <Button color="primary" variant="contained" type="submit">
               Submit
             </Button>
           </DialogActions>
@@ -211,7 +217,7 @@ export default function NewAssignmentCard(props: INewAssignmentCardProps) {
             alignItems: 'center'
           }}
         >
-          <AddIcon sx={{ fontSize: 50 }} color='disabled' />
+          <AddIcon sx={{ fontSize: 50 }} color="disabled" />
         </CardActionArea>
       </Tooltip>
     </Card>
@@ -235,8 +241,10 @@ export const CreateDialog = (props: ICreateDialogProps) => {
     },
     validationSchema: validationSchema,
     onSubmit: values => {
-
-      if (values.max_submissions !== null && values.max_submissions !== undefined) {
+      if (
+        values.max_submissions !== null &&
+        values.max_submissions !== undefined
+      ) {
         values.max_submissions = +values.max_submissions;
       }
       const newAssignment: Assignment = {
@@ -274,10 +282,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
     setOpenSnackBar(false);
   };
 
-  const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
-    props,
-    ref,
-  ) {
+  const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
@@ -285,7 +290,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
     <>
       <Tooltip title={'Create New Assignment'}>
         <Button
-          variant='contained'
+          variant="contained"
           startIcon={<AddIcon />}
           onClick={e => {
             e.stopPropagation();
@@ -305,11 +310,11 @@ export const CreateDialog = (props: ICreateDialogProps) => {
           <DialogContent>
             <Stack spacing={2}>
               <TextField
-                variant='outlined'
+                variant="outlined"
                 fullWidth
-                id='name'
-                name='name'
-                label='Assignment Name'
+                id="name"
+                name="name"
+                label="Assignment Name"
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 error={formik.touched.name && Boolean(formik.errors.name)}
@@ -330,23 +335,31 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                       }}
                     />
                   }
-                  label='Set Deadline'
+                  label="Set Deadline"
                 />
 
                 <DateTimePicker
                   ampm={false}
                   disabled={formik.values.due_date === null}
-                  label='DateTimePicker'
+                  label="DateTimePicker"
                   value={formik.values?.due_date}
-                  onChange={(date) => {
+                  onChange={date => {
                     formik.setFieldValue('due_date', date);
                     if (new Date(date).getTime() < Date.now()) {
                       handleOpenSnackBar();
                     }
                   }}
                 />
-                <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackBar} >
-                  <Alert onClose={handleCloseSnackBar} severity="warning" sx={{ width: '100%' }}>
+                <Snackbar
+                  open={openSnackbar}
+                  autoHideDuration={6000}
+                  onClose={handleCloseSnackBar}
+                >
+                  <Alert
+                    onClose={handleCloseSnackBar}
+                    severity="warning"
+                    sx={{ width: '100%' }}
+                  >
                     You chose date in the past!
                   </Alert>
                 </Snackbar>
@@ -368,17 +381,17 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                     }}
                   />
                 }
-                label='Limit Number of Submissions'
+                label="Limit Number of Submissions"
               />
 
               <TextField
-                variant='outlined'
+                variant="outlined"
                 fullWidth
                 disabled={!formik.values.max_submissions}
                 type={'number'}
-                id='max-submissions'
-                name='max_submissions'
-                placeholder='Submissions'
+                id="max-submissions"
+                name="max_submissions"
+                placeholder="Submissions"
                 value={formik.values.max_submissions}
                 onChange={e => {
                   formik.setFieldValue('max_submissions', e.target.value);
@@ -386,7 +399,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                 error={formik.values.max_submissions < 1}
               />
 
-              <InputLabel id='demo-simple-select-label-auto'>
+              <InputLabel id="demo-simple-select-label-auto">
                 Auto-Grading Behaviour
                 <Tooltip title={gradingBehaviourHelp}>
                   <HelpOutlineOutlinedIcon
@@ -397,10 +410,10 @@ export const CreateDialog = (props: ICreateDialogProps) => {
               </InputLabel>
               <TextField
                 select
-                id='assignment-type-select'
+                id="assignment-type-select"
                 value={formik.values.automatic_grading}
-                label='Auto-Grading Behaviour'
-                placeholder='Grading'
+                label="Auto-Grading Behaviour"
+                placeholder="Grading"
                 onChange={e => {
                   formik.setFieldValue('automatic_grading', e.target.value);
                 }}
@@ -423,7 +436,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
                     }}
                   />
                 }
-                label='Allow file upload by students'
+                label="Allow file upload by students"
               />
 
               {/* Not included in release 1.0
@@ -445,8 +458,8 @@ export const CreateDialog = (props: ICreateDialogProps) => {
           </DialogContent>
           <DialogActions>
             <Button
-              color='primary'
-              variant='outlined'
+              color="primary"
+              variant="outlined"
               onClick={() => {
                 setOpen(false);
               }}
@@ -454,7 +467,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
               Cancel
             </Button>
 
-            <Button color='primary' variant='contained' type='submit'>
+            <Button color="primary" variant="contained" type="submit">
               Create
             </Button>
           </DialogActions>
@@ -487,9 +500,9 @@ export const CommitDialog = (props: ICommitDialogProps) => {
         <DialogContent>
           <TextField
             sx={{ mt: 2, width: '100%' }}
-            id='outlined-textarea'
-            label='Commit Message'
-            placeholder='Commit Message'
+            id="outlined-textarea"
+            label="Commit Message"
+            placeholder="Commit Message"
             value={message}
             onChange={event => setMessage(event.target.value)}
             multiline
@@ -497,8 +510,8 @@ export const CommitDialog = (props: ICommitDialogProps) => {
         </DialogContent>
         <DialogActions>
           <Button
-            color='primary'
-            variant='outlined'
+            color="primary"
+            variant="outlined"
             onClick={() => {
               setOpen(false);
             }}
@@ -507,9 +520,9 @@ export const CommitDialog = (props: ICommitDialogProps) => {
           </Button>
 
           <Button
-            color='primary'
-            variant='contained'
-            type='submit'
+            color="primary"
+            variant="contained"
+            type="submit"
             disabled={message === ''}
             onClick={() => {
               props.handleCommit(message);
@@ -523,7 +536,6 @@ export const CommitDialog = (props: ICommitDialogProps) => {
     </div>
   );
 };
-
 
 export interface IReleaseDialogProps extends ICommitDialogProps {
   assignment: Assignment;
@@ -539,15 +551,15 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
 
   return (
     <div>
-      <Box onClick={() => {
-        showDialog(
-          'Release Assignment',
-          agreeMessage,
-          () => {
+      <Box
+        onClick={() => {
+          showDialog('Release Assignment', agreeMessage, () => {
             setCommitOpen(true);
-          }
-        );
-      }}>{props.children}</Box>
+          });
+        }}
+      >
+        {props.children}
+      </Box>
       <Dialog
         open={commitOpen}
         onClose={() => setCommitOpen(false)}
@@ -558,9 +570,9 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
         <DialogContent>
           <TextField
             sx={{ mt: 2, width: '100%' }}
-            id='outlined-textarea'
-            label='Commit Message'
-            placeholder='Commit Message'
+            id="outlined-textarea"
+            label="Commit Message"
+            placeholder="Commit Message"
             value={message}
             onChange={event => setMessage(event.target.value)}
             multiline
@@ -568,8 +580,8 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
         </DialogContent>
         <DialogActions>
           <Button
-            color='primary'
-            variant='outlined'
+            color="primary"
+            variant="outlined"
             onClick={() => {
               setCommitOpen(false);
             }}
@@ -579,9 +591,9 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
 
           <LoadingButton
             loading={loading}
-            color='primary'
-            variant='contained'
-            type='submit'
+            color="primary"
+            variant="contained"
+            type="submit"
             disabled={message === ''}
             onClick={async () => {
               setLoading(true);
@@ -598,5 +610,3 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
     </div>
   );
 };
-
-
