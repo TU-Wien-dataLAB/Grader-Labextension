@@ -31,32 +31,14 @@ import { FileView } from './files/file-view';
 import { ManualGrading } from './grading/manual-grading';
 import { EditSubmission } from './grading/edit-submission';
 import { CreateSubmission } from './grading/create-submission';
+import { loadPermissions, shouldReload } from '../assignment/routes';
 
-const shouldReload = (request: Request) =>
-  new URL(request.url).searchParams.get('reload') === 'true';
-
-const loadPermissions = async () => {
-  try {
-    await UserPermissions.loadPermissions();
-    const [lectures, completedLectures] = await Promise.all([
-      getAllLectures(),
-      getAllLectures(true)
-    ]);
-    return { lectures, completedLectures };
-  } catch (error: any) {
-    enqueueSnackbar(error.message, {
-      variant: 'error'
-    });
-    throw new Error('Could not load data!');
-  }
-};
-
-const loadLecture = async (lectureId: number) => {
+const loadLecture = async (lectureId: number, reload: boolean) => {
   try {
     const [lecture, assignments, users] = await Promise.all([
-      getLecture(lectureId),
-      getAllAssignments(lectureId),
-      getUsers(lectureId)
+      getLecture(lectureId, reload),
+      getAllAssignments(lectureId, reload),
+      getUsers(lectureId, reload)
     ]);
     return { lecture, assignments, users };
   } catch (error: any) {
@@ -67,12 +49,16 @@ const loadLecture = async (lectureId: number) => {
   }
 };
 
-const loadAssignment = async (lectureId: number, assignmentId: number) => {
+const loadAssignment = async (
+  lectureId: number,
+  assignmentId: number,
+  reload: boolean
+) => {
   try {
     const [assignment, allSubmissions, latestSubmissions] = await Promise.all([
-      getAssignment(lectureId, assignmentId),
-      getAllSubmissions(lectureId, assignmentId, 'none', true),
-      getAllSubmissions(lectureId, assignmentId, 'latest', true)
+      getAssignment(lectureId, assignmentId, reload),
+      getAllSubmissions(lectureId, assignmentId, 'none', true, reload),
+      getAllSubmissions(lectureId, assignmentId, 'latest', true, reload)
     ]);
     return { assignment, allSubmissions, latestSubmissions };
   } catch (error: any) {
@@ -115,7 +101,7 @@ export const getRoutes = () => {
       <Route
         id={'root'}
         path={'/*'}
-        loader={loadPermissions}
+        loader={({ request }) => loadPermissions(shouldReload(request))}
         handle={{
           crumb: data => 'Lectures',
           link: params => '/'
@@ -125,7 +111,9 @@ export const getRoutes = () => {
         <Route
           id={'lecture'}
           path={'lecture/:lid/*'}
-          loader={({ params }) => loadLecture(+params.lid)}
+          loader={({ params, request }) =>
+            loadLecture(+params.lid, shouldReload(request))
+          }
           handle={{
             // functions in handle have to handle undefined data (error page is displayed afterwards)
             crumb: data => data?.lecture.name,
@@ -137,7 +125,9 @@ export const getRoutes = () => {
             id={'assignment'}
             path={'assignment/:aid/*'}
             element={<AssignmentModalComponent />}
-            loader={({ params }) => loadAssignment(+params.lid, +params.aid)}
+            loader={({ params, request }) =>
+              loadAssignment(+params.lid, +params.aid, shouldReload(request))
+            }
             handle={{
               // functions in handle have to handle undefined data (error page is displayed afterwards)
               crumb: data => data?.assignment.name,

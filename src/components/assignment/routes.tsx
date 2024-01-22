@@ -29,12 +29,15 @@ import { LectureComponent } from './lecture';
 import { AssignmentComponent } from './assignment';
 import { Feedback } from './feedback';
 
-export const loadPermissions = async () => {
+export const shouldReload = (request: Request) =>
+  new URL(request.url).searchParams.get('reload') === 'true';
+
+export const loadPermissions = async (reload: boolean) => {
   try {
     await UserPermissions.loadPermissions();
     const [lectures, completedLectures] = await Promise.all([
-      getAllLectures(),
-      getAllLectures(true)
+      getAllLectures(false, reload),
+      getAllLectures(true, reload)
     ]);
     return { lectures, completedLectures };
   } catch (error: any) {
@@ -45,11 +48,11 @@ export const loadPermissions = async () => {
   }
 };
 
-export const loadLecture = async (lectureId: number) => {
+export const loadLecture = async (lectureId: number, reload: boolean) => {
   try {
     const [lecture, assignments] = await Promise.all([
-      getLecture(lectureId),
-      getAllAssignments(lectureId, false, true)
+      getLecture(lectureId, reload),
+      getAllAssignments(lectureId, reload, true)
     ]);
     return { lecture, assignments };
   } catch (error: any) {
@@ -60,43 +63,16 @@ export const loadLecture = async (lectureId: number) => {
   }
 };
 
-/*
- * Load submissions for all assignments in a lecture
- * */
-export const loadSubmissions = async (
-  lecture: Lecture,
-  assignments: Assignment[]
-) => {
-  try {
-    const submissions = await Promise.all(
-      assignments.map(async assignment => {
-        const submissions = await getAllSubmissions(
-          lecture.id,
-          assignment.id,
-          'none',
-          false
-        );
-        return { assignment, submissions };
-      })
-    );
-    return submissions;
-  } catch (error: any) {
-    enqueueSnackbar(error.message, {
-      variant: 'error'
-    });
-    throw new Error('Could not load data!');
-  }
-};
-
 export const loadAssignment = async (
   lectureId: number,
-  assignmentId: number
+  assignmentId: number,
+  reload: boolean
 ) => {
   try {
     const [lecture, assignment, submissions] = await Promise.all([
-      getLecture(lectureId),
-      getAssignment(lectureId, assignmentId),
-      getAllSubmissions(lectureId, assignmentId, 'none', false)
+      getLecture(lectureId, reload),
+      getAssignment(lectureId, assignmentId, reload),
+      getAllSubmissions(lectureId, assignmentId, 'none', false, reload)
     ]);
     return { lecture, assignment, submissions };
   } catch (error: any) {
@@ -129,18 +105,6 @@ function ExamplePage({ to }) {
   );
 }
 
-// TODO: remove test code
-
-const testFetchAssignment = async (lectureId: number, assignmentId: number) => {
-  console.log(lectureId, assignmentId);
-  const { lecture } = await loadLecture(lectureId);
-  // throw lecture;
-  return {
-    assignment: { id: assignmentId, name: 'Introduction to Python' },
-    lecture: lecture
-  };
-};
-
 export const getRoutes = () => {
   const routes = createRoutesFromElements(
     // this is a layout route without a path (see: https://reactrouter.com/en/main/start/concepts#layout-routes)
@@ -151,7 +115,7 @@ export const getRoutes = () => {
       <Route
         id={'root'}
         path={'/*'}
-        loader={loadPermissions}
+        loader={({ request }) => loadPermissions(shouldReload(request))}
         handle={{
           crumb: data => 'Lectures',
           link: params => '/'
@@ -161,7 +125,9 @@ export const getRoutes = () => {
         <Route
           id={'lecture'}
           path={'lecture/:lid/*'}
-          loader={({ params }) => loadLecture(+params.lid)}
+          loader={({ params, request }) =>
+            loadLecture(+params.lid, shouldReload(request))
+          }
           handle={{
             // functions in handle have to handle undefined data (error page is displayed afterwards)
             crumb: data => data?.lecture.name,
@@ -172,7 +138,9 @@ export const getRoutes = () => {
           <Route
             id={'assignment'}
             path={'assignment/:aid/*'}
-            loader={({ params }) => loadAssignment(+params.lid, +params.aid)}
+            loader={({ params, request }) =>
+              loadAssignment(+params.lid, +params.aid, shouldReload(request))
+            }
             handle={{
               crumb: data => data?.assignment.name,
               link: params => `assignment/${params?.aid}/`
