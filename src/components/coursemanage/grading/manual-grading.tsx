@@ -207,9 +207,6 @@ export const ManualGrading = () => {
 
   const finishGrading = () => {
     submission.manual_status = 'manually_graded';
-    if (submission.feedback_status === 'generated') {
-      submission.feedback_status = 'feedback_outdated';
-    }
     updateSubmission(lecture.id, assignment.id, submission.id, submission).then(
       response => {
         enqueueSnackbar('Successfully Graded Submission', {
