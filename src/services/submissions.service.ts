@@ -21,7 +21,7 @@ export function submitAssignment(
     });
     url += '?' + searchParams;
   }
-  return request<Submission>(HTTPMethod.PUT, url);
+  return request<Submission>(HTTPMethod.PUT, url, null);
 }
 
 export async function pullFeedback(
@@ -31,7 +31,8 @@ export async function pullFeedback(
 ) {
   return request<void>(
     HTTPMethod.GET,
-    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${submission.id}/pull/feedback`
+    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${submission.id}/pull/feedback`,
+    null
   );
 }
 
@@ -46,7 +47,7 @@ export async function pullSubmissionFiles(
     subid: String(submission.id)
   });
   url += '?' + searchParams;
-  return request<void>(HTTPMethod.GET, url);
+  return request<void>(HTTPMethod.GET, url, null);
 }
 
 export async function createSubmissionFiles(
@@ -59,7 +60,7 @@ export async function createSubmissionFiles(
     for_user: username
   });
   url += '?' + searchParams;
-  return request<void>(HTTPMethod.PUT, url);
+  return request<void>(HTTPMethod.PUT, url, null);
 }
 
 export async function pushSubmissionFiles(
@@ -72,7 +73,7 @@ export async function pushSubmissionFiles(
     subid: String(submission.id)
   });
   url += '?' + searchParams;
-  return request<void>(HTTPMethod.PUT, url);
+  return request<void>(HTTPMethod.PUT, url, null);
 }
 
 export function getSubmissions(
@@ -88,7 +89,7 @@ export function getSubmissions(
     });
     url += '?' + searchParams;
   }
-  return request<any>(HTTPMethod.GET, url, reload);
+  return request<any>(HTTPMethod.GET, url, null, reload);
 }
 
 export function getAllSubmissions(
@@ -124,7 +125,7 @@ export function getFeedback(
     });
     url += '?' + searchParams;
   }
-  return request<any>(HTTPMethod.GET, url);
+  return request<any>(HTTPMethod.GET, url, null);
 }
 
 export function getProperties(
@@ -193,6 +194,7 @@ export function ltiSyncSubmissions(
   const url = `/lectures/${lectureId}/assignments/${assignmentId}/submissions/lti`;
   return request<{ syncable_users: number; synced_user: number }>(
     HTTPMethod.PUT,
-    url
+    url,
+    null
   );
 }
