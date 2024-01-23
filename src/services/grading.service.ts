@@ -17,7 +17,8 @@ export function createManualFeedback(
 ): Promise<any> {
   return request<any>(
     HTTPMethod.GET,
-    `/lectures/${lectid}/assignments/${assignid}/grading/${subid}/manual`
+    `/lectures/${lectid}/assignments/${assignid}/grading/${subid}/manual`,
+    null
   );
 }
 
@@ -33,7 +34,7 @@ export function saveSubmissions(
     });
     url += '?' + searchParams;
   }
-  return request<any>(HTTPMethod.PUT, url);
+  return request<any>(HTTPMethod.PUT, url, null);
 }
 
 export function autogradeSubmission(
@@ -43,7 +44,8 @@ export function autogradeSubmission(
 ): Promise<any> {
   return request<Assignment>(
     HTTPMethod.GET,
-    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${submission.id}/auto`
+    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${submission.id}/auto`,
+    null
   );
 }
 
@@ -54,7 +56,8 @@ export function generateFeedback(
 ): Promise<Submission> {
   return request<Submission>(
     HTTPMethod.GET,
-    `/lectures/${lecture_id}/assignments/${assignment_id}/grading/${submission_id}/feedback`
+    `/lectures/${lecture_id}/assignments/${assignment_id}/grading/${submission_id}/feedback`,
+    null
   );
 }
 
@@ -68,6 +71,7 @@ export function getStudentSubmissions(
   return request<any>(
     HTTPMethod.GET,
     `/lectures/${lecture.id}/assignements/${assignment.id}/grading`,
+    null,
     reload
   );
 }
@@ -79,7 +83,8 @@ export function getManualFeedback(
 ): Promise<object> {
   return request<object>(
     HTTPMethod.GET,
-    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${student.name}/manual`
+    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${student.name}/manual`,
+    null
   );
 }
 
@@ -116,6 +121,7 @@ export function getGrade(
 ): Promise<any> {
   return request<any>(
     HTTPMethod.GET,
-    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${student.name}/score`
+    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${student.name}/score`,
+    null
   );
 }
