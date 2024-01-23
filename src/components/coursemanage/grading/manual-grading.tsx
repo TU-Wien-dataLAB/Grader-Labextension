@@ -130,6 +130,9 @@ export const ManualGrading = () => {
   const [manualPath, setManualPath] = React.useState(mPath);
   const [gradeBook, setGradeBook] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
+  const [feedbackStatus, setFeedbackStatus] = React.useState(
+    submission.feedback_status
+  );
 
   React.useEffect(() => {
     reloadProperties();
@@ -180,7 +183,7 @@ export const ManualGrading = () => {
   const handleGenerateFeedback = async () => {
     await generateFeedbackDialog(async () => {
       try {
-        await generateFeedback(lecture.id, assignment.id, submission.id);
+        await generateFeedback(lecture, assignment, submission);
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
@@ -204,6 +207,9 @@ export const ManualGrading = () => {
 
   const finishGrading = () => {
     submission.manual_status = 'manually_graded';
+    if (submission.feedback_status === 'generated') {
+      submission.feedback_status = 'feedback_outdated';
+    }
     updateSubmission(lecture.id, assignment.id, submission.id, submission).then(
       response => {
         enqueueSnackbar('Successfully Graded Submission', {
