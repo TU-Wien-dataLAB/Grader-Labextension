@@ -57,11 +57,19 @@ import {
  * @return chip color
  */
 const getColor = (value: string) => {
-  if (value === 'not_graded') {
+  if (
+    value === 'not_graded' ||
+    value === 'not_generated' ||
+    value === 'feedback_outdated'
+  ) {
     return 'warning';
-  } else if (value === 'automatically_graded' || value === 'manually_graded') {
+  } else if (
+    value === 'automatically_graded' ||
+    value === 'manually_graded' ||
+    value === 'generated'
+  ) {
     return 'success';
-  } else if (value === 'grading_failed') {
+  } else if (value === 'grading_failed' || value === 'generation_failed') {
     return 'error';
   }
   return 'primary';
@@ -92,9 +100,10 @@ export const getManualChip = (submission: Submission) => {
 export const getFeedbackChip = (submission: Submission) => {
   return (
     <Chip
+      sx={{ textTransform: 'capitalize' }}
       variant="outlined"
-      label={submission.feedback_available ? 'Generated' : 'Not Generated'}
-      color={submission.feedback_available ? 'success' : 'error'}
+      label={submission.feedback_status.split('_').join(' ')}
+      color={getColor(submission.feedback_status)}
     />
   );
 };
@@ -178,10 +187,10 @@ const headCells: readonly HeadCell[] = [
     label: 'Manualgrade-Status'
   },
   {
-    id: 'feedback_available',
+    id: 'feedback_status',
     numeric: false,
     disablePadding: false,
-    label: 'Feedback generated'
+    label: 'Feedback-Status'
   },
   {
     id: 'score',
@@ -411,7 +420,7 @@ export default function GradingTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const submissionString = (s: Submission): string => {
-    return `${s.id} ${s.username} ${utcToLocalFormat(s.submitted_at)} ${s.auto_status.split('_').join(' ')} ${s.manual_status.split('_').join(' ')} ${s.feedback_available ? 'generated' : 'not generated'} ${s.score}`.toLowerCase();
+    return `${s.id} ${s.username} ${utcToLocalFormat(s.submitted_at)} ${s.auto_status.split('_').join(' ')} ${s.manual_status.split('_').join(' ')} ${s.feedback_status.split('_').join(' ')} ${s.score}`.toLowerCase();
   };
 
   const filteredRows = React.useMemo(() => {

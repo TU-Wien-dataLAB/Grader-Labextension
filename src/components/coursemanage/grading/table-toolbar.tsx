@@ -179,7 +179,8 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         await Promise.all(
           selected.map(async id => {
             const row = rows.find(value => value.id === id);
-            await generateFeedback(lecture.id, assignment.id, row.id);
+            row.feedback_status = 'generating';
+            await generateFeedback(lecture, assignment, row);
           })
         );
         enqueueSnackbar(`Generating feedback for ${numSelected} submissions!`, {
