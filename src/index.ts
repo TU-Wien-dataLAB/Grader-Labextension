@@ -124,7 +124,7 @@ export class GlobalObjects {
  * Initialization data for the grading extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: 'coursemanage:plugin',
+  id: 'grader-labextension:plugin',
   autoStart: true,
   requires: [
     ICommandPalette,
