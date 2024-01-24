@@ -337,7 +337,7 @@ const extension: JupyterFrontEndPlugin<void> = {
           // add Menu to JupyterLab main menu
           cmMenu = new Menu({ commands: app.commands });
           cmMenu.title.label = 'Course Management';
-          mainMenu.addMenu(cmMenu, false, { rank: 90 });
+          mainMenu.addMenu(cmMenu, false, { rank: 210 });
 
           command = CourseManageCommandIDs.open;
           app.commands.addCommand(command, {
@@ -386,7 +386,7 @@ const extension: JupyterFrontEndPlugin<void> = {
         // add Menu to JupyterLab main menu
         const aMenu = new Menu({ commands: app.commands });
         aMenu.title.label = 'Assignments';
-        mainMenu.addMenu(aMenu, false, { rank: 80 });
+        mainMenu.addMenu(aMenu, false, { rank: 200 });
 
         GlobalObjects.assignmentMenu = aMenu;
         GlobalObjects.courseManageMenu = cmMenu;
