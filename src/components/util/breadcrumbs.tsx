@@ -13,10 +13,11 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { storeString } from '../../services/storage.service';
 
 export const Page = ({ id }: { id: string }) => {
+  const location = useLocation();
   const pathname =
     '/' +
-    useLocation()
-      .pathname.split('/')
+    location.pathname
+      .split('/')
       .filter(v => v.length > 0)
       .slice(0, 2)
       .join('/');
@@ -34,18 +35,18 @@ export const Page = ({ id }: { id: string }) => {
           overflow: 'hidden'
         }}
       >
-        <Outlet />
+        <Outlet key={location.pathname} />
       </Box>
     </Stack>
   );
 };
 
-interface LinkRouterProps extends LinkProps {
+interface ILinkRouterProps extends LinkProps {
   to: string;
   replace?: boolean;
 }
 
-export function LinkRouter(props: LinkRouterProps) {
+export function LinkRouter(props: ILinkRouterProps) {
   return <Link {...props} component={RouterLink as any} />;
 }
 

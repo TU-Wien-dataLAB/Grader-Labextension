@@ -4,21 +4,5 @@
   "description": "grader-labextension settings.",
   "type": "object",
   "properties": {},
-  "additionalProperties": false,
-  "jupyter.lab.menus": {
-    "main": [
-      {
-        "id": "jp-mainmenu-assignments",
-        "label": "Assignments",
-        "rank": 80,
-        "items": []
-      },
-      {
-        "id": "jp-mainmenu-coursemanage",
-        "label": "Course Management",
-        "rank": 90,
-        "items": []
-      }
-    ]
-  }
+  "additionalProperties": false
 }

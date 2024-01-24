@@ -29,12 +29,7 @@ export class AssignmentManageView extends ReactWidget {
     this.id = options.id || 'assignment-view';
     this.addClass('GradingWidget');
 
-    const savedPath = loadString('assignment-manage-react-router-path');
-    let path = '/';
-    if (savedPath !== null && savedPath !== '') {
-      console.log(`Restoring path: ${savedPath}`);
-      path = savedPath;
-    }
+    const path = '/';
     this.router = createMemoryRouter(getRoutes(), { initialEntries: [path] });
 
     const themeManager = GlobalObjects.themeManager;

@@ -32,11 +32,13 @@ import {
   NotebookPanel
 } from '@jupyterlab/notebook';
 
+import { IMainMenu } from '@jupyterlab/mainmenu';
+
 import { CourseManageView } from './widgets/coursemanage';
 
 import { Cell } from '@jupyterlab/cells';
 
-import { PanelLayout } from '@lumino/widgets';
+import { Menu, PanelLayout } from '@lumino/widgets';
 
 import { NotebookModeSwitch } from './components/notebook/slider';
 
@@ -57,14 +59,19 @@ import { HintWidget } from './components/notebook/student-plugin/hint-widget';
 import { DeadlineWidget } from './components/notebook/student-plugin/deadline-widget';
 import { lectureSubPaths } from './services/file.service';
 import IModel = Contents.IModel;
+import { Assignment } from './model/assignment';
+import { Lecture } from './model/lecture';
+import { getAllLectures } from './services/lectures.service';
+import { updateMenus } from './menu';
+import { loadString } from './services/storage.service';
 
-namespace AssignmentsCommandIDs {
+export namespace AssignmentsCommandIDs {
   export const create = 'assignments:create';
 
   export const open = 'assignments:open';
 }
 
-namespace CourseManageCommandIDs {
+export namespace CourseManageCommandIDs {
   export const create = 'coursemanage:create';
 
   export const open = 'coursemanage:open';
@@ -118,6 +125,8 @@ export class GlobalObjects {
   static browserFactory: IFileBrowserFactory;
   static tracker: INotebookTracker;
   static themeManager: IThemeManager;
+  static assignmentMenu: Menu;
+  static courseManageMenu: Menu;
 }
 
 /**
@@ -134,7 +143,8 @@ const extension: JupyterFrontEndPlugin<void> = {
     IFileBrowserFactory,
     INotebookTracker,
     ILayoutRestorer,
-    IThemeManager
+    IThemeManager,
+    IMainMenu
   ],
   activate: (
     app: JupyterFrontEnd,
@@ -145,7 +155,8 @@ const extension: JupyterFrontEndPlugin<void> = {
     browserFactory: IFileBrowserFactory,
     tracker: INotebookTracker,
     restorer: ILayoutRestorer,
-    themeManager: IThemeManager
+    themeManager: IThemeManager,
+    mainMenu: IMainMenu
   ) => {
     console.log('JupyterLab extension grader_labextension is activated!');
     console.log('JupyterFrontEnd:', app);
@@ -315,19 +326,43 @@ const extension: JupyterFrontEndPlugin<void> = {
             sum += permissions[el];
           }
         }
+
+        let cmMenu = null;
         if (sum !== 0) {
           console.log(
             'Non-student permissions found! Adding coursemanage launcher and connecting creation mode'
           );
           connectTrackerSignals(tracker);
 
+          // add Menu to JupyterLab main menu
+          cmMenu = new Menu({ commands: app.commands });
+          cmMenu.title.label = 'Course Management';
+          mainMenu.addMenu(cmMenu, false, { rank: 90 });
+
           command = CourseManageCommandIDs.open;
           app.commands.addCommand(command, {
             label: 'Course Management',
-            execute: async () => {
-              const gradingWidget = await app.commands.execute(
-                CourseManageCommandIDs.create
-              );
+            execute: async args => {
+              let gradingWidget = courseManageTracker.currentWidget;
+              if (!gradingWidget) {
+                gradingWidget = await app.commands.execute(
+                  CourseManageCommandIDs.create
+                );
+              }
+
+              let path = args?.path as string;
+              if (args?.path === undefined) {
+                const savedPath = loadString(
+                  'assignment-manage-react-router-path'
+                );
+                if (savedPath !== null && savedPath !== '') {
+                  console.log(`Restoring path: ${savedPath}`);
+                  path = savedPath;
+                } else {
+                  path = '/';
+                }
+              }
+              await gradingWidget.content.router.navigate(path);
 
               if (!gradingWidget.isAttached) {
                 // Attach the widget to the main work area if it's not there
@@ -348,13 +383,41 @@ const extension: JupyterFrontEndPlugin<void> = {
           });
         }
 
+        // add Menu to JupyterLab main menu
+        const aMenu = new Menu({ commands: app.commands });
+        aMenu.title.label = 'Assignments';
+        mainMenu.addMenu(aMenu, false, { rank: 80 });
+
+        GlobalObjects.assignmentMenu = aMenu;
+        GlobalObjects.courseManageMenu = cmMenu;
+        updateMenus();
+
         // only add assignment list if user permissions can be loaded
         command = AssignmentsCommandIDs.open;
         app.commands.addCommand(command, {
           label: 'Assignments',
-          execute: async () => {
-            const assignmentWidget: MainAreaWidget<AssignmentManageView> =
-              await app.commands.execute(AssignmentsCommandIDs.create);
+          execute: async args => {
+            let assignmentWidget = assignmentTracker.currentWidget;
+            if (!assignmentWidget) {
+              assignmentWidget = await app.commands.execute(
+                AssignmentsCommandIDs.create
+              );
+            }
+
+            let path = args?.path as string;
+            if (args?.path === undefined) {
+              const savedPath = loadString(
+                'assignment-manage-react-router-path'
+              );
+              if (savedPath !== null && savedPath !== '') {
+                console.log(`Restoring path: ${savedPath}`);
+                path = savedPath;
+              } else {
+                path = '/';
+              }
+            }
+
+            await assignmentWidget.content.router.navigate(path);
 
             if (!assignmentWidget.isAttached) {
               // Attach the widget to the main work area if it's not there
@@ -397,13 +460,13 @@ const extension: JupyterFrontEndPlugin<void> = {
         if (tracker.activeCell === null) {
           return false;
         }
-        return tracker.activeCell.model.getMetadata('revert') != null;
+        return tracker.activeCell.model.getMetadata('revert') !== null;
       },
       isEnabled: () => {
         if (tracker.activeCell === null) {
           return false;
         }
-        return tracker.activeCell.model.getMetadata('revert') != null;
+        return tracker.activeCell.model.getMetadata('revert') !== null;
       },
       execute: () => {
         showDialog({
@@ -430,13 +493,13 @@ const extension: JupyterFrontEndPlugin<void> = {
         if (tracker.activeCell === null) {
           return false;
         }
-        return tracker.activeCell.model.getMetadata('hint') != null;
+        return tracker.activeCell.model.getMetadata('hint') !== null;
       },
       isEnabled: () => {
         if (tracker.activeCell === null) {
           return false;
         }
-        return tracker.activeCell.model.getMetadata('hint') != null;
+        return tracker.activeCell.model.getMetadata('hint') !== null;
       },
       execute: () => {
         let hintWidget: HintWidget = null;
@@ -464,5 +527,4 @@ const extension: JupyterFrontEndPlugin<void> = {
     });
   }
 };
-
 export default extension;
