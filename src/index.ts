@@ -352,9 +352,7 @@ const extension: JupyterFrontEndPlugin<void> = {
 
               let path = args?.path as string;
               if (args?.path === undefined) {
-                const savedPath = loadString(
-                  'assignment-manage-react-router-path'
-                );
+                const savedPath = loadString('course-manage-react-router-path');
                 if (savedPath !== null && savedPath !== '') {
                   console.log(`Restoring path: ${savedPath}`);
                   path = savedPath;

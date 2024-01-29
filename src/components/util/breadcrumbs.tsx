@@ -21,6 +21,7 @@ export const Page = ({ id }: { id: string }) => {
       .filter(v => v.length > 0)
       .slice(0, 2)
       .join('/');
+  console.log(`Storing path: ${pathname}`);
   storeString(`${id}-react-router-path`, pathname);
 
   return (
