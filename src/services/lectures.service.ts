@@ -22,7 +22,7 @@ export function getAllLectures(
     });
     url += '?' + searchParams;
   }
-  return request<Lecture[]>(HTTPMethod.GET, url, reload);
+  return request<Lecture[]>(HTTPMethod.GET, url, null, reload);
 }
 
 export function updateLecture(lecture: Lecture): Promise<Lecture> {
@@ -37,19 +37,25 @@ export function getLecture(
   lectureId: number,
   reload = false
 ): Promise<Lecture> {
-  return request<Lecture>(HTTPMethod.GET, `/lectures/${lectureId}`, reload);
+  return request<Lecture>(
+    HTTPMethod.GET,
+    `/lectures/${lectureId}`,
+    null,
+    reload
+  );
 }
 
-export function deleteLecture(lectureId: number): void {
-  request<void>(HTTPMethod.DELETE, `/lectures/${lectureId}`);
+export function deleteLecture(lectureId: number): Promise<void> {
+  return request<void>(HTTPMethod.DELETE, `/lectures/${lectureId}`, null);
 }
 
 export function getUsers(
-  lectureId: number
+  lectureId: number,
+  reload: boolean = false
 ): Promise<{ instructors: string[]; tutors: string[]; students: string[] }> {
   return request<{
     instructors: string[];
     tutors: string[];
     students: string[];
-  }>(HTTPMethod.GET, `/lectures/${lectureId}/users`);
+  }>(HTTPMethod.GET, `/lectures/${lectureId}/users`, null, reload);
 }
