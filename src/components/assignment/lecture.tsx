@@ -285,10 +285,7 @@ const feedbackAvailable = (submissions: Submission[]): boolean => {
   }
   /* If we have a submission, check if it has feedback */
   for (const submission of submissions) {
-    if (
-      submission.feedback_status === 'generated' ||
-      submission.feedback_status === 'feedback_outdated'
-    ) {
+    if (submission.feedback_available === true) {
       return true;
     }
   }
@@ -361,7 +358,6 @@ export const LectureComponent = () => {
     <Stack direction={'column'} sx={{ m: 5, flex: 1, overflow: 'hidden' }}>
       <Typography variant={'h4'} sx={{ mb: 2 }}>
         {lectureState.name}
-
         {lectureState.complete ? (
           <Typography
             sx={{

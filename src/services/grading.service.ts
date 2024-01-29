@@ -50,13 +50,13 @@ export function autogradeSubmission(
 }
 
 export function generateFeedback(
-  lecture: Lecture,
-  assignment: Assignment,
-  submission: Submission
+  lecture_id: number,
+  assignment_id: number,
+  submission_id: number
 ): Promise<Submission> {
   return request<Submission>(
     HTTPMethod.GET,
-    `/lectures/${lecture.id}/assignments/${assignment.id}/grading/${submission.id}/feedback`,
+    `/lectures/${lecture_id}/assignments/${assignment_id}/grading/${submission_id}/feedback`,
     null
   );
 }
