@@ -62,7 +62,7 @@ import IModel = Contents.IModel;
 import { Assignment } from './model/assignment';
 import { Lecture } from './model/lecture';
 import { getAllLectures } from './services/lectures.service';
-import { updateMenus } from './menu';
+import { getLabel, updateMenus } from './menu';
 import { loadString } from './services/storage.service';
 
 export namespace AssignmentsCommandIDs {
@@ -341,7 +341,8 @@ const extension: JupyterFrontEndPlugin<void> = {
 
           command = CourseManageCommandIDs.open;
           app.commands.addCommand(command, {
-            label: 'Course Management',
+            label: args =>
+              args['label'] ? (args['label'] as string) : 'Course Management',
             execute: async args => {
               let gradingWidget = courseManageTracker.currentWidget;
               if (!gradingWidget) {
@@ -369,7 +370,7 @@ const extension: JupyterFrontEndPlugin<void> = {
               // Activate the widget
               app.shell.activateById(gradingWidget.id);
             },
-            icon: checkIcon
+            icon: args => (args['path'] ? undefined : checkIcon)
           });
 
           // Add the command to the launcher
@@ -393,7 +394,8 @@ const extension: JupyterFrontEndPlugin<void> = {
         // only add assignment list if user permissions can be loaded
         command = AssignmentsCommandIDs.open;
         app.commands.addCommand(command, {
-          label: 'Assignments',
+          label: args =>
+            args['label'] ? (args['label'] as string) : 'Assignments',
           execute: async args => {
             let assignmentWidget = assignmentTracker.currentWidget;
             if (!assignmentWidget) {
@@ -424,7 +426,7 @@ const extension: JupyterFrontEndPlugin<void> = {
             // Activate the widget
             app.shell.activateById(assignmentWidget.id);
           },
-          icon: editIcon
+          icon: args => (args['path'] ? undefined : editIcon)
         });
 
         // Add the command to the launcher

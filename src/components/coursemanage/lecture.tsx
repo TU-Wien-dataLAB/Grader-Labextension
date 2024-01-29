@@ -32,6 +32,7 @@ import { DeadlineComponent } from '../util/deadline';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
+import { updateMenus } from '../../menu';
 
 interface IAssignmentTableProps {
   lecture: Lecture;
@@ -107,6 +108,7 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                           async () => {
                             try {
                               await deleteAssignment(props.lecture.id, row.id);
+                              await updateMenus(true);
                               enqueueSnackbar(
                                 'Successfully Deleted Assignment',
                                 {
@@ -205,7 +207,8 @@ export const LectureComponent = () => {
           lecture={lectureState}
           handleSubmit={updatedLecture => {
             updateLecture(updatedLecture).then(
-              response => {
+              async response => {
+                await updateMenus(true);
                 setLecture(response);
               },
               error => {
