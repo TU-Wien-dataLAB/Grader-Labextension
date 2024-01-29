@@ -130,6 +130,9 @@ export const ManualGrading = () => {
   const [manualPath, setManualPath] = React.useState(mPath);
   const [gradeBook, setGradeBook] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
+  const [feedbackStatus, setFeedbackStatus] = React.useState(
+    submission.feedback_status
+  );
 
   React.useEffect(() => {
     reloadProperties();
@@ -180,7 +183,7 @@ export const ManualGrading = () => {
   const handleGenerateFeedback = async () => {
     await generateFeedbackDialog(async () => {
       try {
-        await generateFeedback(lecture.id, assignment.id, submission.id);
+        await generateFeedback(lecture, assignment, submission);
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
