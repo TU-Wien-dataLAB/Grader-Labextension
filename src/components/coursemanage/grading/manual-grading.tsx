@@ -244,6 +244,9 @@ export const ManualGrading = () => {
     <Box sx={{ overflow: 'auto' }}>
       <Stack direction={'column'} sx={{ flex: '1 1 100%' }}>
         <Box sx={{ m: 2, mt: 5 }}>
+          {(gradeBook?.missingGradeCells().length > 0)
+            ? <Alert sx={{ mb: 2 }} severity="warning">Grading cells were deleted from submission!</Alert>
+            : null}
           <Stack direction="row" spacing={2} sx={{ ml: 2 }}>
             <Stack sx={{ mt: 0.5 }}>
               <Typography
@@ -388,7 +391,8 @@ export const ManualGrading = () => {
           </Tooltip>
 
           {submission.auto_status !== 'automatically_graded' ? (
-            <Tooltip title="Assinment is not auto-graded. To pull submission and finish manual grading, make sure to first autograde it.">
+            <Tooltip
+              title="Assinment is not auto-graded. To pull submission and finish manual grading, make sure to first autograde it.">
               <Button
                 size={'small'}
                 variant="outlined"
