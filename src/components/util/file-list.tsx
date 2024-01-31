@@ -51,11 +51,6 @@ export const FilesList = (props: IFileListProps) => {
     return true;
   };
 
-  const extraFileHelp =
-    'This file is not part of the assignment and will be removed when grading! Did you rename a notebook file or add it manually?';
-  const missingFileHelp =
-    'This file should be part of your assignment! Did you delete it?';
-
   const generateItems = (files: File[]) => {
     const filePaths = files.flatMap(file =>
       extractRelativePathsAssignment(file)
@@ -88,9 +83,7 @@ export const FilesList = (props: IFileListProps) => {
             key={file.path}
             folder={file}
             missingFiles={missingFiles || []}
-            missingFileHelp={missingFileHelp}
             inContained={inContained}
-            extraFileHelp={extraFileHelp}
             openFile={openFile}
             allowFiles={props.assignment?.allow_files}
           />
@@ -101,9 +94,7 @@ export const FilesList = (props: IFileListProps) => {
             key={file.path}
             file={file}
             missingFiles={missingFiles || []}
-            missingFileHelp={missingFileHelp}
             inContained={inContained}
-            extraFileHelp={extraFileHelp}
             openFile={openFile}
             allowFiles={props.assignment?.allow_files}
           />

@@ -130,6 +130,9 @@ export const ManualGrading = () => {
   const [manualPath, setManualPath] = React.useState(mPath);
   const [gradeBook, setGradeBook] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
+  const [feedbackStatus, setFeedbackStatus] = React.useState(
+    submission.feedback_status
+  );
 
   React.useEffect(() => {
     reloadProperties();
@@ -180,7 +183,7 @@ export const ManualGrading = () => {
   const handleGenerateFeedback = async () => {
     await generateFeedbackDialog(async () => {
       try {
-        await generateFeedback(lecture.id, assignment.id, submission.id);
+        await generateFeedback(lecture, assignment, submission);
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
@@ -241,6 +244,11 @@ export const ManualGrading = () => {
     <Box sx={{ overflow: 'auto' }}>
       <Stack direction={'column'} sx={{ flex: '1 1 100%' }}>
         <Box sx={{ m: 2, mt: 5 }}>
+          {gradeBook?.missingGradeCells().length > 0 ? (
+            <Alert sx={{ mb: 2 }} severity="warning">
+              Grading cells were deleted from submission!
+            </Alert>
+          ) : null}
           <Stack direction="row" spacing={2} sx={{ ml: 2 }}>
             <Stack sx={{ mt: 0.5 }}>
               <Typography
