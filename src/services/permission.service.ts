@@ -27,8 +27,7 @@ export namespace UserPermissions {
     permissions = {};
     const response = await request<{ lecture_code: string; scope: number }[]>(
       HTTPMethod.GET,
-      '/permissions',
-      null
+      '/permissions'
     );
     response.forEach(role => {
       permissions[role.lecture_code] = role.scope;
