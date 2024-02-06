@@ -152,12 +152,6 @@ export class GradeBook {
     ];
   }
 
-  public getTaskCellMaxScore(notebook: string, cellId: string): number {
-    return this.properties['notebooks'][notebook]['task_cells_dict'][cellId][
-      'max_score'
-    ];
-  }
-
   public getNotebookPoints(notebook: string): number {
     let sum = 0;
     const grades_dict = this.properties['notebooks'][notebook]['grades_dict'];
@@ -175,48 +169,35 @@ export class GradeBook {
     return sum;
   }
 
-  public addTaskCellsToGrades() {
-    for (const notebook of Object.keys(this.properties['notebooks'])) {
-      const task_cells_dict =
-        this.properties['notebooks'][notebook]['task_cells_dict'];
-      for (const cellId of Object.keys(task_cells_dict)) {
-        if (
-          this.properties['notebooks'][notebook]['grades_dict'][cellId] ===
-          undefined
-        ) {
-          console.log('Adding grade for task cell: ' + cellId);
-          this.createTaskGrade(notebook, cellId, null);
-        }
-      }
-    }
-  }
+  public getNotebookMaxPoints(notebook: string): number {
+    let sum = 0;
 
-  public missingGradeCells(): string[] {
-    const missing = [];
-    for (const notebook of Object.keys(this.properties['notebooks'])) {
-      const grade_cells_dict =
-        this.properties['notebooks'][notebook]['grade_cells_dict'];
-      const grades_dict = this.properties['notebooks'][notebook]['grades_dict'];
-      for (const cellId of Object.keys(grade_cells_dict)) {
-        if (!Object.prototype.hasOwnProperty.call(grades_dict, cellId)) {
-          missing.push(cellId);
-        }
+    // add task cells to grades dict if they are not there
+    const task_cells_dict =
+      this.properties['notebooks'][notebook]['task_cells_dict'];
+    for (const cellId of Object.keys(task_cells_dict)) {
+      if (
+        this.properties['notebooks'][notebook]['grades_dict'][cellId] ===
+        undefined
+      ) {
+        console.log('Adding grade for task cell: ' + cellId);
+        this.createTaskGrade(notebook, cellId, null);
       }
     }
-    return missing;
+
+    const grades_dict = this.properties['notebooks'][notebook]['grades_dict'];
+    for (const cellId of Object.keys(grades_dict)) {
+      sum += this.getGradeMaxScore(notebook, cellId);
+    }
+    return sum;
   }
 
   public getNotebookMaxPointsCells(notebook: string): number {
     let sum = 0;
-    const grade_cells_dict =
+    const grades_dict =
       this.properties['notebooks'][notebook]['grade_cells_dict'];
-    for (const cellId of Object.keys(grade_cells_dict)) {
+    for (const cellId of Object.keys(grades_dict)) {
       sum += this.getGradeCellMaxScore(notebook, cellId);
-    }
-    const task_cells_dict =
-      this.properties['notebooks'][notebook]['task_cells_dict'];
-    for (const cellId of Object.keys(task_cells_dict)) {
-      sum += this.getTaskCellMaxScore(notebook, cellId);
     }
     return sum;
   }
@@ -224,7 +205,7 @@ export class GradeBook {
   public getMaxPoints(): number {
     let sum = 0;
     for (const notebook of Object.keys(this.properties['notebooks'])) {
-      sum += this.getNotebookMaxPointsCells(notebook);
+      sum += this.getNotebookMaxPoints(notebook);
     }
     return sum;
   }

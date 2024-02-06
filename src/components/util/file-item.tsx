@@ -19,6 +19,8 @@ interface IFileItemProps {
   file: File;
   inContained: (file: string) => boolean;
   missingFiles?: File[];
+  extraFileHelp: string;
+  missingFileHelp: string;
   openFile: (path: string) => void;
   allowFiles?: boolean;
 }
@@ -26,6 +28,8 @@ interface IFileItemProps {
 const FileItem = ({
   file,
   inContained,
+  extraFileHelp,
+  missingFileHelp,
   openFile,
   allowFiles,
   missingFiles
@@ -33,11 +37,6 @@ const FileItem = ({
   const inMissing = (filePath: string) => {
     return missingFiles.some(missingFile => missingFile.path === filePath);
   };
-
-  const extraFileHelp =
-    'This file is not part of the assignment and will be removed when grading! Did you rename a notebook file or add it manually?';
-  const missingFileHelp =
-    'This file should be part of your assignment! Did you delete it?';
 
   //console.log("Missing files (file-item): " + missingFiles.map(f => f.path));
   return (
