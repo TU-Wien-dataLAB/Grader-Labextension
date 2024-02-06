@@ -132,14 +132,15 @@ export const ManualGrading = () => {
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    reloadProperties();
+    reloadProperties(submission);
   }, []);
 
-  const reloadManualPath = () => {
+  const reloadManualPath = (submission) => {
+    const mPath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
     setManualPath(mPath);
   };
-
-  const reloadProperties = () => {
+  
+  const reloadProperties = (submission) => {
     getProperties(lecture.id, assignment.id, submission.id, true).then(
       properties => {
         const gradeBook = new GradeBook(properties);
@@ -147,17 +148,17 @@ export const ManualGrading = () => {
       }
     );
   };
-
-  const reloadSubmission = () => {
+  
+  const reloadSubmission = (submission) => {
     getSubmission(lecture.id, assignment.id, submission.id, true).then(s =>
       setSubmission(s)
     );
   };
-
-  const reload = () => {
-    reloadSubmission();
-    reloadProperties();
-    reloadManualPath();
+  
+  const reload = (submission) => {
+    reloadSubmission(submission);
+    reloadProperties(submission);
+    reloadManualPath(submission);
   };
 
   const handleAutogradeSubmission = async () => {
@@ -167,7 +168,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Autograding submission!', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Autograding Submission', {
@@ -184,7 +185,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Generating Feedback', {
@@ -209,13 +210,13 @@ export const ManualGrading = () => {
         enqueueSnackbar('Successfully Graded Submission', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       },
       err => {
         enqueueSnackbar(err.message, {
           variant: 'error'
         });
-        reload();
+        reload(submission);
       }
     );
   };
@@ -227,7 +228,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Successfully Pulled Submission', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       },
       err => {
         enqueueSnackbar(err.message, {
@@ -235,6 +236,17 @@ export const ManualGrading = () => {
         });
       }
     );
+  };
+
+  const handleNavigation = (direction) => {
+    const currentIndex = rows.findIndex(s => s.id === manualGradeSubmission.id);
+    const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+    if (newIndex >= 0 && newIndex < rows.length) {
+      const newSubmission = rows[newIndex];
+      setManualGradeSubmission(newSubmission);
+      reload(newSubmission);
+    }
   };
 
   return (
@@ -379,7 +391,7 @@ export const ManualGrading = () => {
 
         <Stack direction={'row'} sx={{ ml: 2, mr: 2 }} spacing={2}>
           <Tooltip title="Reload">
-            <IconButton aria-label="reload" onClick={() => reload()}>
+            <IconButton aria-label="reload" onClick={() => reload(submission)}>
               <ReplayIcon />
             </IconButton>
           </Tooltip>
@@ -463,33 +475,25 @@ export const ManualGrading = () => {
           <Button
             variant="outlined"
             component={Link as any}
-            to={submissionsLink}
-          >
+            to={submissionsLink}>
             Back
           </Button>
           <Box sx={{ flex: '1 1 100%' }}></Box>
-          <IconButton
+            <IconButton
             aria-label="previous"
             disabled={rowIdx === 0}
             color="primary"
-            onClick={() => {
-              const prevSub = rows[rowIdx - 1];
-              setManualGradeSubmission(prevSub);
-            }}
+            onClick={() => handleNavigation('previous')}
           >
             <ArrowBackIcon />
-          </IconButton>
-          <IconButton
-            aria-label="next"
-            disabled={rowIdx === rows.length - 1}
-            color="primary"
-            onClick={() => {
-              const nextSub = rows[rowIdx + 1];
-              setManualGradeSubmission(nextSub);
-            }}
-          >
-            <ArrowForwardIcon />
-          </IconButton>
+            </IconButton>
+            <IconButton
+              aria-label="next"
+              disabled={rowIdx === rows.length - 1}
+              color="primary"
+            >
+              <ArrowForwardIcon />
+            </IconButton>
         </Toolbar>
       </Stack>
     </Box>
