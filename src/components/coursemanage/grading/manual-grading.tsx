@@ -180,7 +180,7 @@ export const ManualGrading = () => {
   const handleGenerateFeedback = async () => {
     await generateFeedbackDialog(async () => {
       try {
-        await generateFeedback(lecture.id, assignment.id, submission.id);
+        await generateFeedback(lecture, assignment, submission);
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
@@ -204,6 +204,7 @@ export const ManualGrading = () => {
 
   const finishGrading = () => {
     submission.manual_status = 'manually_graded';
+    if(submission.feedback_status === 'generated') submission.feedback_status = 'feedback_outdated';
     updateSubmission(lecture.id, assignment.id, submission.id, submission).then(
       response => {
         enqueueSnackbar('Successfully Graded Submission', {
@@ -252,6 +253,11 @@ export const ManualGrading = () => {
     <Box sx={{ overflow: 'auto' }}>
       <Stack direction={'column'} sx={{ flex: '1 1 100%' }}>
         <Box sx={{ m: 2, mt: 5 }}>
+          {gradeBook?.missingGradeCells().length > 0 ? (
+            <Alert sx={{ mb: 2 }} severity="warning">
+              Grading cells were deleted from submission!
+            </Alert>
+          ) : null}
           <Stack direction="row" spacing={2} sx={{ ml: 2 }}>
             <Stack sx={{ mt: 0.5 }}>
               <Typography
@@ -469,7 +475,8 @@ export const ManualGrading = () => {
           <Button
             variant="outlined"
             component={Link as any}
-            to={submissionsLink}>
+            to={submissionsLink}
+          >
             Back
           </Button>
           <Box sx={{ flex: '1 1 100%' }}></Box>

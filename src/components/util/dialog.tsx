@@ -89,6 +89,8 @@ const validationSchemaLecture = yup.object({
 export interface IEditLectureProps {
   lecture: Lecture;
   handleSubmit: (updatedLecture: Lecture) => void;
+  open: boolean;
+  handleClose: () => void;
 }
 
 const EditLectureNameTooltip = styled(
@@ -115,7 +117,12 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
     }
   });
 
+  const { open, handleClose } = props;
   const [openDialog, setOpen] = React.useState(false);
+  const openDialogFunction = () => {
+    setOpen(true);
+  };
+
 
   return (
     <div>
@@ -139,7 +146,7 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
         <IconButton
           onClick={e => {
             e.stopPropagation();
-            setOpen(true);
+            openDialogFunction();
           }}
           onMouseDown={event => event.stopPropagation()}
           aria-label="edit"
@@ -147,7 +154,8 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
           <SettingsIcon />
         </IconButton>
       </EditLectureNameTooltip>
-      <Dialog open={openDialog} onBackdropClick={() => setOpen(false)}>
+      <Dialog open={open || openDialog}
+              onBackdropClick={() => { setOpen(false); handleClose(); }}>
         <DialogTitle>Edit Lecture</DialogTitle>
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
@@ -183,6 +191,7 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
               variant="outlined"
               onClick={() => {
                 setOpen(false);
+                handleClose();
               }}
             >
               Cancel
@@ -589,15 +598,15 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
           </Button>
 
           <GraderLoadingButton
-          color="primary"
-          variant="contained"
-          type="submit"
-          disabled={message === ''}
-          onClick={async () => {
-            await props.handleCommit(message);
-            await props.handleRelease();
-            setCommitOpen(false);
-          }}
+            color="primary"
+            variant="contained"
+            type="submit"
+            disabled={message === ''}
+            onClick={async () => {
+              await props.handleCommit(message);
+              await props.handleRelease();
+              setCommitOpen(false);
+            }}
           >
             <span>Commit and Release</span>
           </GraderLoadingButton>
