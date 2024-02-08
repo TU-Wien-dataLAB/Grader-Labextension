@@ -32,7 +32,6 @@ import { FilesList } from '../../util/file-list';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { enqueueSnackbar } from 'notistack';
 import { openBrowser } from '../overview/util';
-import { LoadingButton } from '@mui/lab';
 import { lectureBasePath } from '../../../services/file.service';
 import { Link, useOutletContext } from 'react-router-dom';
 import { utcToLocalFormat } from '../../../services/datetime.service';
@@ -46,6 +45,7 @@ import {
 } from './table-toolbar';
 import { showDialog } from '../../util/dialog-provider';
 import InfoIcon from '@mui/icons-material/Info';
+import { GraderLoadingButton } from '../../util/loading-button';
 
 const style = {
   position: 'absolute' as const,
@@ -129,7 +129,6 @@ export const ManualGrading = () => {
   );
   const [manualPath, setManualPath] = React.useState(mPath);
   const [gradeBook, setGradeBook] = React.useState(null);
-  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     reloadProperties(submission);
@@ -409,22 +408,17 @@ export const ManualGrading = () => {
               </Button>
             </Tooltip>
           ) : null}
-          <LoadingButton
+          <GraderLoadingButton
             size={'small'}
-            loading={loading}
             disabled={submission.auto_status !== 'automatically_graded'}
             color="primary"
             variant="outlined"
-            onClick={async () => {
-              setLoading(true);
-              await handlePullSubmission();
-              setLoading(false);
-            }}
+            onClick={async () => { await handlePullSubmission(); }}
             sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
           >
             Pull Submission
-          </LoadingButton>
-
+          </GraderLoadingButton>
+          
           <Button
             size={'small'}
             variant="outlined"
@@ -491,6 +485,7 @@ export const ManualGrading = () => {
               aria-label="next"
               disabled={rowIdx === rows.length - 1}
               color="primary"
+              onClick={() => handleNavigation('next')}
             >
               <ArrowForwardIcon />
             </IconButton>

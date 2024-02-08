@@ -51,6 +51,7 @@ import { enqueueSnackbar } from 'notistack';
 import { showDialog } from './dialog-provider';
 import styled from '@mui/system/styled';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { GraderLoadingButton } from './loading-button';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -545,8 +546,6 @@ export interface IReleaseDialogProps extends ICommitDialogProps {
 export const ReleaseDialog = (props: IReleaseDialogProps) => {
   const [commitOpen, setCommitOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-
   const agreeMessage = `Do you want to release "${props.assignment.name}" for all students? Before releasing, all changes are pushed again as the release version.`;
 
   return (
@@ -589,22 +588,19 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
             Cancel
           </Button>
 
-          <LoadingButton
-            loading={loading}
-            color="primary"
-            variant="contained"
-            type="submit"
-            disabled={message === ''}
-            onClick={async () => {
-              setLoading(true);
-              await props.handleCommit(message);
-              await props.handleRelease();
-              setLoading(false);
-              setCommitOpen(false);
-            }}
+          <GraderLoadingButton
+          color="primary"
+          variant="contained"
+          type="submit"
+          disabled={message === ''}
+          onClick={async () => {
+            await props.handleCommit(message);
+            await props.handleRelease();
+            setCommitOpen(false);
+          }}
           >
             <span>Commit and Release</span>
-          </LoadingButton>
+          </GraderLoadingButton>
         </DialogActions>
       </Dialog>
     </div>

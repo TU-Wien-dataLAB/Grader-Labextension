@@ -32,6 +32,7 @@ import {
   pushSubmissionFiles
 } from '../../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
+import { GraderLoadingButton } from '../../util/loading-button';
 
 export const CreateSubmission = () => {
   const { assignment, rows, setRows } = useOutletContext() as {
@@ -162,9 +163,10 @@ export const CreateSubmission = () => {
 
         <FilesList path={path} sx={{ m: 2 }} />
         <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
-          <Button
+          <GraderLoadingButton
             variant="outlined"
             color="success"
+            sx={{ ml: 2 }}
             onClick={async () => {
               showDialog(
                 'Manual Submission',
@@ -174,10 +176,9 @@ export const CreateSubmission = () => {
                 }
               );
             }}
-            sx={{ ml: 2 }}
           >
             Push Submission
-          </Button>
+          </GraderLoadingButton>
         </Stack>
         <Stack sx={{ ml: 2, mt: 3, mb: 5 }} direction={'row'}>
           <Button
