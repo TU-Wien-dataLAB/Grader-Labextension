@@ -38,6 +38,7 @@ import moment from 'moment';
 import { red } from '@mui/material/colors';
 import { showDialog } from '../../util/dialog-provider';
 import CloseIcon from '@mui/icons-material/Close';
+import { updateMenus } from '../../../menu';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -171,7 +172,8 @@ export const SettingsComponent = () => {
       }
       const updatedAssignment: Assignment = Object.assign(assignment, values);
       updateAssignment(lecture.id, updatedAssignment).then(
-        response => {
+        async response => {
+          await updateMenus(true);
           enqueueSnackbar('Successfully Updated Assignment', {
             variant: 'success'
           });
@@ -380,6 +382,7 @@ export const SettingsComponent = () => {
                     async () => {
                       try {
                         await deleteAssignment(lecture.id, assignment.id);
+                        await updateMenus(true);
                         enqueueSnackbar('Successfully Deleted Assignment', {
                           variant: 'success'
                         });

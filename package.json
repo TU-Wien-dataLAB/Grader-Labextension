@@ -62,6 +62,7 @@
         "@jupyterlab/coreutils": "^6.0.0",
         "@jupyterlab/filebrowser": "^4.0.2",
         "@jupyterlab/launcher": "^4.0.2",
+        "@jupyterlab/mainmenu": "^4.0.11",
         "@jupyterlab/notebook": "^4.0.2",
         "@jupyterlab/services": "^7.0.0",
         "@jupyterlab/settingregistry": "^4.0.0",

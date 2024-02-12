@@ -51,6 +51,7 @@ import { enqueueSnackbar } from 'notistack';
 import { showDialog } from './dialog-provider';
 import styled from '@mui/system/styled';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { updateMenus } from '../../menu';
 import { GraderLoadingButton } from './loading-button';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
@@ -266,7 +267,8 @@ export const CreateDialog = (props: ICreateDialogProps) => {
         allow_files: values.allow_files
       };
       createAssignment(props.lecture.id, newAssignment).then(
-        a => {
+        async a => {
+          await updateMenus(true);
           props.handleSubmit(a);
         },
 

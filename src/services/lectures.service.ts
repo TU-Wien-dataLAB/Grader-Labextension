@@ -7,10 +7,6 @@
 import { Lecture } from '../model/lecture';
 import { request, HTTPMethod } from './request.service';
 
-export function createLecture(lecture: Lecture): Promise<Lecture> {
-  return request<Lecture>(HTTPMethod.POST, '/lectures', lecture);
-}
-
 export function getAllLectures(
   complete: boolean = false,
   reload = false

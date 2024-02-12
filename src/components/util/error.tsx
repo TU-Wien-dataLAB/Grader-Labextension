@@ -5,6 +5,7 @@ import { storeString } from '../../services/storage.service';
 export default function ErrorPage({ id }: { id: string }) {
   const error: any = useRouteError();
   console.error(error);
+  console.log('Storing path: /');
   storeString(`${id}-react-router-path`, '/');
 
   return (
