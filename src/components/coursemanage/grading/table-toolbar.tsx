@@ -115,14 +115,14 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           .then(response => {
             enqueueSnackbar(
               'Successfully matched ' +
-                response.syncable_users +
-                ' submissions with learning platform',
+              response.syncable_users +
+              ' submissions with learning platform',
               { variant: 'success' }
             );
             enqueueSnackbar(
               'Successfully synced latest submissions with feedback of ' +
-                response.synced_user +
-                ' users',
+              response.synced_user +
+              ' users',
               { variant: 'success' }
             );
           })
@@ -179,7 +179,8 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         await Promise.all(
           selected.map(async id => {
             const row = rows.find(value => value.id === id);
-            await generateFeedback(lecture.id, assignment.id, row.id);
+            row.feedback_status = 'generating';
+            await generateFeedback(lecture, assignment, row);
           })
         );
         enqueueSnackbar(`Generating feedback for ${numSelected} submissions!`, {
@@ -297,16 +298,23 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                 Autograde
               </Button>
             </Tooltip>
-
-            {checkAutogradeStatus() === true ? (
-              <Button
-                key={'feedback'}
-                sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
-                onClick={handleGenerateFeedback}
-              >
-                {'Generate Feedback'}
-              </Button>
-            ) : null}
+            <Tooltip
+              title={
+                checkAutogradeStatus() ? 'Generate feedback for all selected submissions'
+                  : 'All selected submissions have to be automatically graded!'
+              }
+            >
+              <span>
+                <Button
+                  key={'feedback'}
+                  sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
+                  disabled={!checkAutogradeStatus()}
+                  onClick={handleGenerateFeedback}
+                >
+                  {'Generate Feedback'}
+                </Button>
+              </span>
+            </Tooltip>
           </ButtonGroup>
         ) : (
           <Stack direction="row" spacing={2}>

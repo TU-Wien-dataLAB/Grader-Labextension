@@ -32,7 +32,6 @@ import { FilesList } from '../../util/file-list';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { enqueueSnackbar } from 'notistack';
 import { openBrowser } from '../overview/util';
-import { LoadingButton } from '@mui/lab';
 import { lectureBasePath } from '../../../services/file.service';
 import { Link, useOutletContext } from 'react-router-dom';
 import { utcToLocalFormat } from '../../../services/datetime.service';
@@ -46,6 +45,7 @@ import {
 } from './table-toolbar';
 import { showDialog } from '../../util/dialog-provider';
 import InfoIcon from '@mui/icons-material/Info';
+import { GraderLoadingButton } from '../../util/loading-button';
 
 const style = {
   position: 'absolute' as const,
@@ -129,17 +129,17 @@ export const ManualGrading = () => {
   );
   const [manualPath, setManualPath] = React.useState(mPath);
   const [gradeBook, setGradeBook] = React.useState(null);
-  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    reloadProperties();
+    reloadProperties(submission);
   }, []);
 
-  const reloadManualPath = () => {
+  const reloadManualPath = (submission) => {
+    const mPath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
     setManualPath(mPath);
   };
-
-  const reloadProperties = () => {
+  
+  const reloadProperties = (submission) => {
     getProperties(lecture.id, assignment.id, submission.id, true).then(
       properties => {
         const gradeBook = new GradeBook(properties);
@@ -147,17 +147,17 @@ export const ManualGrading = () => {
       }
     );
   };
-
-  const reloadSubmission = () => {
+  
+  const reloadSubmission = (submission) => {
     getSubmission(lecture.id, assignment.id, submission.id, true).then(s =>
       setSubmission(s)
     );
   };
-
-  const reload = () => {
-    reloadSubmission();
-    reloadProperties();
-    reloadManualPath();
+  
+  const reload = (submission) => {
+    reloadSubmission(submission);
+    reloadProperties(submission);
+    reloadManualPath(submission);
   };
 
   const handleAutogradeSubmission = async () => {
@@ -167,7 +167,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Autograding submission!', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Autograding Submission', {
@@ -180,11 +180,11 @@ export const ManualGrading = () => {
   const handleGenerateFeedback = async () => {
     await generateFeedbackDialog(async () => {
       try {
-        await generateFeedback(lecture.id, assignment.id, submission.id);
+        await generateFeedback(lecture, assignment, submission);
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Generating Feedback', {
@@ -204,18 +204,19 @@ export const ManualGrading = () => {
 
   const finishGrading = () => {
     submission.manual_status = 'manually_graded';
+    if(submission.feedback_status === 'generated') submission.feedback_status = 'feedback_outdated';
     updateSubmission(lecture.id, assignment.id, submission.id, submission).then(
       response => {
         enqueueSnackbar('Successfully Graded Submission', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       },
       err => {
         enqueueSnackbar(err.message, {
           variant: 'error'
         });
-        reload();
+        reload(submission);
       }
     );
   };
@@ -227,7 +228,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Successfully Pulled Submission', {
           variant: 'success'
         });
-        reload();
+        reload(submission);
       },
       err => {
         enqueueSnackbar(err.message, {
@@ -237,10 +238,26 @@ export const ManualGrading = () => {
     );
   };
 
+  const handleNavigation = (direction) => {
+    const currentIndex = rows.findIndex(s => s.id === manualGradeSubmission.id);
+    const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+    if (newIndex >= 0 && newIndex < rows.length) {
+      const newSubmission = rows[newIndex];
+      setManualGradeSubmission(newSubmission);
+      reload(newSubmission);
+    }
+  };
+
   return (
     <Box sx={{ overflow: 'auto' }}>
       <Stack direction={'column'} sx={{ flex: '1 1 100%' }}>
         <Box sx={{ m: 2, mt: 5 }}>
+          {gradeBook?.missingGradeCells().length > 0 ? (
+            <Alert sx={{ mb: 2 }} severity="warning">
+              Grading cells were deleted from submission!
+            </Alert>
+          ) : null}
           <Stack direction="row" spacing={2} sx={{ ml: 2 }}>
             <Stack sx={{ mt: 0.5 }}>
               <Typography
@@ -379,7 +396,7 @@ export const ManualGrading = () => {
 
         <Stack direction={'row'} sx={{ ml: 2, mr: 2 }} spacing={2}>
           <Tooltip title="Reload">
-            <IconButton aria-label="reload" onClick={() => reload()}>
+            <IconButton aria-label="reload" onClick={() => reload(submission)}>
               <ReplayIcon />
             </IconButton>
           </Tooltip>
@@ -397,22 +414,17 @@ export const ManualGrading = () => {
               </Button>
             </Tooltip>
           ) : null}
-          <LoadingButton
+          <GraderLoadingButton
             size={'small'}
-            loading={loading}
             disabled={submission.auto_status !== 'automatically_graded'}
             color="primary"
             variant="outlined"
-            onClick={async () => {
-              setLoading(true);
-              await handlePullSubmission();
-              setLoading(false);
-            }}
+            onClick={async () => { await handlePullSubmission(); }}
             sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
           >
             Pull Submission
-          </LoadingButton>
-
+          </GraderLoadingButton>
+          
           <Button
             size={'small'}
             variant="outlined"
@@ -468,28 +480,22 @@ export const ManualGrading = () => {
             Back
           </Button>
           <Box sx={{ flex: '1 1 100%' }}></Box>
-          <IconButton
+            <IconButton
             aria-label="previous"
             disabled={rowIdx === 0}
             color="primary"
-            onClick={() => {
-              const prevSub = rows[rowIdx - 1];
-              setManualGradeSubmission(prevSub);
-            }}
+            onClick={() => handleNavigation('previous')}
           >
             <ArrowBackIcon />
-          </IconButton>
-          <IconButton
-            aria-label="next"
-            disabled={rowIdx === rows.length - 1}
-            color="primary"
-            onClick={() => {
-              const nextSub = rows[rowIdx + 1];
-              setManualGradeSubmission(nextSub);
-            }}
-          >
-            <ArrowForwardIcon />
-          </IconButton>
+            </IconButton>
+            <IconButton
+              aria-label="next"
+              disabled={rowIdx === rows.length - 1}
+              color="primary"
+              onClick={() => handleNavigation('next')}
+            >
+              <ArrowForwardIcon />
+            </IconButton>
         </Toolbar>
       </Stack>
     </Box>

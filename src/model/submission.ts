@@ -21,7 +21,7 @@ export interface Submission {
   score?: number;
   assignid?: number;
   commit_hash?: string;
-  feedback_available?: boolean;
+  feedback_status?: Submission.FeedBackStatusEnum;
   edited?: boolean;
 }
 export namespace Submission {
@@ -46,5 +46,18 @@ export namespace Submission {
     ManuallyGraded: 'manually_graded' as ManualStatusEnum,
     BeingEdited: 'being_edited' as ManualStatusEnum,
     GradingFailed: 'grading_failed' as ManualStatusEnum
+  };
+  export type FeedBackStatusEnum =
+    | 'not_generated'
+    | 'generating'
+    | 'generated'
+    | 'generation_failed'
+    | 'feedback_outdated';
+  export const FeedBackStatusEnum = {
+    NotGenerated: 'not_generated' as FeedBackStatusEnum,
+    Generating: 'generating' as FeedBackStatusEnum,
+    Generated: 'generated' as FeedBackStatusEnum,
+    GenerationFailed: 'generation_failed' as FeedBackStatusEnum,
+    FeedbackOutdated: 'feedback_outdated' as FeedBackStatusEnum
   };
 }
