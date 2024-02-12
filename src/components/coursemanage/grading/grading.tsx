@@ -57,19 +57,11 @@ import {
  * @return chip color
  */
 const getColor = (value: string) => {
-  if (
-    value === 'not_graded' ||
-    value === 'not_generated' ||
-    value === 'feedback_outdated'
-  ) {
+  if (value === 'not_graded') {
     return 'warning';
-  } else if (
-    value === 'automatically_graded' ||
-    value === 'manually_graded' ||
-    value === 'generated'
-  ) {
+  } else if (value === 'automatically_graded' || value === 'manually_graded') {
     return 'success';
-  } else if (value === 'grading_failed' || value === 'generation_failed') {
+  } else if (value === 'grading_failed') {
     return 'error';
   }
   return 'primary';
@@ -100,10 +92,9 @@ export const getManualChip = (submission: Submission) => {
 export const getFeedbackChip = (submission: Submission) => {
   return (
     <Chip
-      sx={{ textTransform: 'capitalize' }}
       variant="outlined"
-      label={submission.feedback_status.split('_').join(' ')}
-      color={getColor(submission.feedback_status)}
+      label={submission.feedback_available ? 'Generated' : 'Not Generated'}
+      color={submission.feedback_available ? 'success' : 'error'}
     />
   );
 };
@@ -187,10 +178,10 @@ const headCells: readonly HeadCell[] = [
     label: 'Manualgrade-Status'
   },
   {
-    id: 'feedback_status',
+    id: 'feedback_available',
     numeric: false,
     disablePadding: false,
-    label: 'Feedback-Status'
+    label: 'Feedback generated'
   },
   {
     id: 'score',
@@ -420,7 +411,7 @@ export default function GradingTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const submissionString = (s: Submission): string => {
-    return `${s.id} ${s.username} ${utcToLocalFormat(s.submitted_at)} ${s.auto_status.split('_').join(' ')} ${s.manual_status.split('_').join(' ')} ${s.feedback_status.split('_').join(' ')} ${s.score}`.toLowerCase();
+    return `${s.id} ${s.username} ${utcToLocalFormat(s.submitted_at)} ${s.auto_status.split('_').join(' ')} ${s.manual_status.split('_').join(' ')} ${s.feedback_available ? 'generated' : 'not generated'} ${s.score}`.toLowerCase();
   };
 
   const filteredRows = React.useMemo(() => {

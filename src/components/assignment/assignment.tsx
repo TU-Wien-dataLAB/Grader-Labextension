@@ -51,10 +51,7 @@ import { GradeBook } from '../../services/gradebook';
 
 const calculateActiveStep = (submissions: Submission[]) => {
   const hasFeedback = submissions.reduce(
-    (accum: boolean, curr: Submission) =>
-      accum ||
-      curr.feedback_status === 'generated' ||
-      curr.feedback_status === 'feedback_outdated',
+    (accum: boolean, curr: Submission) => accum || curr.feedback_available,
     false
   );
   if (hasFeedback) {

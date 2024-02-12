@@ -74,7 +74,7 @@ const getData = (
       if (v.manual_status === 'manually_graded') {
         acc.m++;
       }
-      if (v.feedback_status === 'generated') {
+      if (v.feedback_available) {
         acc.f++;
       }
       return acc;

@@ -12,14 +12,13 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Tooltip,
-  Alert
+  Tooltip
 } from '@mui/material';
 import * as React from 'react';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { deleteAssignment } from '../../services/assignments.service';
-import { CreateDialog, EditLectureDialog, IEditLectureProps } from '../util/dialog';
+import { CreateDialog, EditLectureDialog } from '../util/dialog';
 import { updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
@@ -158,26 +157,6 @@ export const LectureComponent = () => {
 
   const [lectureState, setLecture] = React.useState(lecture);
   const [assignmentsState, setAssignments] = React.useState(assignments);
-  const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
-
-  const handleOpenEditDialog = () => {
-    setEditDialogOpen(true);
-  };
-
-  
-  const handleUpdateLecture = (updatedLecture) => {
-    updateLecture(updatedLecture).then(
-      (response) => {
-        setLecture(response);
-      },
-      (error) => {
-        enqueueSnackbar(error.message, {
-          variant: 'error',
-        });
-      }
-    );
-  };
-
 
   if (navigation.state === 'loading') {
     return (
@@ -207,41 +186,37 @@ export const LectureComponent = () => {
         ) : null}
       </Typography>
       <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ mt: 2, mb: 1 }}
+        direction={'row'}
+        justifyContent={'flex-end'}
+        alignItems={'center'}
+        spacing={2}
+        sx={{ mb: 1 }}
       >
-        <Stack direction="row" alignItems="center" spacing={2}>
-          {lecture.code === lecture.name ? (
-            <Alert severity="info">
-              The name of the lecture is identical to the lecture code.{' '}
-              <span style={{ cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={handleOpenEditDialog}>
-                Rename Lecture.
-              </span>
-            </Alert>
-          ) : null}
-        </Stack>
-
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <CreateDialog
-            lecture={lectureState}
-            handleSubmit={assigment => {
-              setAssignments((oldAssignments: Assignment[]) => [
-                ...oldAssignments,
-                assigment
-              ]);
-            }}
-          />
-          <EditLectureDialog
-            lecture={lectureState}
-            handleSubmit={handleUpdateLecture}
-            open={isEditDialogOpen}
-            handleClose={() => setEditDialogOpen(false)}
-          />
-        </Stack>
+        <CreateDialog
+          lecture={lectureState}
+          handleSubmit={assigment => {
+            setAssignments((oldAssignments: Assignment[]) => [
+              ...oldAssignments,
+              assigment
+            ]);
+          }}
+        />
+        <EditLectureDialog
+          lecture={lectureState}
+          handleSubmit={updatedLecture => {
+            updateLecture(updatedLecture).then(
+              response => {
+                setLecture(response);
+              },
+              error => {
+                enqueueSnackbar(error.message, {
+                  variant: 'error'
+                });
+              }
+            );
+          }}
+        />
       </Stack>
-
 
       <Stack>
         <Typography variant={'h6'}>Assignments</Typography>

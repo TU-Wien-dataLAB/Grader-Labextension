@@ -32,7 +32,7 @@ export function getAllAssignments(
     });
     url += '?' + searchParams;
   }
-  return request<AssignmentDetail[]>(HTTPMethod.GET, url, null, reload);
+  return request<AssignmentDetail[]>(HTTPMethod.GET, url, reload);
 }
 
 export function getAssignment(
@@ -43,21 +43,17 @@ export function getAssignment(
   return request<Assignment>(
     HTTPMethod.GET,
     `/lectures/${lectureId}/assignments/${assignmentId}`,
-    null,
     reload
   );
 }
 
 export function getAssignmentProperties(
   lectureId: number,
-  assignmentId: number,
-  reload: boolean = false
+  assignmentId: number
 ): Promise<any> {
   return request<any>(
     HTTPMethod.GET,
-    `/lectures/${lectureId}/assignments/${assignmentId}/properties`,
-    null,
-    reload
+    `/lectures/${lectureId}/assignments/${assignmentId}/properties`
   );
 }
 
@@ -78,8 +74,7 @@ export function generateAssignment(
 ): Promise<any> {
   return request<any>(
     HTTPMethod.PUT,
-    `/lectures/${lectureId}/assignments/${assignment.id}/generate`,
-    null
+    `/lectures/${lectureId}/assignments/${assignment.id}/generate`
   );
 }
 
@@ -87,8 +82,7 @@ export function fetchAssignment(
   lectureId: number,
   assignmentId: number,
   instructor: boolean = false,
-  metadataOnly: boolean = false,
-  reload: boolean = false
+  metadataOnly: boolean = false
 ): Promise<Assignment> {
   let url = `/lectures/${lectureId}/assignments/${assignmentId}`;
   if (instructor || metadataOnly) {
@@ -99,7 +93,7 @@ export function fetchAssignment(
     url += '?' + searchParams;
   }
 
-  return request<Assignment>(HTTPMethod.GET, url, null, reload);
+  return request<Assignment>(HTTPMethod.GET, url);
 }
 
 export function deleteAssignment(
@@ -108,8 +102,7 @@ export function deleteAssignment(
 ): Promise<void> {
   return request<void>(
     HTTPMethod.DELETE,
-    `/lectures/${lectureId}/assignments/${assignmentId}`,
-    null
+    `/lectures/${lectureId}/assignments/${assignmentId}`
   );
 }
 
@@ -126,7 +119,7 @@ export function pushAssignment(
     });
     url += '?' + searchParams;
   }
-  return request<void>(HTTPMethod.PUT, url, null);
+  return request<void>(HTTPMethod.PUT, url);
 }
 
 export function pullAssignment(
@@ -136,8 +129,7 @@ export function pullAssignment(
 ): Promise<void> {
   return request<void>(
     HTTPMethod.GET,
-    `/lectures/${lectureId}/assignments/${assignmentId}/pull/${repoType}`,
-    null
+    `/lectures/${lectureId}/assignments/${assignmentId}/pull/${repoType}`
   );
 }
 
@@ -147,7 +139,6 @@ export function resetAssignment(
 ): Promise<void> {
   return request<void>(
     HTTPMethod.GET,
-    `/lectures/${lecture.id}/assignments/${assignment.id}/reset`,
-    null
+    `/lectures/${lecture.id}/assignments/${assignment.id}/reset`
   );
 }

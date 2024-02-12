@@ -6,9 +6,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   Stack,
-  Tooltip,
   Typography
 } from '@mui/material';
 import * as React from 'react';
@@ -18,24 +16,22 @@ import { Submission } from '../../../model/submission';
 import {
   createOrOverrideEditRepository,
   getLogs,
-  getProperties,
+  getSubmission,
   pullSubmissionFiles,
-  pushSubmissionFiles,
-  updateSubmission
+  pushSubmissionFiles
 } from '../../../services/submissions.service';
-import { GradeBook } from '../../../services/gradebook';
-import { createManualFeedback } from '../../../services/grading.service';
 import { FilesList } from '../../util/file-list';
-import ReplayIcon from '@mui/icons-material/Replay';
 import { enqueueSnackbar } from 'notistack';
 import { openBrowser } from '../overview/util';
-import { LoadingButton } from '@mui/lab';
 import { lectureBasePath } from '../../../services/file.service';
-import { Link, useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import Toolbar from '@mui/material/Toolbar';
 import { showDialog } from '../../util/dialog-provider';
+import { GraderLoadingButton } from '../../util/loading-button';
 
 export const EditSubmission = () => {
+  const navigate = useNavigate();
+  
   const {
     lecture,
     assignment,
@@ -52,13 +48,19 @@ export const EditSubmission = () => {
     setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
   const path = `${lectureBasePath}${lecture.code}/edit/${assignment.id}/${manualGradeSubmission.id}`;
-  const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
-
   const [submission, setSubmission] = React.useState(manualGradeSubmission);
-  const [loading, setLoading] = React.useState(false);
-
+  const manualGradePath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
   const [showLogs, setShowLogs] = React.useState(false);
   const [logs, setLogs] = React.useState(undefined);
+
+
+  
+  const reload = () => {
+    getSubmission(lecture.id, assignment.id, submission.id, true).then(s =>
+      setSubmission(s)
+    );
+  };
+  
 
   const openLogs = (event: React.MouseEvent<unknown>, submissionId: number) => {
     getLogs(lecture.id, assignment.id, submissionId).then(
@@ -97,6 +99,7 @@ export const EditSubmission = () => {
         enqueueSnackbar('Successfully Pulled Submission', {
           variant: 'success'
         });
+        reload();
       },
       err => {
         enqueueSnackbar(err.message, {
@@ -178,55 +181,45 @@ export const EditSubmission = () => {
       <FilesList path={path} sx={{ m: 2 }} />
 
       <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
-        <LoadingButton
-          loading={loading}
+        <GraderLoadingButton
           color={submission.edited ? 'error' : 'primary'}
           variant="outlined"
-          onClick={async () => {
-            setLoading(true);
-            await setEditRepository();
-            setLoading(false);
-          }}
+          onClick={async () => { await setEditRepository(); }}
         >
           {submission.edited ? 'Reset ' : 'Create '}
           Edit Repository
-        </LoadingButton>
-
-        <LoadingButton
-          loading={loading}
+        </GraderLoadingButton>
+       
+        <GraderLoadingButton
           color="primary"
           variant="outlined"
           disabled={!submission.edited}
-          onClick={async () => {
-            setLoading(true);
-            await handlePullEditedSubmission();
-            setLoading(false);
-          }}
-        >
+          onClick={async () => { await handlePullEditedSubmission(); }}>
           Pull Submission
-        </LoadingButton>
-
-        <Button
-          variant="outlined"
-          color="success"
-          disabled={!submission.edited}
-          onClick={async () => {
-            showDialog(
-              'Edit Submission',
-              'Do you want to push your submission changes?',
-              async () => {
-                await pushEditedFiles();
-              }
-            );
-          }}
-          sx={{ ml: 2 }}
-        >
-          Push Edited Submission
-        </Button>
+        </GraderLoadingButton>
+       
+       <GraderLoadingButton
+        variant="outlined"
+        color="success"
+        disabled={!submission.edited}
+        sx={{ ml: 2 }}
+        onClick={async () => {
+          showDialog(
+            'Edit Submission',
+            'Do you want to push your submission changes?',
+            async () => {
+              await pushEditedFiles();
+            }
+          );
+        }}
+       >
+        Push Edited Submission
+      </GraderLoadingButton>
       </Stack>
       <Box sx={{ flex: '1 1 100%' }}></Box>
       <Toolbar>
-        <Button variant="outlined" component={Link as any} to={submissionsLink}>
+        <Button variant="outlined"
+         onClick={() => navigate(-1)}>
           Back
         </Button>
       </Toolbar>
