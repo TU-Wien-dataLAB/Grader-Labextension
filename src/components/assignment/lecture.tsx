@@ -285,7 +285,10 @@ const feedbackAvailable = (submissions: Submission[]): boolean => {
   }
   /* If we have a submission, check if it has feedback */
   for (const submission of submissions) {
-    if (submission.feedback_available === true) {
+    if (
+      submission.feedback_status === 'generated' ||
+      submission.feedback_status === 'feedback_outdated'
+    ) {
       return true;
     }
   }
