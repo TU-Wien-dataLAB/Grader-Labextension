@@ -49,7 +49,6 @@ export const EditSubmission = () => {
   };
   const path = `${lectureBasePath}${lecture.code}/edit/${assignment.id}/${manualGradeSubmission.id}`;
   const [submission, setSubmission] = React.useState(manualGradeSubmission);
-  const manualGradePath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
   const [showLogs, setShowLogs] = React.useState(false);
   const [logs, setLogs] = React.useState(undefined);
 
