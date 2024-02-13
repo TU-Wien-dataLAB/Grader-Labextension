@@ -215,9 +215,10 @@ export const LectureComponent = () => {
         alignItems="center"
         sx={{ mt: 2, mb: 1 }}
       >
-        <Stack 
-          direction="row" 
-          alignItems="center" 
+
+        <Stack
+          direction="row"
+          alignItems="center"
           sx={{ mr: 2}}
           >
           {lecture.code === lecture.name ? (

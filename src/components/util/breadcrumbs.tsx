@@ -36,7 +36,7 @@ export const Page = ({ id }: { id: string }) => {
           overflow: 'hidden'
         }}
       >
-        <Outlet key={location.pathname} />
+        <Outlet key={id} />
       </Box>
     </Stack>
   );

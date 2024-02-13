@@ -198,9 +198,9 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
               Cancel
             </Button>
 
-            <Button 
-              color="primary" 
-              variant="contained" 
+            <Button
+              color="primary"
+              variant="contained"
               type="submit"
               onClick={handleClose}
             >
