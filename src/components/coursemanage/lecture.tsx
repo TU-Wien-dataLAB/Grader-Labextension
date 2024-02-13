@@ -215,10 +215,14 @@ export const LectureComponent = () => {
         alignItems="center"
         sx={{ mt: 2, mb: 1 }}
       >
-        <Stack direction="row" alignItems="center" spacing={2}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ mr: 2}}
+          >
           {lecture.code === lecture.name ? (
             <Alert severity="info">
-              The name of the lecture is identical to the lecture code.{' '}
+              The name of the lecture is identical to the lecture code. You should give it a meaningful title that accurately reflects its content.{' '}
               <span style={{ cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={handleOpenEditDialog}>
                 Rename Lecture.
               </span>
