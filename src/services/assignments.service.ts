@@ -117,7 +117,8 @@ export function pushAssignment(
   lectureId: number,
   assignmentId: number,
   repoType: string,
-  commitMessage?: string
+  commitMessage?: string,
+  selectedFiles?: string[]
 ): Promise<void> {
   let url = `/lectures/${lectureId}/assignments/${assignmentId}/push/${repoType}`;
   if (commitMessage) {
@@ -126,8 +127,19 @@ export function pushAssignment(
     });
     url += '?' + searchParams;
   }
+  
+  /*if (selectedFiles && selectedFiles.length > 0) {
+    const selectedFilesParams = new URLSearchParams({
+      'selected-files': selectedFiles.join(',')
+    });
+    url += '?' + selectedFilesParams;
+  }
+
+  console.log("url is here: " + url);*/
+
   return request<void>(HTTPMethod.PUT, url, null);
 }
+
 
 export function pullAssignment(
   lectureId: number,

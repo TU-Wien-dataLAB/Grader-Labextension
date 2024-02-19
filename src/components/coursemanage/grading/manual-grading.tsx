@@ -392,7 +392,7 @@ export const ManualGrading = () => {
           <InfoModal />
         </Stack>
 
-        <FilesList path={manualPath} sx={{ m: 2 }} />
+        <FilesList path={manualPath} sx={{ m: 2 }} checkboxes={false} />
 
         <Stack direction={'row'} sx={{ ml: 2, mr: 2 }} spacing={2}>
           <Tooltip title="Reload">

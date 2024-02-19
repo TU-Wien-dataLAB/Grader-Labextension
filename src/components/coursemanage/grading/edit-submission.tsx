@@ -177,7 +177,7 @@ export const EditSubmission = () => {
         </Button>
       </Stack>
 
-      <FilesList path={path} sx={{ m: 2 }} />
+      <FilesList path={path} sx={{ m: 2 }} checkboxes={false}/>
 
       <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
         <GraderLoadingButton

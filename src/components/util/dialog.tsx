@@ -53,6 +53,8 @@ import styled from '@mui/system/styled';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { updateMenus } from '../../menu';
 import { GraderLoadingButton } from './loading-button';
+import { FilesList } from './file-list';
+import { getFiles, lectureBasePath } from '../../services/file.service';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -495,13 +497,51 @@ export const CreateDialog = (props: ICreateDialogProps) => {
 };
 
 export interface ICommitDialogProps {
-  handleCommit: (msg: string) => void;
+  handleCommit: (msg: string, selectedFiles?: string[]) => void;
   children: React.ReactNode;
+  lecture?: Lecture;
+  assignment?: Assignment;
 }
 
 export const CommitDialog = (props: ICommitDialogProps) => {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
+  const [selectedDir, setSelectedDir] = React.useState('source');
+  const [filesListVisible, setFilesListVisible] = React.useState(false);
+  const [selectedFiles, setSelectedFiles] = React.useState<string[]>();
+  const path = `${lectureBasePath}${props.lecture.code}/${selectedDir}/${props.assignment.id}`;
+
+  const fetchFilesForSelectedDir = async () => {
+    try {
+      const files = await getFiles(path);
+      const filePaths = files.map((file) => file.path);
+      setSelectedFiles(filePaths);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
+  };
+
+  React.useEffect(() => {
+    if (open || filesListVisible) {
+      fetchFilesForSelectedDir();
+    }
+  }, [open, filesListVisible, selectedDir]);
+
+
+  const toggleFilesList = () => {
+    setFilesListVisible(!filesListVisible);
+  };
+
+  const handleFileSelectChange = (filePath: string, isSelected: boolean) => {
+    setSelectedFiles(prevSelectedFiles => {
+      if (isSelected) {
+        return [...prevSelectedFiles, filePath];
+      } else {
+        return prevSelectedFiles.filter(file => file !== filePath);
+      }
+    });
+  };
+
 
   return (
     <div>
@@ -515,6 +555,12 @@ export const CommitDialog = (props: ICommitDialogProps) => {
       >
         <DialogTitle>Commit Files</DialogTitle>
         <DialogContent>
+        <Button onClick={toggleFilesList} sx={{ mb: 2 }}>
+            Choose files to commit
+          </Button>
+          {filesListVisible && (
+            <FilesList  path={path} checkboxes={true} onFileSelectChange={handleFileSelectChange} />
+          )}
           <TextField
             sx={{ mt: 2, width: '100%' }}
             id="outlined-textarea"
@@ -531,6 +577,7 @@ export const CommitDialog = (props: ICommitDialogProps) => {
             variant="outlined"
             onClick={() => {
               setOpen(false);
+              toggleFilesList();
             }}
           >
             Cancel
@@ -542,8 +589,9 @@ export const CommitDialog = (props: ICommitDialogProps) => {
             type="submit"
             disabled={message === ''}
             onClick={() => {
-              props.handleCommit(message);
+              props.handleCommit(message, selectedFiles);
               setOpen(false);
+              toggleFilesList();
             }}
           >
             Commit
@@ -555,7 +603,6 @@ export const CommitDialog = (props: ICommitDialogProps) => {
 };
 
 export interface IReleaseDialogProps extends ICommitDialogProps {
-  assignment: Assignment;
   handleRelease: () => void;
 }
 

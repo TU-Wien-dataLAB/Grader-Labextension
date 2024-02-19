@@ -35,6 +35,8 @@ interface IFileListProps {
   assignment?: Assignment;
   lecture?: Lecture;
   missingFiles?: File[];
+  checkboxes: boolean;
+  onFileSelectChange?: (filePath: string, isSelected: boolean) => void;
 }
 
 export const FilesList = (props: IFileListProps) => {
@@ -51,7 +53,11 @@ export const FilesList = (props: IFileListProps) => {
     return true;
   };
 
-  const generateItems = (files: File[]) => {
+  const handleFileSelectChange = (filePath: string, isSelected: boolean) => {
+    props.onFileSelectChange(filePath, isSelected);
+  };
+
+  const generateItems = (files: File[], handleFileSelectChange?: (filePath: string, isSelected: boolean) => void) => {
     const filePaths = files.flatMap(file =>
       extractRelativePathsAssignment(file)
     );
@@ -86,6 +92,7 @@ export const FilesList = (props: IFileListProps) => {
             inContained={inContained}
             openFile={openFile}
             allowFiles={props.assignment?.allow_files}
+            checkboxes={props.checkboxes}
           />
         );
       } else {
@@ -97,6 +104,8 @@ export const FilesList = (props: IFileListProps) => {
             inContained={inContained}
             openFile={openFile}
             allowFiles={props.assignment?.allow_files}
+            checkboxes={props.checkboxes}
+            onFileSelectChange={handleFileSelectChange}
           />
         );
       }
@@ -113,7 +122,7 @@ export const FilesList = (props: IFileListProps) => {
             No Files Found
           </Typography>
         ) : (
-          <List dense={false}>{generateItems(files)}</List>
+          <List dense={false}>{generateItems(files, props.onFileSelectChange)}</List>
         )}
       </Card>
     </Paper>

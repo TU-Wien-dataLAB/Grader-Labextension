@@ -6,7 +6,8 @@ import {
   ListItemText,
   Tooltip,
   Stack,
-  Typography
+  Typography,
+  Checkbox
 } from '@mui/material';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -21,6 +22,8 @@ interface IFileItemProps {
   missingFiles?: File[];
   openFile: (path: string) => void;
   allowFiles?: boolean;
+  checkboxes: boolean;
+  onFileSelectChange?: (filePath: string, isSelected: boolean) => void;
 }
 
 const FileItem = ({
@@ -28,10 +31,19 @@ const FileItem = ({
   inContained,
   openFile,
   allowFiles,
-  missingFiles
+  missingFiles,
+  checkboxes, 
+  onFileSelectChange
 }: IFileItemProps) => {
   const inMissing = (filePath: string) => {
     return missingFiles.some(missingFile => missingFile.path === filePath);
+  };
+
+  const [isSelected, setIsSelected] = React.useState(true);
+
+  const toggleSelection = () => {
+    setIsSelected(prevState => !prevState);
+    onFileSelectChange(file.path, !isSelected);
   };
 
   const extraFileHelp =
@@ -39,12 +51,22 @@ const FileItem = ({
   const missingFileHelp =
     'This file should be part of your assignment! Did you delete it?';
 
-  //console.log("Missing files (file-item): " + missingFiles.map(f => f.path));
+
   return (
     <ListItem disablePadding>
+      {checkboxes && ( 
+          <ListItemIcon>
+            <Checkbox
+              checked={isSelected}
+              onChange={toggleSelection}
+            />
+          </ListItemIcon>
+        )}
       <ListItemButton onClick={() => openFile(file.path)} dense={true}>
         <ListItemIcon>
-          <KeyboardArrowRightIcon sx={{ visibility: 'hidden' }} />
+          {!checkboxes && (
+            <KeyboardArrowRightIcon sx={{ visibility: 'hidden' }} />
+          )}
           <InsertDriveFileRoundedIcon />
         </ListItemIcon>
         <ListItemText

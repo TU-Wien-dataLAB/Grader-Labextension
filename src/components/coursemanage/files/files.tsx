@@ -187,19 +187,21 @@ export const Files = (props: IFilesProps) => {
    * Pushes files to the source und release repo.
    * @param commitMessage the commit message
    */
-  const handlePushAssignment = async (commitMessage: string) => {
+  const handlePushAssignment = async (commitMessage: string, selectedFiles: string[]) => {
+    console.log("Files to commit: " + selectedFiles);
     showDialog(
       'Push Assignment',
       `Do you want to push ${assignment.name}? This updates the state of the assignment on the server with your local state.`,
       async () => {
         try {
           // Note: has to be in this order (release -> source)
-          await pushAssignment(lecture.id, assignment.id, 'release');
+          await pushAssignment(lecture.id, assignment.id, 'release', commitMessage, selectedFiles);
           await pushAssignment(
             lecture.id,
             assignment.id,
             'source',
-            commitMessage
+            commitMessage,
+            selectedFiles
           );
 
           enqueueSnackbar('Successfully Pushed Assignment', {
@@ -361,11 +363,12 @@ export const Files = (props: IFilesProps) => {
         <Box>
           <FilesList
             path={`${lectureBasePath}${props.lecture.code}/${selectedDir}/${props.assignment.id}`}
+            checkboxes={false}
           />
         </Box>
       </CardContent>
       <CardActions sx={{ marginTop: 'auto' }}>
-        <CommitDialog handleCommit={msg => handlePushAssignment(msg)}>
+        <CommitDialog handleCommit={(msg, selectedFiles) => handlePushAssignment(msg, selectedFiles)} lecture={props.lecture} assignment={props.assignment}>
           <Tooltip
             title={`Commit Changes${
               isCommitOverwrite() ? ' (Overwrites remote files!)' : ''
