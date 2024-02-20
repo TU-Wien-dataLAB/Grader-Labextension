@@ -186,18 +186,27 @@ class GitService(Configurable):
         """
         return os.path.exists(os.path.join(self.path, ".git"))
 
-    def commit(self, m=str(datetime.now())):
+    def commit(self, m=str(datetime.now()), selected_files: List[str] = None):
         """Commits the staged changes
 
         Args:
-            m (str, optional): the commit message. Defaults to str(datetime.now()).
+            m (str, optional): The commit message. Defaults to str(datetime.now()).
+            selected_files (List[str], optional): List of file paths to be committed. Defaults to None.
         """
         # self.log.info("Adding all files")
         # self._run_command(f'git add -A', cwd=self.path)
         # self.log.info("Committing repository")
         # self._run_command(f'git commit -m "{m}"', cwd=self.path)
-        self.log.info(f"Adding all files and committing in {self.path}")
-        self._run_command(f'sh -c \'git add -A && git commit --allow-empty -m "{m}"\'', cwd=self.path)
+        if selected_files:
+            for file_path in selected_files:
+                self.log.info(f"Adding file {file_path} and committing in {self.path}")
+                self._run_command(f'sh -c \'git add "{file_path}"\'', cwd=self.path)
+        else:
+            self.log.info(f"Adding all files and committing in {self.path}")
+            self._run_command(f'sh -c \'git add -A\'', cwd=self.path)
+            
+        self._run_command(f'sh -c \'git commit --allow-empty -m "{m}"\'', cwd=self.path)
+        self.log.info(f"Committed changes in {self.path}")
 
     def set_author(self, author):
         # TODO: maybe ask user to specify their own choices
@@ -231,24 +240,35 @@ class GitService(Configurable):
                     self.log.info(f"Deleted {os.path.join(root, d)} from {self.git_root_dir}")
 
     # Note: dirs_exist_ok was only added in Python 3.8
-    def copy_repo_contents(self, src: str):
+    def copy_repo_contents(self, src: str, selected_files: List[str] = None):
         """copies repo contents from src to the git path
 
         Args:
             src (str): path where the to be copied files reside
         """
-        self.log.info(f"Copying repository contents from {src} to {self.path}")
-        ignore = shutil.ignore_patterns(".git", "__pycache__")
-        if sys.version_info.major == 3 and sys.version_info.minor >= 8:
-            shutil.copytree(src, self.path, ignore=ignore, dirs_exist_ok=True)
-        else:
+        if(selected_files):
+            self.log.info(f"Coping only selected files from {src} to {self.path}")
             for item in os.listdir(src):
-                s = os.path.join(src, item)
-                d = os.path.join(self.path, item)
-                if os.path.isdir(s):
-                    shutil.copytree(s, d, ignore=ignore)
-                else:
-                    shutil.copy2(s, d)
+                if item in selected_files:
+                    s = os.path.join(src, item)
+                    d = os.path.join(self.path, item)
+                    if os.path.isdir(s):
+                        shutil.copytree(s, d, ignore=ignore)
+                    else:
+                        shutil.copy2(s, d)
+        else:    
+            self.log.info(f"Copying repository contents from {src} to {self.path}")
+            ignore = shutil.ignore_patterns(".git", "__pycache__")
+            if sys.version_info.major == 3 and sys.version_info.minor >= 8:
+                shutil.copytree(src, self.path, ignore=ignore, dirs_exist_ok=True)
+            else:
+                for item in os.listdir(src):
+                    s = os.path.join(src, item)
+                    d = os.path.join(self.path, item)
+                    if os.path.isdir(s):
+                        shutil.copytree(s, d, ignore=ignore)
+                    else:
+                        shutil.copy2(s, d)
 
     def check_remote_status(self, origin: str, branch: str) -> RemoteStatus:
         untracked, added, modified, deleted = self.git_status(hidden_files=False)

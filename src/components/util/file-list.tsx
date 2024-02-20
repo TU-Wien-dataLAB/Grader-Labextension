@@ -18,8 +18,8 @@ import {
   getFiles,
   openFile,
   File,
-  extractRelativePathsAssignment,
-  getRelativePathAssignment,
+  extractRelativePaths,
+  getRelativePath,
   lectureBasePath
 } from '../../services/file.service';
 import { grey } from '@mui/material/colors';
@@ -59,7 +59,7 @@ export const FilesList = (props: IFileListProps) => {
 
   const generateItems = (files: File[], handleFileSelectChange?: (filePath: string, isSelected: boolean) => void) => {
     const filePaths = files.flatMap(file =>
-      extractRelativePathsAssignment(file)
+      extractRelativePaths(file, 'assignments')
     );
     const missingFiles: File[] =
       (props.shouldContain &&
@@ -78,7 +78,7 @@ export const FilesList = (props: IFileListProps) => {
       [];
 
     const missingFilesTopOrder = missingFiles.filter(missingFile => {
-      const relativePath = getRelativePathAssignment(missingFile.path);
+      const relativePath = getRelativePath(missingFile.path, 'assignments');
       return !relativePath.includes('/');
     });
 

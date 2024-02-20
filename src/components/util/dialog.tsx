@@ -54,7 +54,7 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { updateMenus } from '../../menu';
 import { GraderLoadingButton } from './loading-button';
 import { FilesList } from './file-list';
-import { getFiles, lectureBasePath } from '../../services/file.service';
+import { extractRelativePaths, getFiles, lectureBasePath } from '../../services/file.service';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -514,7 +514,9 @@ export const CommitDialog = (props: ICommitDialogProps) => {
   const fetchFilesForSelectedDir = async () => {
     try {
       const files = await getFiles(path);
-      const filePaths = files.map((file) => file.path);
+      const filePaths = files.flatMap(file =>
+        extractRelativePaths(file, 'source')
+      );
       setSelectedFiles(filePaths);
     } catch (error) {
       console.error('Error fetching files:', error);

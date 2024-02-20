@@ -121,21 +121,20 @@ export function pushAssignment(
   selectedFiles?: string[]
 ): Promise<void> {
   let url = `/lectures/${lectureId}/assignments/${assignmentId}/push/${repoType}`;
-  if (commitMessage) {
+  if (commitMessage && commitMessage !== undefined) {
     const searchParams = new URLSearchParams({
       'commit-message': commitMessage
     });
     url += '?' + searchParams;
   }
   
-  /*if (selectedFiles && selectedFiles.length > 0) {
-    const selectedFilesParams = new URLSearchParams({
-      'selected-files': selectedFiles.join(',')
+  if (selectedFiles && selectedFiles.length > 0) {
+    selectedFiles.forEach(file => {
+      url += `&selected-files=${encodeURIComponent(file)}`;
     });
-    url += '?' + selectedFilesParams;
   }
 
-  console.log("url is here: " + url);*/
+  console.log("url is here: " + url);
 
   return request<void>(HTTPMethod.PUT, url, null);
 }

@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+from ast import List
 import json
 import os
 import shutil
@@ -280,6 +281,7 @@ class PushHandler(ExtensionBaseHandler):
             self.write_error(404)
         sub_id = self.get_argument("subid", None)
         commit_message = self.get_argument("commit-message", None)
+        selected_files = self.get_arguments("selected-files")
         submit = self.get_argument("submit", "false") == "true"
         # this username is used when an instructor creates a submission for a user (ignored otherwise)
         username = self.get_argument("for_user", None)
@@ -345,7 +347,8 @@ class PushHandler(ExtensionBaseHandler):
                 repo_type="source",
                 config=self.config,
             ).path
-            git_service.copy_repo_contents(src=src_path)
+            print("Selected Files:", selected_files)
+            git_service.copy_repo_contents(src=src_path, selected_files=selected_files)
 
             # call nbconvert before pushing
             generator = GenerateAssignment(
@@ -428,7 +431,7 @@ class PushHandler(ExtensionBaseHandler):
             raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=e.error)
 
         try:
-            git_service.commit(m=commit_message)
+            git_service.commit(m=commit_message, selected_files=selected_files)
         except GitError as e:
             self.log.error("GitError:\n" + e.error)
             raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=e.error)

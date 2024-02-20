@@ -14,7 +14,7 @@ import WarningIcon from '@mui/icons-material/Warning';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Contents } from '@jupyterlab/services';
 import DangerousIcon from '@mui/icons-material/Dangerous';
-import { File, getRelativePathAssignment } from '../../services/file.service';
+import { File, getRelativePath } from '../../services/file.service';
 
 interface IFileItemProps {
   file: File;
@@ -85,7 +85,7 @@ const FileItem = ({
               )}
               {
                 <Stack direction={'row'} spacing={2}>
-                  {!inContained(getRelativePathAssignment(file.path)) &&
+                  {!inContained(getRelativePath(file.path, 'assignments')) &&
                     !allowFiles && (
                       <Tooltip title={extraFileHelp}>
                         <Stack direction={'row'} spacing={2} flex={0}>
