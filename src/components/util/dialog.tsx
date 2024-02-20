@@ -36,8 +36,8 @@ import {
   Snackbar
 } from '@mui/material';
 import { Assignment } from '../../model/assignment';
-import { LoadingButton } from '@mui/lab';
-import SearchIcon from '@mui/icons-material/Search';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { createAssignment } from '../../services/assignments.service';
 import { Lecture } from '../../model/lecture';
@@ -556,6 +556,7 @@ export const CommitDialog = (props: ICommitDialogProps) => {
         <DialogTitle>Commit Files</DialogTitle>
         <DialogContent>
         <Button onClick={toggleFilesList} sx={{ mb: 2 }}>
+            {filesListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowRightIcon />}
             Choose files to commit
           </Button>
           {filesListVisible && (
