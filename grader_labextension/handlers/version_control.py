@@ -347,8 +347,13 @@ class PushHandler(ExtensionBaseHandler):
                 repo_type="source",
                 config=self.config,
             ).path
-            print("Selected Files:", selected_files)
+
+            if(selected_files):
+                self.log.info(f"Selected files to push to {repo}: {selected_files}")
+           
             git_service.copy_repo_contents(src=src_path, selected_files=selected_files)
+
+            self.log.info(f"Files in {src_path} directory after copying selected files: {os.listdir(src_path)}")
 
             # call nbconvert before pushing
             generator = GenerateAssignment(

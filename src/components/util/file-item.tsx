@@ -42,8 +42,12 @@ const FileItem = ({
   const [isSelected, setIsSelected] = React.useState(true);
 
   const toggleSelection = () => {
-    setIsSelected(prevState => !prevState);
-    onFileSelectChange(file.path, !isSelected);
+    setIsSelected(prevState => {
+      const nextState = !prevState;
+      // used only with checkboxes -> in source directory
+      onFileSelectChange(getRelativePath(file.path, 'source'), nextState);
+      return nextState;
+    });
   };
 
   const extraFileHelp =

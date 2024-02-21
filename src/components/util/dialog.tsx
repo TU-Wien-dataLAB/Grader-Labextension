@@ -523,27 +523,24 @@ export const CommitDialog = (props: ICommitDialogProps) => {
     }
   };
 
-  React.useEffect(() => {
-    if (open || filesListVisible) {
-      fetchFilesForSelectedDir();
-    }
-  }, [open, filesListVisible, selectedDir]);
-
-
   const toggleFilesList = () => {
     setFilesListVisible(!filesListVisible);
+    fetchFilesForSelectedDir();
   };
 
   const handleFileSelectChange = (filePath: string, isSelected: boolean) => {
+    // console.log(`<File select change:> ${filePath} - ${isSelected}`);
     setSelectedFiles(prevSelectedFiles => {
       if (isSelected) {
-        return [...prevSelectedFiles, filePath];
+        if (!prevSelectedFiles.includes(filePath)) {
+          return [...prevSelectedFiles, filePath];
+        }
       } else {
         return prevSelectedFiles.filter(file => file !== filePath);
       }
+      return prevSelectedFiles;
     });
   };
-
 
   return (
     <div>
@@ -592,6 +589,7 @@ export const CommitDialog = (props: ICommitDialogProps) => {
             type="submit"
             disabled={message === ''}
             onClick={() => {
+              // console.log("See selected files: " + selectedFiles);
               props.handleCommit(message, selectedFiles);
               setOpen(false);
               toggleFilesList();

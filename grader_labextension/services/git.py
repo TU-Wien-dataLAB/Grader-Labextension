@@ -247,7 +247,7 @@ class GitService(Configurable):
             src (str): path where the to be copied files reside
         """
         if(selected_files):
-            self.log.info(f"Coping only selected files from {src} to {self.path}")
+            self.log.info(f"Copying only selected files from {src} to {self.path}")
             for item in os.listdir(src):
                 if item in selected_files:
                     s = os.path.join(src, item)
