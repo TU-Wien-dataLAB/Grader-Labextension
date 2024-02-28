@@ -188,7 +188,7 @@ export const Files = (props: IFilesProps) => {
    * @param commitMessage the commit message
    */
   const handlePushAssignment = async (commitMessage: string, selectedFiles: string[]) => {
-    console.log("Files to commit: " + selectedFiles);
+    // console.log("Files to commit: " + selectedFiles);
     showDialog(
       'Push Assignment',
       `Do you want to push ${assignment.name}? This updates the state of the assignment on the server with your local state.`,
@@ -363,6 +363,8 @@ export const Files = (props: IFilesProps) => {
         <Box>
           <FilesList
             path={`${lectureBasePath}${props.lecture.code}/${selectedDir}/${props.assignment.id}`}
+            lecture={props.lecture}
+            assignment={props.assignment}
             checkboxes={false}
           />
         </Box>

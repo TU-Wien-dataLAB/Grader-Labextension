@@ -207,3 +207,14 @@ export function getRemoteStatus(
   const url = `/lectures/${lecture.id}/assignments/${assignment.id}/remote-status/${repo}/`;
   return request<string>(HTTPMethod.GET, url, null, reload);
 }
+
+export function getRemoteFileStatus(
+  lecture: Lecture,
+  assignment: Assignment,
+  repo: RepoType,
+  filePath: string,
+  reload = false
+): Promise<string> {
+  const url = `/lectures/${lecture.id}/assignments/${assignment.id}/remote-file-status/${repo}/?file=${encodeURIComponent(filePath)}`;
+  return request<string>(HTTPMethod.GET, url, null, reload);
+}

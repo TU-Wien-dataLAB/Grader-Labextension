@@ -38,6 +38,10 @@ class RemoteStatus(enum.Enum):
     push_needed = 3
     divergent = 4
 
+class RemoteFileStatus(enum.Enum):
+    up_to_date = 1
+    push_needed = 2
+    divergent = 3
 
 class GitService(Configurable):
     git_access_token = Unicode(os.environ.get("JUPYTERHUB_API_TOKEN"), allow_none=False).tag(config=True)
@@ -319,6 +323,20 @@ class GitService(Configurable):
             elif k == "D":
                 deleted.append(v)
         return untracked, added, modified, deleted
+    
+    def check_remote_file_status(self, file_path: str) -> RemoteFileStatus:
+        file_status_list = self._run_command(f"git status --porcelain {file_path}", cwd=self.path, capture_output=True).split(maxsplit=1)
+        # Extract the status character from the list
+        if file_status_list:
+            file_status = file_status_list[0]
+        else:
+            # If the list is empty, the file is up-to-date
+            return RemoteFileStatus.up_to_date
+        # Convert the file status to the corresponding enum value
+        if file_status in {"??", "M", "A", "D"}:
+            return RemoteFileStatus.push_needed
+        else:
+            return RemoteFileStatus.divergent
 
     def local_branch_exists(self, branch: str) -> bool:
         ret_code = self._run_command(f"git rev-parse --quiet --verify {branch}", cwd=self.path, check=False).returncode

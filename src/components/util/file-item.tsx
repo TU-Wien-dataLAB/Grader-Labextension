@@ -7,17 +7,26 @@ import {
   Tooltip,
   Stack,
   Typography,
-  Checkbox
+  Checkbox,
+  Chip
 } from '@mui/material';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import WarningIcon from '@mui/icons-material/Warning';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Contents } from '@jupyterlab/services';
 import DangerousIcon from '@mui/icons-material/Dangerous';
-import { File, getRelativePath } from '../../services/file.service';
+import { File, getRelativePath, getRemoteFileStatus } from '../../services/file.service';
+import { Lecture } from '../../model/lecture';
+import { Assignment } from '../../model/assignment';
+import { RepoType } from './repo-type';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import CheckIcon from '@mui/icons-material/Check';
+import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 
 interface IFileItemProps {
   file: File;
+  lecture?: Lecture,
+  assignment?: Assignment;
   inContained: (file: string) => boolean;
   missingFiles?: File[];
   openFile: (path: string) => void;
@@ -28,6 +37,8 @@ interface IFileItemProps {
 
 const FileItem = ({
   file,
+  lecture,
+  assignment,
   inContained,
   openFile,
   allowFiles,
@@ -35,11 +46,77 @@ const FileItem = ({
   checkboxes, 
   onFileSelectChange
 }: IFileItemProps) => {
+  
   const inMissing = (filePath: string) => {
     return missingFiles.some(missingFile => missingFile.path === filePath);
   };
 
   const [isSelected, setIsSelected] = React.useState(true);
+  const [fileRemoteStatus, setFileRemoteStatus] = React.useState(
+    null as 'up_to_date' | 'push_needed' | 'divergent'
+  );
+
+  React.useEffect(() => {
+    getRemoteFileStatus(
+      lecture,
+      assignment,
+      RepoType.SOURCE,
+      getRelativePath(file.path, 'source'),
+      true
+    ).then(status => {
+      setFileRemoteStatus(
+        status as 'up_to_date' | 'push_needed' | 'divergent'
+      );
+    });
+  }, [assignment, lecture]);
+
+  const getFleRemoteStatusText = (
+    status: 'up_to_date' | 'push_needed' | 'divergent'
+  ) => {
+    if (status === 'up_to_date') {
+      return 'The local files is up to date with the file from remote repository.'
+    } else if (status === 'push_needed') {
+      return 'You have made changes to this file locally, a push is needed.';
+    } else {
+      return 'The local and remote file are divergent.';
+    }
+  };
+
+  const getStatusChip = (
+    status: 'up_to_date' | 'push_needed' | 'divergent'
+  ) => {
+    if (status === 'up_to_date') {
+      return (
+        <Chip
+          sx={{ mb: 1.0 }}
+          label={'Up To Date'}
+          color="success"
+          size="small"
+          icon={<CheckIcon />}
+        />
+      );
+    } else if (status === 'push_needed') {
+      return (
+        <Chip
+          sx={{ mb: 1.0 }}
+          label={'Push Needed'}
+          color="warning"
+          size="small"
+          icon={<PublishRoundedIcon />}
+        />
+      );
+    } else {
+      return (
+        <Chip
+          sx={{ mb: 1.0 }}
+          label={'Divergent'}
+          color="error"
+          size="small"
+          icon={<CompareArrowsIcon />}
+        />
+      );
+    }
+  };
 
   const toggleSelection = () => {
     setIsSelected(prevState => {
@@ -54,7 +131,6 @@ const FileItem = ({
     'This file is not part of the assignment and will be removed when grading! Did you rename a notebook file or add it manually?';
   const missingFileHelp =
     'This file should be part of your assignment! Did you delete it?';
-
 
   return (
     <ListItem disablePadding>
@@ -77,6 +153,11 @@ const FileItem = ({
           primary={<Typography>{file.name}</Typography>}
           secondary={
             <Stack direction={'row'} spacing={2}>
+              {checkboxes && (
+                <Tooltip title={getFleRemoteStatusText(fileRemoteStatus)}>
+                  {getStatusChip(fileRemoteStatus)}
+                </Tooltip>
+              )}
               {inMissing(file.path) && (
                 <Tooltip title={missingFileHelp}>
                   <Stack direction={'row'} spacing={2} flex={0}>

@@ -33,7 +33,10 @@ import {
   TooltipProps,
   tooltipClasses,
   Typography,
-  Snackbar
+  Snackbar,
+  Modal,
+  Alert,
+  AlertTitle
 } from '@mui/material';
 import { Assignment } from '../../model/assignment';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -55,6 +58,7 @@ import { updateMenus } from '../../menu';
 import { GraderLoadingButton } from './loading-button';
 import { FilesList } from './file-list';
 import { extractRelativePaths, getFiles, lectureBasePath } from '../../services/file.service';
+import InfoIcon from '@mui/icons-material/Info';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -496,6 +500,49 @@ export const CreateDialog = (props: ICreateDialogProps) => {
   );
 };
 
+const InfoModal = () => {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  return (
+    <React.Fragment>
+      <IconButton color="primary" onClick={handleOpen} sx={{ mr: 2 }}>
+        <InfoIcon />
+      </IconButton>
+      <Modal open={open} onClose={handleClose}>
+        <Box 
+        sx={{ position: 'absolute' as const,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '80%',
+              bgcolor: 'background.paper',
+              boxShadow: 3,
+              pt: 2,
+              px: 4,
+              pb: 3
+            }}
+        >
+          <h2>Manual Grading Information</h2>
+          <Alert severity="info" sx={{ m: 2 }}>
+            <AlertTitle>Info</AlertTitle>
+            If you have made changes to multiple files in your source directory and wish to push only specific 
+            files to the remote repository, you can toggle the 'Select files to commit' button. This allows you to
+            choose the files you want to push. Your students will then be able to view only the changes in files you have selected.
+            If you do not use this option, all changed files from the source repository will be pushed, and students will see all the changes
+          </Alert>
+          <Button onClick={handleClose}>Close</Button>
+        </Box>
+      </Modal>
+    </React.Fragment>
+  );
+};
+
+
 export interface ICommitDialogProps {
   handleCommit: (msg: string, selectedFiles?: string[]) => void;
   children: React.ReactNode;
@@ -552,14 +599,22 @@ export const CommitDialog = (props: ICommitDialogProps) => {
         fullWidth={true}
         maxWidth={'sm'}
       >
-        <DialogTitle>Commit Files</DialogTitle>
+        <Stack direction={'row'} justifyContent={'space-between'}>
+          <DialogTitle>Commit Files</DialogTitle>
+          <InfoModal />
+        </Stack>  
         <DialogContent>
         <Button onClick={toggleFilesList} sx={{ mb: 2 }}>
             {filesListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowRightIcon />}
             Choose files to commit
           </Button>
           {filesListVisible && (
-            <FilesList  path={path} checkboxes={true} onFileSelectChange={handleFileSelectChange} />
+            <FilesList  
+            path={path} 
+            lecture={props.lecture}
+            assignment={props.assignment}
+            checkboxes={true} 
+            onFileSelectChange={handleFileSelectChange} />
           )}
           <TextField
             sx={{ mt: 2, width: '100%' }}

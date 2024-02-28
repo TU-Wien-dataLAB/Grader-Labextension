@@ -88,6 +88,8 @@ export const FilesList = (props: IFileListProps) => {
           <FolderItem
             key={file.path}
             folder={file}
+            lecture={props.lecture}
+            assigment={props.assignment}
             missingFiles={missingFiles || []}
             inContained={inContained}
             openFile={openFile}
@@ -100,6 +102,8 @@ export const FilesList = (props: IFileListProps) => {
           <FileItem
             key={file.path}
             file={file}
+            lecture={props.lecture}
+            assignment={props.assignment}
             missingFiles={missingFiles || []}
             inContained={inContained}
             openFile={openFile}

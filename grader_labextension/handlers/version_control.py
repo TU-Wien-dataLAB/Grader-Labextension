@@ -94,6 +94,46 @@ class GenerateHandler(ExtensionBaseHandler):
 
 
 @register_handler(
+    path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/remote-file-status\/(?P<repo>\w*)\/?"
+)
+class GitRemoteFileStatusHandler(ExtensionBaseHandler):
+    """
+    Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/remote-file-status/{repo}.
+    """
+
+    @cache(max_age=15)
+    async def get(self, lecture_id: int, assignment_id: int, repo: str):
+        if repo not in {"assignment", "source", "release"}:
+            self.log.error(HTTPStatus.NOT_FOUND)
+            raise HTTPError(
+                HTTPStatus.NOT_FOUND, reason=f"Repository {repo} does not exist"
+            )
+        lecture = await self.get_lecture(lecture_id)
+        assignment = await self.get_assignment(lecture_id, assignment_id)
+        file_path = self.get_query_argument('file')  # Retrieve the file path from the query parameters
+        git_service = GitService(
+            server_root_dir=self.root_dir,
+            lecture_code=lecture["code"],
+            assignment_id=assignment["id"],
+            repo_type=repo,
+            config=self.config,
+            force_user_repo=True if repo == "release" else False,
+        )
+        try:
+            if not git_service.is_git():
+                git_service.init()
+                git_service.set_author(author=self.user_name)
+            git_service.set_remote(f"grader_{repo}")
+            git_service.fetch_all()
+            status = git_service.check_remote_file_status(file_path)
+            self.log.info(f"File {file_path} status: {status}")
+        except GitError as e:
+            self.log.error(e)
+            raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=str(e))
+        self.write(status.name)
+
+
+@register_handler(
     path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/remote-status\/(?P<repo>\w*)\/?"
 )
 class GitRemoteStatusHandler(ExtensionBaseHandler):
