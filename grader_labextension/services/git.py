@@ -145,6 +145,10 @@ class GitService(Configurable):
         self._run_command(f"git reset --hard HEAD~{n}", cwd=self.path)
         self._run_command(f"git gc", cwd=self.path)
 
+    def revert(self, commit_hash: str):
+        self.log.info(f"Reverting to {commit_hash}")
+        self._run_command(f'git revert --no-commit {commit_hash}..HEAD', cwd=self.path)
+        self._run_command(f'git commit -m "reverting to {commit_hash}" --allow-empty', cwd=self.path)
 
     def pull(self, origin: str, branch="main", force=False):
         """Pulls a repository

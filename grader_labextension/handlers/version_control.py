@@ -492,6 +492,51 @@ class ResetHandler(ExtensionBaseHandler):
 
 
 @register_handler(
+    path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/restore\/(?P<commit_hash>\w*)\/?"
+)
+class RestoreHandler(ExtensionBaseHandler):
+    async def get(self, lecture_id: int, assignment_id: int, commit_hash: str):
+
+        try:
+            lecture = await self.request_service.request(
+                "GET",
+                f"{self.service_base_url}/lectures/{lecture_id}",
+                header=self.grader_authentication_header,
+            )
+            assignment = await self.request_service.request(
+                "GET",
+                f"{self.service_base_url}/lectures/{lecture_id}/assignments/{assignment_id}",
+                header=self.grader_authentication_header,
+            )
+        except HTTPClientError as e:
+            self.log.error(e.response)
+            raise HTTPError(e.code, reason=e.response.reason)
+
+        git_service = GitService(
+            server_root_dir=self.root_dir,
+            lecture_code=lecture["code"],
+            assignment_id=assignment["id"],
+            repo_type="assignment",
+            config=self.config,
+            force_user_repo=False,
+            sub_id=None,
+        )
+        try:
+            if not git_service.is_git():
+                git_service.init()
+                git_service.set_author(author=self.user_name)
+            git_service.set_remote("grader_assignment")
+            # first reset by pull so there are no changes in the repository before reverting
+            git_service.pull("grader_assignment", force=True)
+            git_service.revert(commit_hash=commit_hash)
+            git_service.push("grader_assignment")
+            self.write("OK")
+        except GitError as e:
+            self.log.error("GitError:\n" + e.error)
+            raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=e.error)
+
+
+@register_handler(
     path=r"\/(?P<lecture_id>\d*)\/(?P<assignment_id>\d*)\/(?P<notebook_name>.*)"
 )
 class NotebookAccessHandler(ExtensionBaseHandler):
