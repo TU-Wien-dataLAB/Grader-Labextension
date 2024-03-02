@@ -14,7 +14,9 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
-  Typography
+  Typography,
+  ListItemSecondaryAction,
+  Tooltip
 } from '@mui/material';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
@@ -25,13 +27,21 @@ import {
   utcToTimestamp
 } from '../../services/datetime.service';
 import CloudDoneRoundedIcon from '@mui/icons-material/CloudDoneRounded';
+import RestoreIcon from '@mui/icons-material/Restore';
 import { grey } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
+import { showDialog } from '../util/dialog-provider';
+import { restoreSubmission } from '../../services/submissions.service';
+import { Assignment } from '../../model/assignment';
+import { Lecture } from '../../model/lecture';
+import { enqueueSnackbar } from 'notistack';
 
 /**
  * Props for SubmissionListComponent.
  */
 interface ISubmissionListProps {
+  lecture: Lecture;
+  assignment: Assignment;
   submissions: Submission[];
   sx?: SxProps<Theme>;
 }
@@ -57,21 +67,7 @@ export const SubmissionList = (props: ISubmissionListProps) => {
       )
       .map(value => (
         <Box>
-          <ListItem
-            disablePadding
-            secondaryAction={
-              value.feedback_status === 'generated' ||
-              value.feedback_status === 'feedback_outdated' ? (
-                <Button
-                  startIcon={<ChatRoundedIcon />}
-                  size="small"
-                  onClick={() => navigate(`feedback/${value.id}`)}
-                >
-                  Open feedback
-                </Button>
-              ) : null
-            }
-          >
+          <ListItem disablePadding>
             <ListItemIcon>
               <CloudDoneRoundedIcon sx={{ ml: 1 }} />
             </ListItemIcon>
@@ -84,6 +80,57 @@ export const SubmissionList = (props: ISubmissionListProps) => {
                   : null
               }
             />
+            <ListItemSecondaryAction>
+              {
+                <Button
+                  startIcon={<RestoreIcon />}
+                  size="small"
+                  onClick={() => {
+                    showDialog(
+                      'Restore Submission',
+                      'Do you really want to revert the assignment state to this submission? This deletes all the current changes you made!',
+                      async () => {
+                        try {
+                          await restoreSubmission(
+                            props.lecture.id,
+                            props.assignment.id,
+                            value.commit_hash
+                          );
+                          enqueueSnackbar('Successfully Restored Submission', {
+                            variant: 'success'
+                          });
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            enqueueSnackbar(
+                              'Error Reset Assignment: ' + e.message,
+                              { variant: 'error' }
+                            );
+                          } else {
+                            console.error(
+                              'Error: cannot interpret type unkown as error',
+                              e
+                            );
+                          }
+                        }
+                      }
+                    );
+                  }}
+                >
+                  Restore
+                </Button>
+              }
+              {value.feedback_status === 'generated' ||
+              value.feedback_status === 'feedback_outdated' ? (
+                <Button
+                  sx={{ ml: 3 }}
+                  startIcon={<ChatRoundedIcon />}
+                  size="small"
+                  onClick={() => navigate(`feedback/${value.id}`)}
+                >
+                  Open feedback
+                </Button>
+              ) : null}
+            </ListItemSecondaryAction>
           </ListItem>
         </Box>
       ));

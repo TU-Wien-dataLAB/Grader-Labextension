@@ -8,6 +8,7 @@ import { Assignment } from '../model/assignment';
 import { Lecture } from '../model/lecture';
 import { Submission } from '../model/submission';
 import { request, HTTPMethod } from './request.service';
+import { string } from 'yup';
 
 export function submitAssignment(
   lecture: Lecture,
@@ -195,6 +196,18 @@ export function ltiSyncSubmissions(
   return request<{ syncable_users: number; synced_user: number }>(
     HTTPMethod.PUT,
     url,
+    null
+  );
+}
+
+export function restoreSubmission(
+  lectureId: number,
+  assignmentId: number,
+  commitHash: string
+): Promise<void> {
+  return request<void>(
+    HTTPMethod.GET,
+    `/lectures/${lectureId}/assignments/${assignmentId}/restore/${commitHash}`,
     null
   );
 }

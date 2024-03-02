@@ -371,7 +371,7 @@ export const AssignmentComponent = () => {
                     : isLateSubmissionOver() ||
                       isMaxSubmissionReached() ||
                       isAssignmentCompleted() ||
-                      files.length == 0
+                      files.length === 0
                 }
                 onClick={() => submitAssignmentHandler()}
               >
@@ -425,7 +425,12 @@ export const AssignmentComponent = () => {
             )
           ) : null}
         </Typography>
-        <SubmissionList submissions={allSubmissions} sx={{ m: 2, mt: 1 }} />
+        <SubmissionList
+          lecture={lecture}
+          assignment={assignment}
+          submissions={allSubmissions}
+          sx={{ m: 2, mt: 1 }}
+        />
       </Box>
     </Box>
   );
