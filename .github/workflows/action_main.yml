@@ -28,6 +28,7 @@ jobs:
     needs: build_labextension
     uses: ./.github/workflows/docker.yml
     secrets: inherit
+    if: github.event_name != 'pull_request'
 
 
   release_labextension:
