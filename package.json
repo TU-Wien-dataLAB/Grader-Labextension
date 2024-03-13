@@ -65,7 +65,6 @@
         "@jupyterlab/mainmenu": "^4.0.11",
         "@jupyterlab/notebook": "^4.0.2",
         "@jupyterlab/services": "^7.0.0",
-        "@jupyterlab/git": "^0.50.0",
         "@jupyterlab/settingregistry": "^4.0.0",
         "@jupyterlab/terminal": "^4.0.2",
         "@lumino/widgets": "^2.1.1",
