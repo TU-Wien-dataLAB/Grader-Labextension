@@ -95,6 +95,7 @@ export const FilesList = (props: IFileListProps) => {
             openFile={openFile}
             allowFiles={props.assignment?.allow_files}
             checkboxes={props.checkboxes}
+            onFileSelectChange={handleFileSelectChange}
           />
         );
       } else {

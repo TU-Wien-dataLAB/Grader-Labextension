@@ -29,6 +29,7 @@ interface IFolderItemProps {
   allowFiles?: boolean;
   missingFiles?: File[];
   checkboxes: boolean;
+  onFileSelectChange?: (filePath: string, isSelected: boolean) => void;
 }
 
 const FolderItem = ({
@@ -39,7 +40,8 @@ const FolderItem = ({
   inContained,
   openFile,
   allowFiles,
-  checkboxes
+  checkboxes,
+  onFileSelectChange
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -101,6 +103,7 @@ const FolderItem = ({
                   openFile={openFile}
                   allowFiles={allowFiles}
                   checkboxes={checkboxes}
+                  onFileSelectChange={onFileSelectChange}
                 />
               ) : (
                 <FileItem
@@ -113,6 +116,7 @@ const FolderItem = ({
                   openFile={openFile}
                   allowFiles={allowFiles}
                   checkboxes={checkboxes}
+                  onFileSelectChange={onFileSelectChange}
                 />
               )
             )}
