@@ -29,6 +29,9 @@ import { Lecture } from '../../../model/lecture';
 import { enqueueSnackbar } from 'notistack';
 import { DeadlineComponent } from '../../util/deadline';
 import { showDialog } from '../../util/dialog-provider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+
 
 /**
  * Props for AssignmentStatusComponent.
@@ -61,6 +64,22 @@ const getActiveStep = (status: Assignment.StatusEnum) => {
  */
 export const AssignmentStatus = (props: IAssignmentStatusProps) => {
   const [assignment, setAssignment] = React.useState(props.assignment);
+  
+  const updateStatusMutation = useMutation({
+    mutationFn: (status: 'pushed' | 'released' | 'complete') => {
+      const updatedAssignment = { ...props.assignment, status };
+      setAssignment(updatedAssignment);
+      return updateAssignment(props.lecture.id, updatedAssignment);
+    },
+    onError: (error: any) => {
+      enqueueSnackbar('Error: ' + error.message, { variant: 'error' });
+    },
+    onSuccess: (data: Assignment) => {
+      props.onAssignmentChange(data);
+      enqueueSnackbar('Successfully updated assignment', { variant: 'success' });
+    }
+  });
+
   /**
    * Updates assignment status.
    * @param status assignment status
@@ -73,18 +92,10 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
     error: string
   ) => {
     try {
-      let a = assignment;
-      a.status = status;
-      a = await updateAssignment(props.lecture.id, a);
-      setAssignment(a);
-      props.onAssignmentChange(a);
-      enqueueSnackbar(success, {
-        variant: 'success'
-      });
+      await updateStatusMutation.mutateAsync(status);
+      enqueueSnackbar(success, { variant: 'success' });
     } catch (err) {
-      enqueueSnackbar(error, {
-        variant: 'error'
-      });
+      enqueueSnackbar(error, { variant: 'error' });
     }
   };
   /**
