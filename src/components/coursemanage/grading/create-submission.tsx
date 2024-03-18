@@ -33,6 +33,10 @@ import {
 } from '../../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
 import { GraderLoadingButton } from '../../util/loading-button';
+import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+const queryClient = new QueryClient();
 
 export const CreateSubmission = () => {
   const { assignment, rows, setRows } = useOutletContext() as {
@@ -56,6 +60,18 @@ export const CreateSubmission = () => {
   const [srcChangedTimestamp, setSrcChangeTimestamp] = React.useState(
     moment().valueOf()
   ); // now
+
+  const createSubmissionMutation = useMutation({
+    mutationFn: async () => {
+      return createSubmissionFiles(lecture, assignment, userDir);
+    },
+    onError: (error: any) => {
+      enqueueSnackbar('Error: ' + error.message, { variant: 'error' });
+    },
+    onSuccess: () => {
+      enqueueSnackbar( `Successfully Created Submission for user: ${userDir}`, { variant: 'success' });
+    }
+  });
 
   React.useEffect(() => {
     makeDirs(`${lectureBasePath}${lecture.code}`, [
@@ -83,22 +99,7 @@ export const CreateSubmission = () => {
   });
 
   const createSubmission = async () => {
-    // TODO: call pus submission and the rest is handled in the labestension server
-    await createSubmissionFiles(lecture, assignment, userDir).then(
-      response => {
-        enqueueSnackbar(
-          `Successfully Created Submission for user: ${userDir}`,
-          {
-            variant: 'success'
-          }
-        );
-      },
-      err => {
-        enqueueSnackbar(err.message, {
-          variant: 'error'
-        });
-      }
-    );
+    createSubmissionMutation.mutate();
   };
 
   const [reloadFilesToggle, setReloadFiles] = React.useState(false);

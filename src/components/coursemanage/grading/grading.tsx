@@ -50,6 +50,10 @@ import {
   storeNumber,
   storeString
 } from '../../../services/storage.service';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+const queryClient = new QueryClient();
 
 /**
  * Calculates chip color based on submission status.
@@ -605,6 +609,7 @@ export const GradingComponent = () => {
   );
 
   return (
+    <QueryClientProvider client={queryClient}> 
     <Stack direction={'column'} sx={{ flex: 1, overflow: 'hidden' }}>
       <SectionTitle title="Grading" />
       <Outlet
@@ -618,5 +623,7 @@ export const GradingComponent = () => {
         }}
       />
     </Stack>
+    <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 };
