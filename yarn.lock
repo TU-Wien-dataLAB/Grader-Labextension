@@ -3797,6 +3797,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.20.5":
+  version: 5.20.5
+  resolution: "@tanstack/query-core@npm:5.20.5"
+  checksum: ae7f45fe2f1b5278cc35c9c276e475c19accad897641b4cc02f25d446d796e804f767d3de891ce73130a42d3707e6b54459c9e109fcc00bc5ad75f6cdac263d8
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.20.5":
+  version: 5.20.5
+  resolution: "@tanstack/react-query@npm:5.20.5"
+  dependencies:
+    "@tanstack/query-core": 5.20.5
+  peerDependencies:
+    react: ^18.0.0
+  checksum: 54d2190b734ff206e00dd98f2d7b12a6bf8d94688d4a6e1fe163422d6d746b8f5f9fb90a199e4dde2c3ae888a60cda18cc336e3977467501baeabfe59f1fbaeb
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -6782,6 +6800,7 @@ __metadata:
     "@mui/material": ^5.13.4
     "@mui/system": ^5.13.2
     "@mui/x-date-pickers": ^6.19.0
+    "@tanstack/react-query": ^5.20.5
     "@types/d3-scale": ^4.0.3
     "@types/d3-shape": ^3.1.1
     "@types/jest": ^29.2.0

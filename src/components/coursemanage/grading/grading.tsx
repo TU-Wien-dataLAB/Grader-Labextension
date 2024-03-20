@@ -319,6 +319,7 @@ export default function GradingTable() {
   React.useEffect(() => {
     updateSubmissions(shownSubmissions);
   }, []);
+  
 
   /**
    * Opens log dialog which contain autograded logs from grader service.

@@ -17,21 +17,31 @@ import FileItem from './file-item';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { File, getFiles } from '../../services/file.service';
+import { Lecture } from '../../model/lecture';
+import { Assignment } from '../../model/assignment';
 
 interface IFolderItemProps {
   folder: File;
+  lecture?: Lecture;
+  assignment?: Assignment;
   inContained: (file: string) => boolean;
   openFile: (path: string) => void;
   allowFiles?: boolean;
   missingFiles?: File[];
+  checkboxes: boolean;
+  onFileSelectChange?: (filePath: string, isSelected: boolean) => void;
 }
 
 const FolderItem = ({
   folder,
+  lecture,
+  assigment,
   missingFiles,
   inContained,
   openFile,
-  allowFiles
+  allowFiles,
+  checkboxes,
+  onFileSelectChange
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -86,19 +96,27 @@ const FolderItem = ({
                 <FolderItem
                   key={file.path}
                   folder={file}
+                  lecture={lecture}
+                  assigment={assigment}
                   missingFiles={missingFiles || []}
                   inContained={inContained}
                   openFile={openFile}
                   allowFiles={allowFiles}
+                  checkboxes={checkboxes}
+                  onFileSelectChange={onFileSelectChange}
                 />
               ) : (
                 <FileItem
                   key={file.path}
                   file={file}
+                  lecture={lecture}
+                  assignment={assigment}
                   missingFiles={missingFiles || []}
                   inContained={inContained}
                   openFile={openFile}
                   allowFiles={allowFiles}
+                  checkboxes={checkboxes}
+                  onFileSelectChange={onFileSelectChange}
                 />
               )
             )}

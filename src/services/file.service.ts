@@ -88,22 +88,25 @@ export const getFiles = async (path: string): Promise<File[]> => {
   return files;
 };
 
-export const getRelativePathAssignment = (path: string) => {
-  const regex = /assignments\/[^/]+\/(.+)/;
+export const getRelativePath = (path: string, reg: 'assignments' | 'source') => {
+  const regexStr = `${reg}\/[^/]+\/(.+)`;
+  const regex = new RegExp(regexStr);
   const match = path.match(regex);
   return match ? match[1] : path;
 };
 
-export const extractRelativePathsAssignment = (file: File) => {
+export const extractRelativePaths = (file: File, reg: 'assignments' | 'source' ) => {
   if (file.type === 'directory') {
     const nestedPaths = file.content.flatMap(nestedFile =>
-      extractRelativePathsAssignment(nestedFile)
+      extractRelativePaths(nestedFile, reg)
     );
-    return [getRelativePathAssignment(file.path), ...nestedPaths];
+    return [getRelativePath(file.path, reg), ...nestedPaths];
   } else {
-    return [getRelativePathAssignment(file.path)];
+    return [getRelativePath(file.path, reg)];
   }
 };
+
+
 
 export const openFile = async (path: string) => {
   GlobalObjects.commands
@@ -202,5 +205,16 @@ export function getRemoteStatus(
   reload = false
 ): Promise<string> {
   const url = `/lectures/${lecture.id}/assignments/${assignment.id}/remote-status/${repo}/`;
+  return request<string>(HTTPMethod.GET, url, null, reload);
+}
+
+export function getRemoteFileStatus(
+  lecture: Lecture,
+  assignment: Assignment,
+  repo: RepoType,
+  filePath: string,
+  reload = false
+): Promise<string> {
+  const url = `/lectures/${lecture.id}/assignments/${assignment.id}/remote-file-status/${repo}/?file=${encodeURIComponent(filePath)}`;
   return request<string>(HTTPMethod.GET, url, null, reload);
 }

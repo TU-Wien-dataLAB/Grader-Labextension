@@ -6,32 +6,125 @@ import {
   ListItemText,
   Tooltip,
   Stack,
-  Typography
+  Typography,
+  Checkbox,
+  Chip
 } from '@mui/material';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import WarningIcon from '@mui/icons-material/Warning';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Contents } from '@jupyterlab/services';
 import DangerousIcon from '@mui/icons-material/Dangerous';
-import { File, getRelativePathAssignment } from '../../services/file.service';
+import { File, getRelativePath, getRemoteFileStatus } from '../../services/file.service';
+import { Lecture } from '../../model/lecture';
+import { Assignment } from '../../model/assignment';
+import { RepoType } from './repo-type';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import CheckIcon from '@mui/icons-material/Check';
+import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 
 interface IFileItemProps {
   file: File;
+  lecture?: Lecture,
+  assignment?: Assignment;
   inContained: (file: string) => boolean;
   missingFiles?: File[];
   openFile: (path: string) => void;
   allowFiles?: boolean;
+  checkboxes: boolean;
+  onFileSelectChange?: (filePath: string, isSelected: boolean) => void;
 }
 
 const FileItem = ({
   file,
+  lecture,
+  assignment,
   inContained,
   openFile,
   allowFiles,
-  missingFiles
+  missingFiles,
+  checkboxes, 
+  onFileSelectChange
 }: IFileItemProps) => {
+  
   const inMissing = (filePath: string) => {
     return missingFiles.some(missingFile => missingFile.path === filePath);
+  };
+
+  const [isSelected, setIsSelected] = React.useState(true);
+  const [fileRemoteStatus, setFileRemoteStatus] = React.useState(
+    null as 'up_to_date' | 'push_needed' | 'divergent'
+  );
+
+  React.useEffect(() => {
+    getRemoteFileStatus(
+      lecture,
+      assignment,
+      RepoType.SOURCE,
+      getRelativePath(file.path, 'source'),
+      true
+    ).then(status => {
+      setFileRemoteStatus(
+        status as 'up_to_date' | 'push_needed' | 'divergent'
+      );
+    });
+  }, [assignment, lecture]);
+
+  const getFleRemoteStatusText = (
+    status: 'up_to_date' | 'push_needed' | 'divergent'
+  ) => {
+    if (status === 'up_to_date') {
+      return 'The local files is up to date with the file from remote repository.'
+    } else if (status === 'push_needed') {
+      return 'You have made changes to this file locally, a push is needed.';
+    } else {
+      return 'The local and remote file are divergent.';
+    }
+  };
+
+  const getStatusChip = (
+    status: 'up_to_date' | 'push_needed' | 'divergent'
+  ) => {
+    if (status === 'up_to_date') {
+      return (
+        <Chip
+          sx={{ mb: 1.0 }}
+          label={'Up To Date'}
+          color="success"
+          size="small"
+          icon={<CheckIcon />}
+        />
+      );
+    } else if (status === 'push_needed') {
+      return (
+        <Chip
+          sx={{ mb: 1.0 }}
+          label={'Push Needed'}
+          color="warning"
+          size="small"
+          icon={<PublishRoundedIcon />}
+        />
+      );
+    } else {
+      return (
+        <Chip
+          sx={{ mb: 1.0 }}
+          label={'Divergent'}
+          color="error"
+          size="small"
+          icon={<CompareArrowsIcon />}
+        />
+      );
+    }
+  };
+
+  const toggleSelection = () => {
+    setIsSelected(prevState => {
+      const nextState = !prevState;
+      // used only with checkboxes -> in source directory
+      onFileSelectChange(getRelativePath(file.path, 'source'), nextState);
+      return nextState;
+    });
   };
 
   const extraFileHelp =
@@ -39,18 +132,32 @@ const FileItem = ({
   const missingFileHelp =
     'This file should be part of your assignment! Did you delete it?';
 
-  //console.log("Missing files (file-item): " + missingFiles.map(f => f.path));
   return (
     <ListItem disablePadding>
+      {checkboxes && ( 
+          <ListItemIcon>
+            <Checkbox
+              checked={isSelected}
+              onChange={toggleSelection}
+            />
+          </ListItemIcon>
+        )}
       <ListItemButton onClick={() => openFile(file.path)} dense={true}>
         <ListItemIcon>
-          <KeyboardArrowRightIcon sx={{ visibility: 'hidden' }} />
+          {!checkboxes && (
+            <KeyboardArrowRightIcon sx={{ visibility: 'hidden' }} />
+          )}
           <InsertDriveFileRoundedIcon />
         </ListItemIcon>
         <ListItemText
           primary={<Typography>{file.name}</Typography>}
           secondary={
             <Stack direction={'row'} spacing={2}>
+              {checkboxes && (
+                <Tooltip title={getFleRemoteStatusText(fileRemoteStatus)}>
+                  {getStatusChip(fileRemoteStatus)}
+                </Tooltip>
+              )}
               {inMissing(file.path) && (
                 <Tooltip title={missingFileHelp}>
                   <Stack direction={'row'} spacing={2} flex={0}>
@@ -63,7 +170,7 @@ const FileItem = ({
               )}
               {
                 <Stack direction={'row'} spacing={2}>
-                  {!inContained(getRelativePathAssignment(file.path)) &&
+                  {!inContained(getRelativePath(file.path, 'assignments')) &&
                     !allowFiles && (
                       <Tooltip title={extraFileHelp}>
                         <Stack direction={'row'} spacing={2} flex={0}>

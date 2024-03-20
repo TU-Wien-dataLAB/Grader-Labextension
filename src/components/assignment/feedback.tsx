@@ -134,7 +134,7 @@ export const Feedback = () => {
       </Box>
       <Typography sx={{ m: 2, mb: 0 }}>Feedback Files</Typography>
 
-      <FilesList path={path} sx={{ m: 2, overflow: 'auto' }} />
+      <FilesList path={path} sx={{ m: 2, overflow: 'auto' }} checkboxes={false} />
 
       <Stack direction={'row'} spacing={2} sx={{ m: 2 }}>
         <Button variant="outlined" component={Link as any} to={assignmentLink}>

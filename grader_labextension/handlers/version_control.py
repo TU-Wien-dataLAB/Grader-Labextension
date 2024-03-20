@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+from ast import List
 import json
 import os
 import shutil
@@ -90,6 +91,46 @@ class GenerateHandler(ExtensionBaseHandler):
             self.log.error(f"Could delete {gradebook_path}! Error: {e.strerror}")
         self.log.info("GenerateAssignment conversion done")
         self.write("OK")
+
+
+@register_handler(
+    path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/remote-file-status\/(?P<repo>\w*)\/?"
+)
+class GitRemoteFileStatusHandler(ExtensionBaseHandler):
+    """
+    Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/remote-file-status/{repo}.
+    """
+
+    @cache(max_age=15)
+    async def get(self, lecture_id: int, assignment_id: int, repo: str):
+        if repo not in {"assignment", "source", "release"}:
+            self.log.error(HTTPStatus.NOT_FOUND)
+            raise HTTPError(
+                HTTPStatus.NOT_FOUND, reason=f"Repository {repo} does not exist"
+            )
+        lecture = await self.get_lecture(lecture_id)
+        assignment = await self.get_assignment(lecture_id, assignment_id)
+        file_path = self.get_query_argument('file')  # Retrieve the file path from the query parameters
+        git_service = GitService(
+            server_root_dir=self.root_dir,
+            lecture_code=lecture["code"],
+            assignment_id=assignment["id"],
+            repo_type=repo,
+            config=self.config,
+            force_user_repo=True if repo == "release" else False,
+        )
+        try:
+            if not git_service.is_git():
+                git_service.init()
+                git_service.set_author(author=self.user_name)
+            git_service.set_remote(f"grader_{repo}")
+            git_service.fetch_all()
+            status = git_service.check_remote_file_status(file_path)
+            self.log.info(f"File {file_path} status: {status}")
+        except GitError as e:
+            self.log.error(e)
+            raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=str(e))
+        self.write(status.name)
 
 
 @register_handler(
@@ -280,6 +321,7 @@ class PushHandler(ExtensionBaseHandler):
             self.write_error(404)
         sub_id = self.get_argument("subid", None)
         commit_message = self.get_argument("commit-message", None)
+        selected_files = self.get_arguments("selected-files")
         submit = self.get_argument("submit", "false") == "true"
         # this username is used when an instructor creates a submission for a user (ignored otherwise)
         username = self.get_argument("for_user", None)
@@ -345,7 +387,13 @@ class PushHandler(ExtensionBaseHandler):
                 repo_type="source",
                 config=self.config,
             ).path
-            git_service.copy_repo_contents(src=src_path)
+
+            if(selected_files):
+                self.log.info(f"Selected files to push to {repo}: {selected_files}")
+           
+            git_service.copy_repo_contents(src=src_path, selected_files=selected_files)
+
+            self.log.info(f"Files in {src_path} directory after copying selected files: {os.listdir(src_path)}")
 
             # call nbconvert before pushing
             generator = GenerateAssignment(
@@ -428,7 +476,7 @@ class PushHandler(ExtensionBaseHandler):
             raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=e.error)
 
         try:
-            git_service.commit(m=commit_message)
+            git_service.commit(m=commit_message, selected_files=selected_files)
         except GitError as e:
             self.log.error("GitError:\n" + e.error)
             raise HTTPError(HTTPStatus.INTERNAL_SERVER_ERROR, reason=e.error)
