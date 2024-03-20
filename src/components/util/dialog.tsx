@@ -527,13 +527,13 @@ const InfoModal = () => {
               pb: 3
             }}
         >
-          <h2>Manual Grading Information</h2>
+          <h2>Selecting Files to Push</h2>
           <Alert severity="info" sx={{ m: 2 }}>
             <AlertTitle>Info</AlertTitle>
             If you have made changes to multiple files in your source directory and wish to push only specific 
             files to the remote repository, you can toggle the 'Select files to commit' button. This allows you to
             choose the files you want to push. Your students will then be able to view only the changes in files you have selected.
-            If you do not use this option, all changed files from the source repository will be pushed, and students will see all the changes
+            If you do not use this option, all changed files from the source repository will be pushed, and students will see all the changes.
           </Alert>
           <Button onClick={handleClose}>Close</Button>
         </Box>
