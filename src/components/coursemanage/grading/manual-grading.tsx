@@ -392,7 +392,12 @@ export const ManualGrading = () => {
           <InfoModal />
         </Stack>
 
-        <FilesList path={manualPath} sx={{ m: 2 }} checkboxes={false} />
+        <FilesList 
+        path={manualPath} 
+        sx={{ m: 2 }} 
+        lecture={lecture} 
+        assignment={assignment}
+        checkboxes={false} />
 
         <Stack direction={'row'} sx={{ ml: 2, mr: 2 }} spacing={2}>
           <Tooltip title="Reload">
@@ -419,7 +424,7 @@ export const ManualGrading = () => {
             disabled={submission.auto_status !== 'automatically_graded'}
             color="primary"
             variant="outlined"
-            onClick={async () => { await handlePullSubmission(); }}
+            onClick={handlePullSubmission}
             sx={{ whiteSpace: 'nowrap', minWidth: 'auto' }}
           >
             Pull Submission
