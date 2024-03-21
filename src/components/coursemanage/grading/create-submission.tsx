@@ -33,10 +33,7 @@ import {
 } from '../../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
 import { GraderLoadingButton } from '../../util/loading-button';
-import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-const queryClient = new QueryClient();
+import { useMutation } from '@tanstack/react-query';
 
 export const CreateSubmission = () => {
   const { assignment, rows, setRows } = useOutletContext() as {
@@ -102,12 +99,6 @@ export const CreateSubmission = () => {
     createSubmissionMutation.mutate();
   };
 
-  const [reloadFilesToggle, setReloadFiles] = React.useState(false);
-
-  const reloadFiles = () => {
-    setReloadFiles(!reloadFilesToggle);
-  };
-
   return (
     <Box sx={{ overflow: 'auto' }}>
       <Stack direction={'column'} sx={{ flex: '1 1 100%' }}>
@@ -147,21 +138,11 @@ export const CreateSubmission = () => {
             />
           )}
         />
-        <Stack
-          direction={'row'}
-          justifyContent={'flex-start'}
-          alignItems={'center'}
-          spacing={2}
-          sx={{ ml: 2 }}
-        >
-          <Typography>Submission Files</Typography>
-          <Tooltip title="Reload Files">
-            <IconButton aria-label="reload" onClick={() => reloadFiles()}>
-              <ReplayIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-
+       <Typography
+        sx={{ ml: 2 }}
+       >
+        Submission Files
+        </Typography>
         <FilesList path={path} sx={{ m: 2 }} />
         <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
           <GraderLoadingButton

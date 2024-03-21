@@ -48,6 +48,9 @@ import { openBrowser } from '../coursemanage/overview/util';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { Scope, UserPermissions } from '../../services/permission.service';
 import { GradeBook } from '../../services/gradebook';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const calculateActiveStep = (submissions: Submission[]) => {
   const hasFeedback = submissions.reduce(
@@ -285,6 +288,7 @@ export const AssignmentComponent = () => {
   };
 
   return (
+    <QueryClientProvider client={queryClient}>
     <Box sx={{ flex: 1, overflow: 'auto' }}>
       <Box>
         <Box sx={{ mt: 6 }}>
@@ -433,5 +437,6 @@ export const AssignmentComponent = () => {
         />
       </Box>
     </Box>
+    </QueryClientProvider>
   );
 };

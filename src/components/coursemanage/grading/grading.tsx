@@ -623,7 +623,7 @@ export const GradingComponent = () => {
         }}
       />
     </Stack>
-    <ReactQueryDevtools initialIsOpen={false} />
+    {/*<ReactQueryDevtools initialIsOpen={false} />*/}
     </QueryClientProvider>
   );
 };
