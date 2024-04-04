@@ -1,5 +1,7 @@
-import { SectionTitle } from '../../util/section-title';
+import React from 'react';
 import {
+  Alert,
+  AlertTitle,
   Box,
   Button,
   Dialog,
@@ -9,7 +11,8 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import * as React from 'react';
+import { Contents } from '@jupyterlab/services';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Lecture } from '../../../model/lecture';
 import { Assignment } from '../../../model/assignment';
 import { Submission } from '../../../model/submission';
@@ -31,49 +34,37 @@ import { GraderLoadingButton } from '../../util/loading-button';
 
 export const EditSubmission = () => {
   const navigate = useNavigate();
-  
   const {
     lecture,
     assignment,
-    rows,
-    setRows,
-    manualGradeSubmission,
-    setManualGradeSubmission
+    manualGradeSubmission
   } = useOutletContext() as {
     lecture: Lecture;
     assignment: Assignment;
-    rows: Submission[];
-    setRows: React.Dispatch<React.SetStateAction<Submission[]>>;
     manualGradeSubmission: Submission;
-    setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
+
   const path = `${lectureBasePath}${lecture.code}/edit/${assignment.id}/${manualGradeSubmission.id}`;
-  const [submission, setSubmission] = React.useState(manualGradeSubmission);
+
+  const { data: submission, refetch: refetchSubmission } = useQuery({
+    queryKey: ['submission', lecture.id, assignment.id, manualGradeSubmission.id], 
+    queryFn: () => getSubmission(lecture.id, assignment.id, manualGradeSubmission.id, true)
+  });
+
+  const { data: logs, refetch: refetchLogs } = useQuery({
+    queryKey: ['logs', lecture.id, assignment.id, manualGradeSubmission.id], 
+    queryFn: () => getLogs(lecture.id, assignment.id, manualGradeSubmission.id),
+  });
+
   const [showLogs, setShowLogs] = React.useState(false);
-  const [logs, setLogs] = React.useState(undefined);
 
-
-  
-  const reload = () => {
-    getSubmission(lecture.id, assignment.id, submission.id, true).then(s =>
-      setSubmission(s)
-    );
+  const reloadSubmission = async () => {
+    await refetchSubmission();
   };
-  
 
-  const openLogs = (event: React.MouseEvent<unknown>, submissionId: number) => {
-    getLogs(lecture.id, assignment.id, submissionId).then(
-      logs => {
-        setLogs(logs);
-        setShowLogs(true);
-      },
-      error => {
-        enqueueSnackbar('No logs for submission', {
-          variant: 'error'
-        });
-      }
-    );
-    event.stopPropagation();
+  const openLogs = async () => {
+    setShowLogs(true);
+    await refetchLogs();
   };
 
   const pushEditedFiles = async () => {
@@ -98,7 +89,7 @@ export const EditSubmission = () => {
         enqueueSnackbar('Successfully Pulled Submission', {
           variant: 'success'
         });
-        reload();
+        reloadSubmission();
       },
       err => {
         enqueueSnackbar(err.message, {
@@ -118,7 +109,7 @@ export const EditSubmission = () => {
         enqueueSnackbar('Successfully Created Edit Repository', {
           variant: 'success'
         });
-        setSubmission(response);
+        reloadSubmission();
       },
       err => {
         enqueueSnackbar(err.message, {
@@ -153,7 +144,7 @@ export const EditSubmission = () => {
               color="text.primary"
               sx={{ display: 'inline-block', fontSize: 16, height: 35 }}
             >
-              {submission.username}
+              {submission?.username}
             </Typography>
 
             <Typography
@@ -171,7 +162,7 @@ export const EditSubmission = () => {
           sx={{ mr: 2 }}
           variant="outlined"
           size="small"
-          onClick={event => openLogs(event, manualGradeSubmission.id)}
+          onClick={openLogs}
         >
           Show Logs
         </Button>
@@ -181,18 +172,18 @@ export const EditSubmission = () => {
 
       <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
         <GraderLoadingButton
-          color={submission.edited ? 'error' : 'primary'}
+          color={submission?.edited ? 'error' : 'primary'}
           variant="outlined"
           onClick={async () => { await setEditRepository(); }}
         >
-          {submission.edited ? 'Reset ' : 'Create '}
+          {submission?.edited ? 'Reset ' : 'Create '}
           Edit Repository
         </GraderLoadingButton>
        
         <GraderLoadingButton
           color="primary"
           variant="outlined"
-          disabled={!submission.edited}
+          disabled={!submission?.edited}
           onClick={async () => { await handlePullEditedSubmission(); }}>
           Pull Submission
         </GraderLoadingButton>
@@ -200,7 +191,7 @@ export const EditSubmission = () => {
        <GraderLoadingButton
         variant="outlined"
         color="success"
-        disabled={!submission.edited}
+        disabled={!submission?.edited}
         sx={{ ml: 2 }}
         onClick={async () => {
           showDialog(
@@ -223,24 +214,33 @@ export const EditSubmission = () => {
         </Button>
       </Toolbar>
       <Dialog
-        open={showLogs}
-        onClose={() => setShowLogs(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{'Logs'}</DialogTitle>
-        <DialogContent>
+      open={showLogs}
+      onClose={() => setShowLogs(false)}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{'Logs'}</DialogTitle>
+      <DialogContent>
+        {logs ? (
           <Typography
             id="alert-dialog-description"
             sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
           >
             {logs}
           </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowLogs(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+        ) : (
+          <Typography
+            id="alert-dialog-description"
+            sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
+          >
+            No logs available
+          </Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setShowLogs(false)}>Close</Button>
+      </DialogActions>
+    </Dialog>
     </Stack>
   );
 };
