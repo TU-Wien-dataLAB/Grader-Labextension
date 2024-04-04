@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Alert,
   AlertTitle,
@@ -9,7 +10,8 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import * as React from 'react';
+import { Contents } from '@jupyterlab/services';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Lecture } from '../../../model/lecture';
 import { Assignment } from '../../../model/assignment';
 import { Submission } from '../../../model/submission';
@@ -23,7 +25,6 @@ import { Link, useOutletContext, useRouteLoaderData } from 'react-router-dom';
 import { showDialog } from '../../util/dialog-provider';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
-import { Contents } from '@jupyterlab/services';
 import { GlobalObjects } from '../../../index';
 import { openBrowser } from '../overview/util';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -33,7 +34,6 @@ import {
 } from '../../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
 import { GraderLoadingButton } from '../../util/loading-button';
-import { useMutation } from '@tanstack/react-query';
 
 export const CreateSubmission = () => {
   const { assignment, rows, setRows } = useOutletContext() as {
@@ -50,10 +50,18 @@ export const CreateSubmission = () => {
     users: { instructors: string[]; tutors: string[]; students: string[] };
   };
 
-  const [path, setPath] = React.useState(null);
-  const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
-  const [userDir, setUserDir] = React.useState<string | null>(null);
+  const { data: path } = useQuery({
+    queryKey: ['path', lectureBasePath, lecture.code, assignment.id],
+    queryFn: () =>
+    makeDirs(`${lectureBasePath}${lecture.code}`, [
+      'create',
+      `${assignment.id}`,
+      userDir
+    ])
+});
 
+  const [userDir, setUserDir] = React.useState<string | null>(null);
+  const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
   const [srcChangedTimestamp, setSrcChangeTimestamp] = React.useState(
     moment().valueOf()
   ); // now
@@ -71,17 +79,12 @@ export const CreateSubmission = () => {
   });
 
   React.useEffect(() => {
-    makeDirs(`${lectureBasePath}${lecture.code}`, [
-      'create',
-      `${assignment.id}`,
-      userDir
-    ]).then(p => {
-      setPath(p);
-      openBrowser(p);
+    if (path) {
+      openBrowser(path);
       GlobalObjects.docManager.services.contents.fileChanged.connect(
         (sender: Contents.IManager, change: Contents.IChangedArgs) => {
           const { oldValue, newValue } = change;
-          if (!newValue.path.includes(p)) {
+          if (!newValue.path.includes(path)) {
             return;
           }
 
@@ -92,8 +95,8 @@ export const CreateSubmission = () => {
         },
         this
       );
-    });
-  });
+    }
+  }, [path]);
 
   const createSubmission = async () => {
     createSubmissionMutation.mutate();
