@@ -50,8 +50,9 @@ import {
   storeNumber,
   storeString
 } from '../../../services/storage.service';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { error } from 'console';
 
 const queryClient = new QueryClient();
 
@@ -301,28 +302,117 @@ export default function GradingTable() {
     setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
 
-  const [order, setOrder] = React.useState<Order>('asc');
-  const [orderBy, setOrderBy] = React.useState<keyof Submission>('id');
-  const [selected, setSelected] = React.useState<readonly number[]>([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(
-    loadNumber('grading-rows-per-page') || 10
-  );
-  const [shownSubmissions, setShownSubmissions] = React.useState(
-    (loadString('grading-shown-submissions') || 'none') as
-      | 'none'
-      | 'latest'
-      | 'best'
-  );
+  type Order = 'asc' | 'desc';
 
-  const [showLogs, setShowLogs] = React.useState(false);
+  const useOrder = () => {
+    return useQuery<Order>({ queryKey: ['order'], queryFn: () => 'asc' });
+  };
+
+  const setOrderMutation = useMutation({
+    mutationFn: async (newOrder: Order) => {
+      queryClient.setQueryData(['order'], newOrder);
+      return newOrder;
+    }
+  });
+
+
+  const useOrderBy = () => {
+    return useQuery<keyof Submission>({ queryKey: ['orderBy'], queryFn: () => 'id' });
+  };
+
+  const setOrderByMutation = useMutation({
+    mutationFn: async (newOrderBy: keyof Submission) => {
+      queryClient.setQueryData(['orderBy'], newOrderBy);
+      return newOrderBy;
+    }
+  });
+
+  const useSelected = () => {
+    return useQuery<readonly number[]>({ queryKey: ['selected'], queryFn: () => [] });
+  };
+  
+ 
+  const setSelectedMutation = useMutation({
+    mutationFn: async (newSelected: readonly number[]) => {
+      queryClient.setQueryData(['selected'], newSelected);
+      return newSelected;
+    }
+  });
+
+  const usePage = () => {
+    return useQuery<number>({ queryKey: ['page'], queryFn: () => 0 });
+  };
+
+  const setPageMutation = useMutation({
+    mutationFn: async (newPage: number) => {
+      queryClient.setQueryData(['page'], newPage);
+      return newPage;
+    }
+  });
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPageMutation.mutate(newPage);
+  };
+
+
+  const useRowsPerPage = () => {
+    return useQuery<number>({ 
+      queryKey: ['rowsPerPage'], 
+      queryFn: async () => {
+       const data =  loadNumber('grading-rows-per-page')
+       return data || 10;
+      } 
+    });
+  };
+
+  const setRowsPerPageMutation = useMutation({
+    mutationFn: async (newNumOfRows: number) => {
+      queryClient.setQueryData(['rowsPerPage'], newNumOfRows);
+      return newNumOfRows;
+    }
+  });
+
+  const useShownSubmissions = () => {
+    return useQuery<'none' | 'latest' | 'best'>({
+      queryKey: ['shownSubmissions'],
+      queryFn: async () => {
+        const data = await loadString('grading-shown-submissions');
+        return (data || 'none') as 'none' | 'latest' | 'best';
+      }
+    });
+  };
+
+
+  const updateShownSubmissionsMutation = useMutation({
+    mutationFn: async (value: 'none' | 'latest' | 'best') => {
+      queryClient.setQueryData(['shownSubmissions'], value);
+      storeString('grading-shown-submissions', value);
+      return value;
+    }
+  });
+
+  const switchShownSubmissions = (
+    event: React.MouseEvent<HTMLElement>,
+    value: 'none' | 'latest' | 'best'
+  ) => {
+    if (value !== null) {
+      updateShownSubmissionsMutation.mutate(value);
+      updateSubmissions(value);
+      storeString('grading-shown-submissions', value);
+    } else {
+      updateSubmissions(shownSubmissions); // implicit reload
+    }
+  };
+
+  const { data: order = 'asc' } = useOrder();
+  const { data: orderBy = 'id' } = useOrderBy();
+  const { data: selected = [] } = useSelected();
+  const { data: page = 0 } = usePage();
+  const { data: rowsPerPage = 10 } = useRowsPerPage();
+  const { data: shownSubmissions = 'none'} = useShownSubmissions();
   const [logs, setLogs] = React.useState(undefined);
-
   const [search, setSearch] = React.useState('');
-
-  React.useEffect(() => {
-    updateSubmissions(shownSubmissions);
-  }, []);
+  const [showLogs, setShowLogs] = React.useState(false);
 
   /**
    * Opens log dialog which contain autograded logs from grader service.
@@ -344,6 +434,19 @@ export default function GradingTable() {
     event.stopPropagation();
   };
 
+  React.useEffect(() => {
+    updateSubmissions(shownSubmissions);
+  }, []);
+
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown>,
+    property: keyof Submission
+  ) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrderMutation.mutate(isAsc ? 'desc' : 'asc');
+    setOrderByMutation.mutate(property);
+  };
+
   const updateSubmissions = (filter: 'none' | 'latest' | 'best') => {
     getAllSubmissions(lecture.id, assignment.id, filter, true, true).then(
       response => {
@@ -352,35 +455,13 @@ export default function GradingTable() {
     );
   };
 
-  const switchShownSubmissions = (
-    event: React.MouseEvent<HTMLElement>,
-    value: 'none' | 'latest' | 'best'
-  ) => {
-    if (value !== null) {
-      setShownSubmissions(value);
-      updateSubmissions(value);
-      storeString('grading-shown-submissions', value);
-    } else {
-      updateSubmissions(shownSubmissions); // implicit reload
-    }
-  };
-
-  const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
-    property: keyof Submission
-  ) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = rows.map(n => n.id);
-      setSelected(newSelected);
-      return;
+      setSelectedMutation.mutate(newSelected);
+      return newSelected;
     }
-    setSelected([]);
+    setSelectedMutation.mutate([]);
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
@@ -400,21 +481,17 @@ export default function GradingTable() {
       );
     }
 
-    setSelected(newSelected);
+    setSelectedMutation.mutate(newSelected);
     event.stopPropagation();
-  };
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const n = parseInt(event.target.value, 10);
-    setRowsPerPage(n);
+    setRowsPerPageMutation.mutate(n);
     storeNumber('grading-rows-per-page', n);
-    setPage(0);
+    setPageMutation.mutate(0);
   };
 
   const isSelected = (id: number) => selected.indexOf(id) !== -1;
@@ -454,7 +531,7 @@ export default function GradingTable() {
         lecture={lecture}
         assignment={assignment}
         rows={rows}
-        clearSelection={() => setSelected([])}
+        clearSelection={() => setSelectedMutation.mutate([])}
         selected={selected}
         shownSubmissions={shownSubmissions}
         switchShownSubmissions={switchShownSubmissions}
