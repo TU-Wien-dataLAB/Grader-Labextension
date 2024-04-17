@@ -26,7 +26,7 @@ import {
 import { FilesList } from '../../util/file-list';
 import { enqueueSnackbar } from 'notistack';
 import { openBrowser } from '../overview/util';
-import { lectureBasePath } from '../../../services/file.service';
+import { getFiles, lectureBasePath } from '../../../services/file.service';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import Toolbar from '@mui/material/Toolbar';
 import { showDialog } from '../../util/dialog-provider';
@@ -56,11 +56,17 @@ export const EditSubmission = () => {
     queryFn: () => getLogs(lecture.id, assignment.id, manualGradeSubmission.id),
   });
 
+  const { data: submissionFiles, refetch: refetchSubmissionFiles } = useQuery({
+    queryKey: ['submissionFiles'],
+    queryFn: () => getFiles(path)
+  })
+
   const [showLogs, setShowLogs] = React.useState(false);
 
   const reloadSubmission = async () => {
     await refetchSubmission();
   };
+
 
   const openLogs = async () => {
     setShowLogs(true);
@@ -89,7 +95,7 @@ export const EditSubmission = () => {
         enqueueSnackbar('Successfully Pulled Submission', {
           variant: 'success'
         });
-        reloadSubmission();
+        refetchSubmissionFiles();
       },
       err => {
         enqueueSnackbar(err.message, {
