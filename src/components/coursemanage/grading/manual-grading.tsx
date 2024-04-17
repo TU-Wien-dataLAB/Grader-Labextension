@@ -46,6 +46,9 @@ import {
 import { showDialog } from '../../util/dialog-provider';
 import InfoIcon from '@mui/icons-material/Info';
 import { GraderLoadingButton } from '../../util/loading-button';
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const style = {
   position: 'absolute' as const,
@@ -119,45 +122,76 @@ export const ManualGrading = () => {
     manualGradeSubmission: Submission;
     setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
-  const [submission, setSubmission] = React.useState(manualGradeSubmission);
+  
+  
+  const { data: submission = manualGradeSubmission, refetch: refetchSubmission } = useQuery({
+    queryKey: ['submission', lecture.id, assignment.id, manualGradeSubmission.id], 
+    queryFn: () => getSubmission(lecture.id, assignment.id, manualGradeSubmission.id, true)
+  });
+
+  const setSubmissionMutation = useMutation({
+    mutationFn: async (newSubmission: Submission) => {
+      queryClient.setQueryData(['submission'], newSubmission);
+      return newSubmission;
+    }
+  });
+
   const mPath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
   const rowIdx = rows.findIndex(s => s.id === submission.id);
   const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
 
-  const [submissionScaling, setSubmissionScaling] = React.useState(
-    submission.score_scaling
-  );
-  const [manualPath, setManualPath] = React.useState(mPath);
-  const [gradeBook, setGradeBook] = React.useState(null);
+  const [submissionScaling, setSubmissionScaling] = React.useState(submission.score_scaling);
+
+  const {data: manualPath = mPath} = useQuery({
+    queryKey: ['manualPath'],
+    queryFn: () => mPath
+  });
+
+  const setManualPathMutation = useMutation({
+    mutationFn: async (newManualPath: string) => {
+      queryClient.setQueryData(['manualPath'], newManualPath);
+      return newManualPath;
+    }
+  });
+
+  const {data: gradeBook, refetch: refetchGradeBook } = useQuery({
+    queryKey: ['gradeBook', manualGradeSubmission.id],
+    queryFn: () => getProperties(lecture.id, assignment.id, manualGradeSubmission.id, true).then(
+      properties => new GradeBook(properties)),
+    enabled: !!submission  
+  });
 
   React.useEffect(() => {
-    reloadProperties(submission);
+    reloadProperties();
   }, []);
 
-  const reloadManualPath = (submission) => {
+  const reloadManualPath = () => {
     const mPath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
-    setManualPath(mPath);
+    setManualPathMutation.mutate(mPath);
   };
   
-  const reloadProperties = (submission) => {
+  const reloadProperties = () => {
     getProperties(lecture.id, assignment.id, submission.id, true).then(
       properties => {
-        const gradeBook = new GradeBook(properties);
-        setGradeBook(gradeBook);
+        refetchGradeBook();
       }
     );
   };
   
-  const reloadSubmission = (submission) => {
-    getSubmission(lecture.id, assignment.id, submission.id, true).then(s =>
-      setSubmission(s)
-    );
+  const reloadSubmission = () => {
+    refetchSubmission().then(
+      (result) => {
+        const newSubmission = result.data; 
+        if (newSubmission) {
+          setSubmissionMutation.mutate(newSubmission);
+        }
+      });
   };
   
-  const reload = (submission) => {
-    reloadSubmission(submission);
-    reloadProperties(submission);
-    reloadManualPath(submission);
+  const reload = () => {
+    reloadSubmission();
+    reloadProperties();
+    reloadManualPath();
   };
 
   const handleAutogradeSubmission = async () => {
@@ -167,7 +201,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Autograding submission!', {
           variant: 'success'
         });
-        reload(submission);
+        reload();
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Autograding Submission', {
@@ -184,7 +218,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
-        reload(submission);
+        reload();
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Generating Feedback', {
@@ -210,13 +244,13 @@ export const ManualGrading = () => {
         enqueueSnackbar('Successfully Graded Submission', {
           variant: 'success'
         });
-        reload(submission);
+        reload();
       },
       err => {
         enqueueSnackbar(err.message, {
           variant: 'error'
         });
-        reload(submission);
+        reload();
       }
     );
   };
@@ -228,7 +262,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Successfully Pulled Submission', {
           variant: 'success'
         });
-        reload(submission);
+        reload();
       },
       err => {
         enqueueSnackbar(err.message, {
@@ -245,7 +279,7 @@ export const ManualGrading = () => {
     if (newIndex >= 0 && newIndex < rows.length) {
       const newSubmission = rows[newIndex];
       setManualGradeSubmission(newSubmission);
-      reload(newSubmission);
+      reload();
     }
   };
 
@@ -396,7 +430,7 @@ export const ManualGrading = () => {
 
         <Stack direction={'row'} sx={{ ml: 2, mr: 2 }} spacing={2}>
           <Tooltip title="Reload">
-            <IconButton aria-label="reload" onClick={() => reload(submission)}>
+            <IconButton aria-label="reload" onClick={() => reload()}>
               <ReplayIcon />
             </IconButton>
           </Tooltip>
