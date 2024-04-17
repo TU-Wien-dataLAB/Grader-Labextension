@@ -142,7 +142,7 @@ export const ManualGrading = () => {
 
   const [submissionScaling, setSubmissionScaling] = React.useState(submission.score_scaling);
 
-  const {data: manualPath = mPath} = useQuery({
+  const { data: manualPath = mPath } = useQuery({
     queryKey: ['manualPath'],
     queryFn: () => mPath
   });
@@ -279,6 +279,7 @@ export const ManualGrading = () => {
     if (newIndex >= 0 && newIndex < rows.length) {
       const newSubmission = rows[newIndex];
       setManualGradeSubmission(newSubmission);
+      setSubmissionScaling(newSubmission.score_scaling);
       reload();
     }
   };
