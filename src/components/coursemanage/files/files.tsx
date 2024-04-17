@@ -42,8 +42,6 @@ import { openBrowser, openTerminal } from '../overview/util';
 import { PageConfig } from '@jupyterlab/coreutils';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import {
-  IGitLogObject,
-  getGitLog,
   getRemoteStatus,
   lectureBasePath
 } from '../../../services/file.service';
@@ -73,14 +71,7 @@ export const Files = (props: IFilesProps) => {
   const [assignment, setAssignment] = React.useState(props.assignment);
   const [lecture, setLecture] = React.useState(props.lecture);
   const [selectedDir, setSelectedDir] = React.useState('source');
-  const [gitLogs, setGitLog] = React.useState([] as IGitLogObject[]);
-  const [assignmentState, setAssignmentState] = React.useState(assignment);
 
-  const updateGitLog = () => {
-    getGitLog(lecture, assignment, RepoType.SOURCE, 10).then(logs =>
-      setGitLog(logs)
-    );
-  };
   const updateRemoteStatus = async () => {
     const status = await getRemoteStatus(
       props.lecture,
@@ -92,9 +83,7 @@ export const Files = (props: IFilesProps) => {
       status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
     );
   };
-  React.useEffect(() => {
-    updateGitLog();
-  }, [assignmentState]);
+  
 
   openBrowser(
     `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
@@ -409,7 +398,7 @@ export const Files = (props: IFilesProps) => {
             Add new
           </Button>
         </Tooltip>
-        <GitLogModal gitLogs={gitLogs} />
+        <GitLogModal lecture={lecture} assignment={assignment}/>
         <Tooltip title={'Show in File-Browser'}>
           <IconButton
             sx={{ mt: -1, pt: 0, pb: 0 }}
