@@ -46,7 +46,7 @@ import {
 import { showDialog } from '../../util/dialog-provider';
 import InfoIcon from '@mui/icons-material/Info';
 import { GraderLoadingButton } from '../../util/loading-button';
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
@@ -129,12 +129,6 @@ export const ManualGrading = () => {
     queryFn: () => getSubmission(lecture.id, assignment.id, manualGradeSubmission.id, true)
   });
 
-  const setSubmissionMutation = useMutation({
-    mutationFn: async (newSubmission: Submission) => {
-      queryClient.setQueryData(['submission'], newSubmission);
-      return newSubmission;
-    }
-  });
 
   const mPath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
   const rowIdx = rows.findIndex(s => s.id === submission.id);
@@ -142,17 +136,11 @@ export const ManualGrading = () => {
 
   const [submissionScaling, setSubmissionScaling] = React.useState(submission.score_scaling);
 
-  const { data: manualPath = mPath } = useQuery({
+  const { data: manualPath = mPath, refetch: refetchManualPath } = useQuery({
     queryKey: ['manualPath'],
     queryFn: () => mPath
   });
 
-  const setManualPathMutation = useMutation({
-    mutationFn: async (newManualPath: string) => {
-      queryClient.setQueryData(['manualPath'], newManualPath);
-      return newManualPath;
-    }
-  });
 
   const {data: gradeBook, refetch: refetchGradeBook } = useQuery({
     queryKey: ['gradeBook', manualGradeSubmission.id],
@@ -165,30 +153,19 @@ export const ManualGrading = () => {
     reloadProperties();
   }, []);
 
-  const reloadManualPath = () => {
-    const mPath = `${lectureBasePath}${lecture.code}/manualgrade/${assignment.id}/${submission.id}`;
-    setManualPathMutation.mutate(mPath);
+  const reloadManualPath = async () => {
+    await refetchManualPath();
   };
   
-  const reloadProperties = () => {
-    getProperties(lecture.id, assignment.id, submission.id, true).then(
-      properties => {
-        refetchGradeBook();
-      }
-    );
+  const reloadProperties = async () => {
+    await refetchGradeBook();
   };
   
-  const reloadSubmission = () => {
-    refetchSubmission().then(
-      (result) => {
-        const newSubmission = result.data; 
-        if (newSubmission) {
-          setSubmissionMutation.mutate(newSubmission);
-        }
-      });
+  const reloadSubmission = async () => {
+   await refetchSubmission();
   };
   
-  const reload = () => {
+  const reload = async () => {
     reloadSubmission();
     reloadProperties();
     reloadManualPath();
