@@ -14,10 +14,10 @@ import { Box, Grid } from '@mui/material';
 import { AssignmentStatus } from './assignment-status';
 import { Submission } from '../../../model/submission';
 import { useRouteLoaderData } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useQuery } from '@tanstack/react-query';
+import { getAssignment } from '../../../services/assignments.service';
 
-const queryClient = new QueryClient();
+
 
 export const OverviewComponent = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
@@ -33,14 +33,18 @@ export const OverviewComponent = () => {
     latestSubmissions: Submission[];
   };
 
-  const [assignmentState, setAssignmentState] = React.useState(assignment);
+  
+  const { data: assignmentState = assignment, refetch: refetchAssignment } = useQuery({
+    queryKey: ['assignmentState'],
+    queryFn: () => getAssignment(lecture.id, assignment.id, true)
+  });
 
-  const onAssignmentChange = (assignment: Assignment) => {
-    setAssignmentState(assignment);
+  const onAssignmentChange = async () => {
+    await refetchAssignment();
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
+    
     <Box sx={{ flex: 1, overflow: 'auto' }}>
       <SectionTitle title={assignmentState.name}></SectionTitle>
       <Box sx={{ ml: 3, mr: 3, mb: 3, mt: 3 }}>
@@ -64,7 +68,6 @@ export const OverviewComponent = () => {
         </Grid>
       </Box>
     </Box>
-    {/*<ReactQueryDevtools initialIsOpen={false} />*/}
-    </QueryClientProvider>
+ 
   );
 };

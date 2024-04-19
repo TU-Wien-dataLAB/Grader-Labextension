@@ -21,6 +21,9 @@ import {
   useParams,
   useRouteLoaderData
 } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 function a11yProps(index: any) {
   return {
@@ -59,6 +62,7 @@ export const AssignmentModalComponent = () => {
   }
 
   return (
+    <QueryClientProvider client={queryClient}>
     <Stack flexDirection={'column'} sx={{ flex: 1, overflowY: 'auto' }}>
       <Box
         sx={{
@@ -137,5 +141,6 @@ export const AssignmentModalComponent = () => {
         </Box>
       </Box>
     </Stack>
+    </QueryClientProvider>
   );
 };

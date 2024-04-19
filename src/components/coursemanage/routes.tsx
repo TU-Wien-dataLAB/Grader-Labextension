@@ -31,6 +31,7 @@ import { FileView } from './files/file-view';
 import { ManualGrading } from './grading/manual-grading';
 import { EditSubmission } from './grading/edit-submission';
 import { CreateSubmission } from './grading/create-submission';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const shouldReload = (request: Request) =>
   new URL(request.url).searchParams.get('reload') === 'true';
@@ -106,6 +107,8 @@ function ExamplePage({ to }) {
 }
 
 export const getRoutes = () => {
+
+  const queryClient = new QueryClient();
   const routes = createRoutesFromElements(
     // this is a layout route without a path (see: https://reactrouter.com/en/main/start/concepts#layout-routes)
     <Route
@@ -132,7 +135,11 @@ export const getRoutes = () => {
             link: params => `lecture/${params?.lid}/`
           }}
         >
-          <Route index element={<LectureComponent />}></Route>
+          <Route index element={
+             <QueryClientProvider client={queryClient}>
+              <LectureComponent />
+             </QueryClientProvider>
+            }></Route>
           <Route
             id={'assignment'}
             path={'assignment/:aid/*'}

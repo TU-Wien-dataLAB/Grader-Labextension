@@ -50,9 +50,7 @@ import {
   storeNumber,
   storeString
 } from '../../../services/storage.service';
-import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { error } from 'console';
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
@@ -667,7 +665,6 @@ export const GradingComponent = () => {
   );
 
   return (
-    <QueryClientProvider client={queryClient}> 
     <Stack direction={'column'} sx={{ flex: 1, overflow: 'hidden' }}>
       <SectionTitle title="Grading" />
       <Outlet
@@ -681,7 +678,5 @@ export const GradingComponent = () => {
         }}
       />
     </Stack>
-    {/*<ReactQueryDevtools initialIsOpen={false} />*/}
-    </QueryClientProvider>
   );
 };

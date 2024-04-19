@@ -20,7 +20,7 @@ import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { deleteAssignment } from '../../services/assignments.service';
 import { CreateDialog, EditLectureDialog, IEditLectureProps } from '../util/dialog';
-import { updateLecture } from '../../services/lectures.service';
+import { getLecture, updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
 import {
@@ -34,6 +34,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
 import { updateMenus } from '../../menu';
+import { QueryClientProvider, useQuery } from '@tanstack/react-query';
+
 
 interface IAssignmentTableProps {
   lecture: Lecture;
@@ -158,7 +160,10 @@ export const LectureComponent = () => {
   };
   const navigation = useNavigation();
 
-  const [lectureState, setLecture] = React.useState(lecture);
+  const { data: lectureState = lecture, refetch: refetchLecture } = useQuery({
+    queryKey: ['lectureState'],
+    queryFn: () => getLecture(lecture.id, true)
+  });
   const [assignmentsState, setAssignments] = React.useState(assignments);
   const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
 
@@ -169,9 +174,9 @@ export const LectureComponent = () => {
   
   const handleUpdateLecture = (updatedLecture) => {
     updateLecture(updatedLecture).then(
-      async (response) => {
+      async () => {
         await updateMenus(true);
-        setLecture(response);
+        await refetchLecture();
       },
       (error) => {
         enqueueSnackbar(error.message, {

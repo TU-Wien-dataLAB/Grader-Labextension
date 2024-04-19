@@ -5,9 +5,6 @@ import { useRouteLoaderData } from 'react-router-dom';
 import { Lecture } from '../../../model/lecture';
 import { Assignment } from '../../../model/assignment';
 import { Submission } from '../../../model/submission';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
 
 export const FileView = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
@@ -29,12 +26,10 @@ export const FileView = () => {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
     <Files
       lecture={lecture}
       assignment={assignmentState}
       onAssignmentChange={onAssignmentChange}
     />
-    </QueryClientProvider>
   );
 };
