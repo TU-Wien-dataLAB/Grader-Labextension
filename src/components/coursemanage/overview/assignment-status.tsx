@@ -22,6 +22,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import { ReleaseDialog } from '../../util/dialog';
 import {
+  getAssignment,
   pushAssignment,
   updateAssignment
 } from '../../../services/assignments.service';
@@ -29,8 +30,7 @@ import { Lecture } from '../../../model/lecture';
 import { enqueueSnackbar } from 'notistack';
 import { DeadlineComponent } from '../../util/deadline';
 import { showDialog } from '../../util/dialog-provider';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 
 /**
@@ -63,13 +63,16 @@ const getActiveStep = (status: Assignment.StatusEnum) => {
  * @param props props of assignment status
  */
 export const AssignmentStatus = (props: IAssignmentStatusProps) => {
-  const [assignment, setAssignment] = React.useState(props.assignment);
+  
+  const { data: assignment = props.assignment, refetch: refetchAssignment } = useQuery({
+    queryKey: ['assignment'],
+    queryFn: () => getAssignment(props.lecture.id, props.assignment.id, true)
+  });
   
   const updateStatusMutation = useMutation({
-    mutationFn: (status: 'pushed' | 'released' | 'complete') => {
+    mutationFn: async(status: 'pushed' | 'released' | 'complete') => {
       const updatedAssignment = { ...props.assignment, status };
-      setAssignment(updatedAssignment);
-      return updateAssignment(props.lecture.id, updatedAssignment);
+      return updateAssignment(props.lecture.id, updatedAssignment);  
     },
     onError: (error: any) => {
       enqueueSnackbar('Error: ' + error.message, { variant: 'error' });
@@ -93,6 +96,7 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
   ) => {
     try {
       await updateStatusMutation.mutateAsync(status);
+      await refetchAssignment();
       enqueueSnackbar(success, { variant: 'success' });
     } catch (err) {
       enqueueSnackbar(error, { variant: 'error' });
@@ -250,10 +254,10 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
     showDialog(
       'Complete Assignment',
       `Do you want to mark ${assignment.name} as complete? This action will hide the assignment for all students!`,
-      async () => {
+      async () => { 
         await updateAssignmentStatus(
           'complete',
-          'Successfully Updated Assignment',
+          'Successfully Completed Assignment',
           'Error Updating Assignment'
         );
       }

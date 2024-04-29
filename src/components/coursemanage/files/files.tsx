@@ -120,10 +120,6 @@ export const Files = (props: IFilesProps) => {
     `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
   );
 
-  /*const [repoStatus, setRepoStatus] = React.useState(
-    null as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
-  );*/
-
   const setRepoStatus = async (value: 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent') => {
     storeString('files-repo-status', value);
     await refetchRepoStatus();
