@@ -10,12 +10,14 @@ import { closeSnackbar, SnackbarProvider } from 'notistack';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { getRoutes } from '../components/coursemanage/routes';
 import { Button } from '@mui/material';
-import { loadString } from '../services/storage.service';
 import { Router } from '@remix-run/router';
 import { DialogProvider } from '../components/util/dialog-provider';
 import { GlobalObjects } from '../index';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export class CourseManageView extends ReactWidget {
   /**
@@ -40,6 +42,7 @@ export class CourseManageView extends ReactWidget {
 
   render() {
     return (
+      <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
         <CssBaseline />
         <SnackbarProvider
@@ -62,6 +65,7 @@ export class CourseManageView extends ReactWidget {
           </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>
+      </QueryClientProvider>
     );
   }
 }

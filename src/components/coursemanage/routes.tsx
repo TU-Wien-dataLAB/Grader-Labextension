@@ -136,9 +136,7 @@ export const getRoutes = () => {
           }}
         >
           <Route index element={
-             <QueryClientProvider client={queryClient}>
               <LectureComponent />
-             </QueryClientProvider>
             }></Route>
           <Route
             id={'assignment'}

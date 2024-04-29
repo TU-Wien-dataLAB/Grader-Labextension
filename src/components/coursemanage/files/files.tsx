@@ -168,8 +168,8 @@ export const Files = (props: IFilesProps) => {
           if (srcChangedTimestamp === null || srcChangedTimestamp < modified) {
             setSrcChangeTimestamp(modified);
           }
+          reloadPage();
         }
-        reloadPage();
       },
       this
     );

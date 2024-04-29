@@ -16,6 +16,9 @@ import { Button } from '@mui/material';
 import { GlobalObjects } from '../index';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export class AssignmentManageView extends ReactWidget {
   /**
@@ -40,6 +43,7 @@ export class AssignmentManageView extends ReactWidget {
 
   render() {
     return (
+      <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
         <CssBaseline />
         <SnackbarProvider
@@ -62,6 +66,7 @@ export class AssignmentManageView extends ReactWidget {
           </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>
+      </QueryClientProvider>
     );
   }
 }

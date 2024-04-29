@@ -288,7 +288,6 @@ export const AssignmentComponent = () => {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
     <Box sx={{ flex: 1, overflow: 'auto' }}>
       <Box>
         <Box sx={{ mt: 6 }}>
@@ -437,6 +436,5 @@ export const AssignmentComponent = () => {
         />
       </Box>
     </Box>
-    </QueryClientProvider>
   );
 };
