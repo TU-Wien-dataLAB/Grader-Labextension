@@ -18,7 +18,7 @@ import {
 import * as React from 'react';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
-import { deleteAssignment, getAllAssignments } from '../../services/assignments.service';
+import { deleteAssignment } from '../../services/assignments.service';
 import { CreateDialog, EditLectureDialog, IEditLectureProps } from '../util/dialog';
 import { getLecture, updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
@@ -54,47 +54,34 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
     { name: 'Delete Assignment', width: 100 }
   ];
 
-  const { data: assignments = props.rows, refetch: refetchAssignments } = useQuery({
-    queryKey: ['assignments'],
-    queryFn: () => getAllAssignments(props.lecture.id) 
-  });
-
-  const reloadAssignments = async () => {
-    await refetchAssignments();
-  }
-
-  React.useState(() => {
-    reloadAssignments();
-  });
-  
   return (
     <>
       <GraderTable<Assignment>
         headers={headers}
-        rows={assignments}
-        rowFunc={assignment => {
+        rows={props.rows}
+        rowFunc={row => {
           return (
             <TableRow
-              key={assignment.name}
+              key={row.name}
               component={ButtonTr}
               onClick={() =>
-                navigate(`/lecture/${props.lecture.id}/assignment/${assignment.id}`)
+                navigate(`/lecture/${props.lecture.id}/assignment/${row.id}`)
               }
             >
               <TableCell component="th" scope="row">
                 <Typography variant={'subtitle2'} sx={{ fontSize: 16 }}>
-                  {assignment.name}
+                  {row.name}
                 </Typography>
               </TableCell>
-              <TableCell>{assignment.points}</TableCell>
+              <TableCell>{row.points}</TableCell>
               <TableCell>
                 <DeadlineComponent
                   component={'chip'}
-                  due_date={assignment.due_date}
+                  due_date={row.due_date}
                   compact={true}
                 />
               </TableCell>
-              <TableCell>{assignment.status}</TableCell>
+              <TableCell>{row.status}</TableCell>
               <TableCell>
                 <IconButton aria-label="detail view" size={'small'}>
                   <SearchIcon />
@@ -103,9 +90,9 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
               <TableCell>
                 <Tooltip
                   title={
-                    assignment.status === 'released' || assignment.status === 'complete'
+                    row.status === 'released' || row.status === 'complete'
                       ? 'Released or Completed Assignments cannot be deleted'
-                      : `Delete Assignment ${assignment.name}`
+                      : `Delete Assignment ${row.name}`
                   }
                 >
                   <span>
@@ -115,7 +102,7 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                       aria-label="delete assignment"
                       size={'small'}
                       disabled={
-                        assignment.status === 'released' || assignment.status === 'complete'
+                        row.status === 'released' || row.status === 'complete'
                       }
                       onClick={e => {
                         showDialog(
@@ -123,7 +110,7 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                           'Do you wish to delete this assignment?',
                           async () => {
                             try {
-                              await deleteAssignment(props.lecture.id, assignment.id);
+                              await deleteAssignment(props.lecture.id, row.id);
                               await updateMenus(true);
                               enqueueSnackbar(
                                 'Successfully Deleted Assignment',
@@ -132,7 +119,7 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                                 }
                               );
                               props.setAssignments(
-                                props.rows.filter(a => a.id !== assignment.id)
+                                props.rows.filter(a => a.id !== row.id)
                               );
                             } catch (error: any) {
                               enqueueSnackbar(error.message, {
@@ -147,8 +134,8 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                       <CloseIcon
                         sx={{
                           color:
-                          assignment.status === 'released' ||
-                          assignment.status === 'complete'
+                            row.status === 'released' ||
+                            row.status === 'complete'
                               ? grey[500]
                               : red[500]
                         }}

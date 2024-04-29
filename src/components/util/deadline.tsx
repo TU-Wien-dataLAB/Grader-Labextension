@@ -211,12 +211,12 @@ export function DeadlineDetail(props: IDeadlineDetailProps) {
   }
   const [open, setOpen] = React.useState(true);
 
-  const [date, setDate] = React.useState(
+  const [date, setDate] = React.useState( //TODO: use query
     props.due_date !== null
       ? moment.utc(props.due_date).local().toDate()
       : undefined
   );
-  const [displayDuration, setDisplayDuration] = React.useState(
+  const [displayDuration, setDisplayDuration] = React.useState( //TODO: use query
     getDisplayDate(date, false)
   );
   const [interval, setNewInterval] = React.useState(null);
