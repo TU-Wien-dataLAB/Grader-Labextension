@@ -63,7 +63,7 @@ class GenerateHandler(ExtensionBaseHandler):
         generator = GenerateAssignment(
             input_dir=f"{self.root_dir}/{code}/source/{a_id}",
             output_dir=output_dir,
-            file_pattern="*.ipynb",
+            file_pattern="**/*.ipynb",
             copy_files=True,  # Always copy files from source to release
         )
         generator.force = True
