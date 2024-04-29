@@ -5,6 +5,8 @@ import { useRouteLoaderData } from 'react-router-dom';
 import { Lecture } from '../../../model/lecture';
 import { Assignment } from '../../../model/assignment';
 import { Submission } from '../../../model/submission';
+import { getAssignment } from '../../../services/assignments.service';
+import { useQuery } from '@tanstack/react-query';
 
 export const FileView = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
@@ -20,9 +22,13 @@ export const FileView = () => {
     latestSubmissions: Submission[];
   };
 
-  const [assignmentState, setAssignmentState] = React.useState(assignment);
-  const onAssignmentChange = (assignment: Assignment) => {
-    setAssignmentState(assignment);
+  const { data: assignmentState = assignment, refetch: refetchAssignment } = useQuery({
+    queryKey: ['assignmentState'],
+    queryFn: () => getAssignment(lecture.id, assignment.id, true)
+  });
+
+  const onAssignmentChange = async () => {
+    await refetchAssignment();
   };
 
   return (

@@ -34,7 +34,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
 import { updateMenus } from '../../menu';
-import { QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 
 interface IAssignmentTableProps {

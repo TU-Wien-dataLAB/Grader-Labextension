@@ -46,9 +46,8 @@ import {
 import { showDialog } from '../../util/dialog-provider';
 import InfoIcon from '@mui/icons-material/Info';
 import { GraderLoadingButton } from '../../util/loading-button';
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
 
 const style = {
   position: 'absolute' as const,
