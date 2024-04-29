@@ -25,11 +25,9 @@ import { IGitLogObject, getGitLog } from '../../../services/file.service';
 import { utcToLocalFormat } from '../../../services/datetime.service';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import { RepoType } from '../../util/repo-type';
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import {  useQuery } from '@tanstack/react-query';
 import { Lecture } from '../../../model/lecture';
 import { Assignment } from '../../../model/assignment';
-
-const queryClient = new QueryClient();
 
 interface IGitLogProps {
   lecture: Lecture,

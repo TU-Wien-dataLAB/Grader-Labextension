@@ -59,7 +59,7 @@ export const EditSubmission = () => {
   const { data: submissionFiles, refetch: refetchSubmissionFiles } = useQuery({
     queryKey: ['submissionFiles'],
     queryFn: () => getFiles(path)
-  })
+  });
 
   const [showLogs, setShowLogs] = React.useState(false);
 

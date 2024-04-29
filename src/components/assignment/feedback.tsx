@@ -20,6 +20,7 @@ import { openBrowser } from '../coursemanage/overview/util';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { getFiles, lectureBasePath } from '../../services/file.service';
 import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 export const Feedback = () => {
   const { lecture, assignment, submissions } = useRouteLoaderData(
@@ -35,22 +36,32 @@ export const Feedback = () => {
   const submissionId = +params['sid'];
   const submission = submissions.find(s => s.id === submissionId);
 
-  const [gradeBook, setGradeBook] = React.useState(null);
-  const [path, setPath] = React.useState(null);
-
-  const feedbackPath = `${lectureBasePath}${lecture.code}/feedback/${assignment.id}/${submission.id}`;
-  getFiles(feedbackPath).then(files => {
-    if (files.length > 0) {
-      setPath(feedbackPath);
-    }
+  const {data: gradeBook, refetch: refetchGradeBook } = useQuery({
+    queryKey: ['gradeBook', submission.id],
+    queryFn: () => getProperties(lecture.id, assignment.id, submission.id).then(
+      properties => new GradeBook(properties)),
+    enabled: !!submission  
   });
 
+  const { data: submissionFiles, refetch: refetchSubmissionFiles } = useQuery({
+    queryKey: ['submissionFiles'],
+    queryFn: () => getFiles(path)
+  });
+  
+  const feedbackPath = `${lectureBasePath}${lecture.code}/feedback/${assignment.id}/${submission.id}`;
+  const { data: path = feedbackPath, refetch: refetchPath } = useQuery({
+    queryKey: ['path', submission.id],
+    queryFn: () => feedbackPath
+  });
+
+
+  const reloadProperties = async () => {
+    await refetchGradeBook();
+  };
+
   React.useEffect(() => {
-    getProperties(lecture.id, assignment.id, submission.id).then(properties => {
-      const gradeBook = new GradeBook(properties);
-      setGradeBook(gradeBook);
-    });
-  }, [lecture, assignment, submission]);
+    reloadProperties();
+  }, []);
 
   return (
     <Box sx={{ overflow: 'auto' }}>
@@ -145,8 +156,8 @@ export const Feedback = () => {
           size="small"
           color={'primary'}
           onClick={() => {
-            pullFeedback(lecture, assignment, submission).then(() => {
-              setPath(feedbackPath);
+            pullFeedback(lecture, assignment, submission).then(async() => {
+              await refetchSubmissionFiles();
             });
           }}
         >

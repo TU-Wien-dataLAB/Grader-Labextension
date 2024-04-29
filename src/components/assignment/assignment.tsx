@@ -48,9 +48,9 @@ import { openBrowser } from '../coursemanage/overview/util';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { Scope, UserPermissions } from '../../services/permission.service';
 import { GradeBook } from '../../services/gradebook';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GlobalObjects } from '../..';
+import { Contents } from '@jupyterlab/services';
 
-const queryClient = new QueryClient();
 
 const calculateActiveStep = (submissions: Submission[]) => {
   const hasFeedback = submissions.reduce(

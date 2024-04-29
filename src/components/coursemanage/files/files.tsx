@@ -170,6 +170,7 @@ export const Files = (props: IFilesProps) => {
           }
           reloadPage();
         }
+        reloadPage();
       },
       this
     );
