@@ -10,6 +10,7 @@ import { Assignment } from '../../../model/assignment';
 import { Lecture } from '../../../model/lecture';
 import {
   generateAssignment,
+  getAssignment,
   pullAssignment,
   pushAssignment
 } from '../../../services/assignments.service';
@@ -50,6 +51,8 @@ import { enqueueSnackbar } from 'notistack';
 import { GitLogModal } from './git-log';
 import { showDialog } from '../../util/dialog-provider';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getLecture } from '../../../services/lectures.service';
 
 /**
  * Props for FilesComponent.
@@ -68,8 +71,19 @@ export const Files = (props: IFilesProps) => {
   const navigate = useNavigate();
   const reloadPage = () => navigate(0);
 
-  const [assignment, setAssignment] = React.useState(props.assignment);
-  const [lecture, setLecture] = React.useState(props.lecture);
+
+  const { data: assignment = props.assignment } = useQuery({
+    queryKey: ['assignment'],
+    queryFn: () => getAssignment(lecture.id, props.assignment.id, true)
+  });
+
+
+  const { data: lecture = props.lecture } = useQuery({
+    queryKey: ['lecture'],
+    queryFn: () => getLecture(props.lecture.id, true)
+  });
+
+
   const [selectedDir, setSelectedDir] = React.useState('source');
 
   const updateRemoteStatus = async () => {
