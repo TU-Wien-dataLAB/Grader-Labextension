@@ -51,8 +51,11 @@ import { enqueueSnackbar } from 'notistack';
 import { GitLogModal } from './git-log';
 import { showDialog } from '../../util/dialog-provider';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { getLecture } from '../../../services/lectures.service';
+import { loadString, storeString } from '../../../services/storage.service';
+
+const queryClient = new QueryClient();
 
 /**
  * Props for FilesComponent.
@@ -77,14 +80,28 @@ export const Files = (props: IFilesProps) => {
     queryFn: () => getAssignment(lecture.id, props.assignment.id, true)
   });
 
-
   const { data: lecture = props.lecture } = useQuery({
     queryKey: ['lecture'],
     queryFn: () => getLecture(props.lecture.id, true)
   });
 
-
-  const [selectedDir, setSelectedDir] = React.useState('source');
+  
+  const setSelectedDir = async (value: 'source' | 'release') => {
+    storeString('files-selected-dir', value);
+    await refetchSelectedDir();
+  }
+  
+  const { data: selectedDir, refetch: refetchSelectedDir } = useQuery({
+    queryKey: ['selectedDir'],
+    queryFn: async () => {
+      const data = await loadString('files-selected-dir');
+      if (data) {
+        return data as  'source' | 'release';
+      } else {
+        return 'source';
+      }
+    }
+  });
 
   const updateRemoteStatus = async () => {
     const status = await getRemoteStatus(

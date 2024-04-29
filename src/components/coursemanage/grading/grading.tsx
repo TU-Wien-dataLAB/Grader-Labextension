@@ -367,10 +367,14 @@ export default function GradingTable() {
   };
 
   const { data: order = 'asc' } : { data: Order} = useQuery({ queryKey: ['order'], queryFn: () => 'asc' });
-  const { data: orderBy = 'id' } : { data: keyof Submission } = 
-      useQuery({ queryKey: ['orderBy'], queryFn: () => 'id' });
   const { data: selected = [] } = useQuery({ queryKey: ['selected'], queryFn: () => [] });
   const { data: page = 0 } = useQuery({ queryKey: ['page'], queryFn: () => 0 });
+
+  const { data: orderBy = 'id' } : { data: keyof Submission } =  useQuery({ 
+    queryKey: ['orderBy'],
+     queryFn: () => 'id' 
+  });
+
   const { data: rowsPerPage = 10 } = useQuery({ 
     queryKey: ['rowsPerPage'], 
     queryFn: async () => {
