@@ -124,7 +124,6 @@ export const AssignmentComponent = () => {
   React.useEffect(() => {
     refetchSubmissions().then(
       response => {
-        console.log("LOOK HERE: " + response.data);
         if (assignment.max_submissions - response.data.length < 0) {
           setSubLeft(0);
         } else {

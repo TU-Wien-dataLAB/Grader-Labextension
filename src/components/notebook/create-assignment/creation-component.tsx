@@ -64,7 +64,7 @@ export const CreationComponent = (props: ICreationComponentProps) => {
     updateMetadata();
   });
 
-  const alertStyle = { width: '100%', mt: 2 };
+  const alertStyle = { width: '10%', mt0: 2 };
   const gradableCell =
     type !== ('readonly' as CellType) &&
     type !== ('solution' as CellType) &&
