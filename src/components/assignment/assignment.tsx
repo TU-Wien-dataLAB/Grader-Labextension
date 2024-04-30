@@ -32,7 +32,6 @@ import {
 import { getFiles, lectureBasePath } from '../../services/file.service';
 import {
   getAllSubmissions,
-  getProperties,
   submitAssignment
 } from '../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
@@ -48,8 +47,7 @@ import { openBrowser } from '../coursemanage/overview/util';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { Scope, UserPermissions } from '../../services/permission.service';
 import { GradeBook } from '../../services/gradebook';
-import { GlobalObjects } from '../..';
-import { Contents } from '@jupyterlab/services';
+import { useQuery } from '@tanstack/react-query';
 
 
 const calculateActiveStep = (submissions: Submission[]) => {
@@ -110,31 +108,31 @@ export const AssignmentComponent = () => {
   const path = `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`;
 
   /* Now we can divvy this into a useReducer  */
-  const [allSubmissions, setSubmissions] = React.useState(submissions);
-  const [files, setFiles] = React.useState([]);
+  const { data: allSubmissions = submissions, refetch: refetchSubmissions } = useQuery({
+    queryKey: ['allSubmissions', lecture.id, assignment.id], 
+    queryFn: () => getAllSubmissions(lecture.id, assignment.id, 'none', false)
+  });
+
+  const { data: files = [], refetch: refetchFiles } = useQuery({
+    queryKey: ['files'],
+    queryFn: () => getFiles(path)
+  });
+
   const [activeStatus, setActiveStatus] = React.useState(0);
   const [subLeft, setSubLeft] = React.useState(0);
 
   React.useEffect(() => {
-    getAllSubmissions(lecture.id, assignment.id, 'none', false).then(
+    refetchSubmissions().then(
       response => {
-        setSubmissions(response);
-        if (assignment.max_submissions - response.length < 0) {
+        console.log("LOOK HERE: " + response.data);
+        if (assignment.max_submissions - response.data.length < 0) {
           setSubLeft(0);
         } else {
-          setSubLeft(assignment.max_submissions - response.length);
+          setSubLeft(assignment.max_submissions - response.data.length);
         }
       }
     );
-    getFiles(path).then(files => {
-      // TODO: make it really explicit where & who pulls the asssignment
-      // files!
-      //if (files.length === 0) {
-      //    pullAssignment(lecture.id, assignment.id, 'assignment');
-      //}
-      setFiles(files);
-    });
-
+    refetchFiles();
     const active_step = calculateActiveStep(submissions);
     setActiveStatus(active_step);
   }, []);
@@ -181,7 +179,7 @@ export const AssignmentComponent = () => {
         await submitAssignment(lecture, assignment, true).then(
           response => {
             console.log('Submitted');
-            setSubmissions([response, ...allSubmissions]);
+            refetchSubmissions();
             if (subLeft - 1 < 0) {
               setSubLeft(0);
             } else {
@@ -223,11 +221,7 @@ export const AssignmentComponent = () => {
         enqueueSnackbar('Successfully Pulled Repo', {
           variant: 'success'
         });
-        getFiles(
-          `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`
-        ).then(files => {
-          setFiles(files);
-        });
+        refetchFiles();
       },
       error => {
         enqueueSnackbar(error.message, {
