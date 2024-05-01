@@ -27,6 +27,7 @@ import FileItem from './file-item';
 import FolderItem from './folder-item';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
+import { useQuery } from '@tanstack/react-query';
 
 interface IFileListProps {
   path: string;
@@ -40,10 +41,16 @@ interface IFileListProps {
 }
 
 export const FilesList = (props: IFileListProps) => {
-  const [files, setFiles] = React.useState([]);
+  const { data: files = [], refetch } = useQuery({
+    queryKey: ['files', props.path],
+    queryFn: () => getFiles(props.path),
+    // Disable automatic refetching, since we want to subscribe directyly on property changes.
+    refetchOnMount: false,
+    refetchInterval: false
+  });
 
   React.useEffect(() => {
-    getFiles(props.path).then(files => setFiles(files));
+    refetch();
   }, [props]);
 
   const inContained = (file: string) => {

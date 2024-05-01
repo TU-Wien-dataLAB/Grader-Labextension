@@ -14,6 +14,8 @@ import { Box, Grid } from '@mui/material';
 import { AssignmentStatus } from './assignment-status';
 import { Submission } from '../../../model/submission';
 import { useRouteLoaderData } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getAssignment } from '../../../services/assignments.service';
 
 export const OverviewComponent = () => {
   const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
@@ -29,10 +31,14 @@ export const OverviewComponent = () => {
     latestSubmissions: Submission[];
   };
 
-  const [assignmentState, setAssignmentState] = React.useState(assignment);
+  const { data: assignmentState = assignment, refetch: refetchAssignment } =
+    useQuery({
+      queryKey: ['assignmentState'],
+      queryFn: () => getAssignment(lecture.id, assignment.id, true)
+    });
 
-  const onAssignmentChange = (assignment: Assignment) => {
-    setAssignmentState(assignment);
+  const onAssignmentChange = async () => {
+    await refetchAssignment();
   };
 
   return (

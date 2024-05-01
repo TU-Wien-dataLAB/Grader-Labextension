@@ -37,6 +37,7 @@ import { AssignmentDetail } from '../../model/assignmentDetail';
 import { Submission } from '../../model/submission';
 import { Lecture } from '../../model/lecture';
 import {
+  getAllAssignments,
   pullAssignment,
   pushAssignment,
   resetAssignment
@@ -44,6 +45,8 @@ import {
 import { showDialog } from '../util/dialog-provider';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import { getFiles, lectureBasePath } from '../../services/file.service';
+import { useQuery } from '@tanstack/react-query';
+import { getLecture } from '../../services/lectures.service';
 
 /*
  * Buttons for AssignmentTable
@@ -338,10 +341,15 @@ export const LectureComponent = () => {
 
   const newAssignmentSubmissions = transformAssignments(assignments);
 
-  const [lectureState, setLecture] = React.useState(lecture);
-  const [assignmentsState, setAssignments] = React.useState(
-    newAssignmentSubmissions
-  );
+  const { data: lectureState = lecture } = useQuery({
+    queryKey: ['lectureState'],
+    queryFn: () => getLecture(lecture.id, true)
+  });
+
+  const { data: assignmentsState = newAssignmentSubmissions} = useQuery({
+    queryKey: ['assignmentsState'],
+    queryFn: () => newAssignmentSubmissions
+  });
 
   if (navigation.state === 'loading') {
     return (

@@ -16,6 +16,9 @@ import { Button } from '@mui/material';
 import { GlobalObjects } from '../index';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export class AssignmentManageView extends ReactWidget {
   /**
@@ -40,28 +43,30 @@ export class AssignmentManageView extends ReactWidget {
 
   render() {
     return (
-      <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
-        <CssBaseline />
-        <SnackbarProvider
-          maxSnack={3}
-          // the parent of the parent is the main dock panel in JupyterLab
-          domRoot={this.node.parentNode.parentElement}
-          action={snackbarId => (
-            <Button
-              variant="outlined"
-              size="small"
-              style={{ color: 'white', borderColor: 'white' }}
-              onClick={() => closeSnackbar(snackbarId)}
-            >
-              Dismiss
-            </Button>
-          )}
-        >
-          <DialogProvider>
-            <RouterProvider router={this.router} />
-          </DialogProvider>
-        </SnackbarProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
+          <CssBaseline />
+          <SnackbarProvider
+            maxSnack={3}
+            // the parent of the parent is the main dock panel in JupyterLab
+            domRoot={this.node.parentNode.parentElement}
+            action={snackbarId => (
+              <Button
+                variant="outlined"
+                size="small"
+                style={{ color: 'white', borderColor: 'white' }}
+                onClick={() => closeSnackbar(snackbarId)}
+              >
+                Dismiss
+              </Button>
+            )}
+          >
+            <DialogProvider>
+              <RouterProvider router={this.router} />
+            </DialogProvider>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     );
   }
 }

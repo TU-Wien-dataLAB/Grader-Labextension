@@ -33,6 +33,7 @@ import {
 } from '../../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
 import { GraderLoadingButton } from '../../util/loading-button';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 export const CreateSubmission = () => {
   const { assignment, rows, setRows } = useOutletContext() as {
@@ -49,26 +50,43 @@ export const CreateSubmission = () => {
     users: { instructors: string[]; tutors: string[]; students: string[] };
   };
 
-  const [path, setPath] = React.useState(null);
-  const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
-  const [userDir, setUserDir] = React.useState<string | null>(null);
+  const { data: path } = useQuery({
+    queryKey: ['path', lectureBasePath, lecture.code, assignment.id],
+    queryFn: () =>
+      makeDirs(`${lectureBasePath}${lecture.code}`, [
+        'create',
+        `${assignment.id}`,
+        userDir
+      ])
+  });
 
+  const [userDir, setUserDir] = React.useState<string | null>(null);
+  const submissionsLink = `/lecture/${lecture.id}/assignment/${assignment.id}/submissions`;
   const [srcChangedTimestamp, setSrcChangeTimestamp] = React.useState(
     moment().valueOf()
   ); // now
 
+  const createSubmissionMutation = useMutation({
+    mutationFn: async () => {
+      return createSubmissionFiles(lecture, assignment, userDir);
+    },
+    onError: (error: any) => {
+      enqueueSnackbar('Error: ' + error.message, { variant: 'error' });
+    },
+    onSuccess: () => {
+      enqueueSnackbar(`Successfully Created Submission for user: ${userDir}`, {
+        variant: 'success'
+      });
+    }
+  });
+
   React.useEffect(() => {
-    makeDirs(`${lectureBasePath}${lecture.code}`, [
-      'create',
-      `${assignment.id}`,
-      userDir
-    ]).then(p => {
-      setPath(p);
-      openBrowser(p);
+    if (path) {
+      openBrowser(path);
       GlobalObjects.docManager.services.contents.fileChanged.connect(
         (sender: Contents.IManager, change: Contents.IChangedArgs) => {
           const { oldValue, newValue } = change;
-          if (!newValue.path.includes(p)) {
+          if (!newValue.path.includes(path)) {
             return;
           }
 
@@ -79,32 +97,11 @@ export const CreateSubmission = () => {
         },
         this
       );
-    });
-  });
+    }
+  }, [path]);
 
   const createSubmission = async () => {
-    // TODO: call pus submission and the rest is handled in the labestension server
-    await createSubmissionFiles(lecture, assignment, userDir).then(
-      response => {
-        enqueueSnackbar(
-          `Successfully Created Submission for user: ${userDir}`,
-          {
-            variant: 'success'
-          }
-        );
-      },
-      err => {
-        enqueueSnackbar(err.message, {
-          variant: 'error'
-        });
-      }
-    );
-  };
-
-  const [reloadFilesToggle, setReloadFiles] = React.useState(false);
-
-  const reloadFiles = () => {
-    setReloadFiles(!reloadFilesToggle);
+    createSubmissionMutation.mutate();
   };
 
   return (
@@ -146,26 +143,14 @@ export const CreateSubmission = () => {
             />
           )}
         />
-        <Stack
-          direction={'row'}
-          justifyContent={'flex-start'}
-          alignItems={'center'}
-          spacing={2}
-          sx={{ ml: 2 }}
-        >
-          <Typography>Submission Files</Typography>
-          <Tooltip title="Reload Files">
-            <IconButton aria-label="reload" onClick={() => reloadFiles()}>
-              <ReplayIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-
-        <FilesList path={path} 
-        sx={{ m: 2 }} 
-        lecture={lecture}
-        assignment={assignment}
-        checkboxes={false} />
+        <Typography sx={{ ml: 2 }}>Submission Files</Typography>
+        <FilesList
+          path={path}
+          sx={{ m: 2 }}
+          lecture={lecture}
+          assignment={assignment}
+          checkboxes={false}
+        />
         <Stack direction={'row'} sx={{ ml: 2 }} spacing={2}>
           <GraderLoadingButton
             variant="outlined"

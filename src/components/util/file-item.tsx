@@ -13,9 +13,12 @@ import {
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import WarningIcon from '@mui/icons-material/Warning';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { Contents } from '@jupyterlab/services';
 import DangerousIcon from '@mui/icons-material/Dangerous';
-import { File, getRelativePath, getRemoteFileStatus } from '../../services/file.service';
+import {
+  File,
+  getRelativePath,
+  getRemoteFileStatus
+} from '../../services/file.service';
 import { Lecture } from '../../model/lecture';
 import { Assignment } from '../../model/assignment';
 import { RepoType } from './repo-type';
@@ -25,7 +28,7 @@ import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 
 interface IFileItemProps {
   file: File;
-  lecture?: Lecture,
+  lecture?: Lecture;
   assignment?: Assignment;
   inContained: (file: string) => boolean;
   missingFiles?: File[];
@@ -43,10 +46,9 @@ const FileItem = ({
   openFile,
   allowFiles,
   missingFiles,
-  checkboxes, 
+  checkboxes,
   onFileSelectChange
 }: IFileItemProps) => {
-  
   const inMissing = (filePath: string) => {
     return missingFiles.some(missingFile => missingFile.path === filePath);
   };
@@ -64,9 +66,7 @@ const FileItem = ({
       getRelativePath(file.path, 'source'),
       true
     ).then(status => {
-      setFileRemoteStatus(
-        status as 'up_to_date' | 'push_needed' | 'divergent'
-      );
+      setFileRemoteStatus(status as 'up_to_date' | 'push_needed' | 'divergent');
     });
   }, [assignment, lecture]);
 
@@ -74,7 +74,7 @@ const FileItem = ({
     status: 'up_to_date' | 'push_needed' | 'divergent'
   ) => {
     if (status === 'up_to_date') {
-      return 'The local files is up to date with the file from remote repository.'
+      return 'The local files is up to date with the file from remote repository.';
     } else if (status === 'push_needed') {
       return 'You have made changes to this file locally, a push is needed.';
     } else {
@@ -134,14 +134,11 @@ const FileItem = ({
 
   return (
     <ListItem disablePadding>
-      {checkboxes && ( 
-          <ListItemIcon>
-            <Checkbox
-              checked={isSelected}
-              onChange={toggleSelection}
-            />
-          </ListItemIcon>
-        )}
+      {checkboxes && (
+        <ListItemIcon>
+          <Checkbox checked={isSelected} onChange={toggleSelection} />
+        </ListItemIcon>
+      )}
       <ListItemButton onClick={() => openFile(file.path)} dense={true}>
         <ListItemIcon>
           {!checkboxes && (

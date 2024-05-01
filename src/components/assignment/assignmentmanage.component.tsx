@@ -45,7 +45,11 @@ const LectureTable = (props: ILectureTableProps) => {
             <TableCell style={{ width: 100 }} component="th" scope="row">
               {row.id}
             </TableCell>
-            <TableCell>{row.name}</TableCell>
+            <TableCell>
+              <Typography variant={'subtitle2'} sx={{ fontSize: 16 }}>
+                {row.name}
+              </Typography>
+            </TableCell>
             <TableCell>{row.code}</TableCell>
           </TableRow>
         );
@@ -67,6 +71,9 @@ export const AssignmentManageComponent = () => {
 
   return (
     <Stack flexDirection={'column'} sx={{ m: 5, flex: 1, overflow: 'hidden' }}>
+      <Stack direction="row" justifyContent="center">
+        <Typography variant={'h4'}>Assignments</Typography>
+      </Stack>
       <Stack direction={'row'} spacing={2}>
         <Typography variant="h6" sx={{ mb: 1 }}>
           Lectures

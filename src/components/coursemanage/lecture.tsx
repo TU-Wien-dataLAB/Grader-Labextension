@@ -19,8 +19,12 @@ import * as React from 'react';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { deleteAssignment } from '../../services/assignments.service';
-import { CreateDialog, EditLectureDialog, IEditLectureProps } from '../util/dialog';
-import { updateLecture } from '../../services/lectures.service';
+import {
+  CreateDialog,
+  EditLectureDialog,
+  IEditLectureProps
+} from '../util/dialog';
+import { getLecture, updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
 import {
@@ -34,6 +38,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
 import { updateMenus } from '../../menu';
+import { useQuery } from '@tanstack/react-query';
 
 interface IAssignmentTableProps {
   lecture: Lecture;
@@ -158,7 +163,10 @@ export const LectureComponent = () => {
   };
   const navigation = useNavigation();
 
-  const [lectureState, setLecture] = React.useState(lecture);
+  const { data: lectureState = lecture, refetch: refetchLecture } = useQuery({
+    queryKey: ['lectureState'],
+    queryFn: () => getLecture(lecture.id, true)
+  });
   const [assignmentsState, setAssignments] = React.useState(assignments);
   const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
 
@@ -166,21 +174,19 @@ export const LectureComponent = () => {
     setEditDialogOpen(true);
   };
 
-  
-  const handleUpdateLecture = (updatedLecture) => {
+  const handleUpdateLecture = updatedLecture => {
     updateLecture(updatedLecture).then(
-      async (response) => {
+      async () => {
         await updateMenus(true);
-        setLecture(response);
+        await refetchLecture();
       },
-      (error) => {
+      error => {
         enqueueSnackbar(error.message, {
-          variant: 'error',
+          variant: 'error'
         });
       }
     );
   };
-
 
   if (navigation.state === 'loading') {
     return (
@@ -215,15 +221,20 @@ export const LectureComponent = () => {
         alignItems="center"
         sx={{ mt: 2, mb: 1 }}
       >
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{ mr: 2}}
-          >
+        <Stack direction="row" alignItems="center" sx={{ mr: 2 }}>
           {lecture.code === lecture.name ? (
             <Alert severity="info">
-              The name of the lecture is identical to the lecture code. You should give it a meaningful title that accurately reflects its content.{' '}
-              <span style={{ cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={handleOpenEditDialog}>
+              The name of the lecture is identical to the lecture code. You
+              should give it a meaningful title that accurately reflects its
+              content.{' '}
+              <span
+                style={{
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  fontWeight: 'bold'
+                }}
+                onClick={handleOpenEditDialog}
+              >
                 Rename Lecture.
               </span>
             </Alert>
@@ -248,7 +259,6 @@ export const LectureComponent = () => {
           />
         </Stack>
       </Stack>
-
 
       <Stack>
         <Typography variant={'h6'}>Assignments</Typography>
