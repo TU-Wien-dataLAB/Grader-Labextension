@@ -237,21 +237,12 @@ export const EditSubmission = () => {
       >
         <DialogTitle id="alert-dialog-title">{'Logs'}</DialogTitle>
         <DialogContent>
-          {logs ? (
-            <Typography
-              id="alert-dialog-description"
-              sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
-            >
-              {logs}
-            </Typography>
-          ) : (
-            <Typography
-              id="alert-dialog-description"
-              sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
-            >
-              No logs available
-            </Typography>
-          )}
+          <Typography
+            id="alert-dialog-description"
+            sx={{ fontSize: 10, fontFamily: "'Roboto Mono', monospace" }}
+          >
+            {logs || 'No logs available'}
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowLogs(false)}>Close</Button>
