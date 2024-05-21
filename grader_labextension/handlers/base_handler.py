@@ -37,14 +37,18 @@ def cache(max_age: int):
 
 
 class HandlerConfig(SingletonConfigurable):
-    hub_api_url = Unicode(os.environ.get("JUPYTERHUB_API_URL"), help="The url of the hubs api.").tag(config=True)
+    hub_api_url = Unicode(os.environ.get("JUPYTERHUB_API_URL"), help="The url of the JupyterHub's API.").tag(
+        config=True)
     hub_api_token = Unicode(os.environ.get("JUPYTERHUB_API_TOKEN"),
-                            help="The authorization token to access the hub api").tag(config=True)
-    hub_user = Unicode(os.environ.get("JUPYTERHUB_USER"), help="The user name in jupyter hub.").tag(config=True)
+                            help="The authorization token to access the JupyterHub API").tag(config=True)
+    hub_user = Unicode(os.environ.get("JUPYTERHUB_USER"), help="The user name in JupyterHub.").tag(config=True)
     service_base_url = Unicode(
         os.environ.get("GRADER_BASE_URL", "/services/grader"),
-        help="Base URL to use for each request to the grader service",
+        help="Base URL to use for each request to the Grader Service",
     ).tag(config=True)
+    grader_api_token = Unicode(os.environ.get("GRADER_API_TOKEN", None),
+                               help="The authorization token to access the Grader Service API", allow_none=False).tag(
+        config=True)
     lectures_base_path = Unicode(
         "lectures",
         help="The path in each user home directory where lecture directories are created."
@@ -83,7 +87,7 @@ class ExtensionBaseHandler(APIHandler):
         :rtype: dict
         """
 
-        return dict(Authorization="Token " + HandlerConfig.instance().hub_api_token)
+        return dict(Authorization="Token " + HandlerConfig.instance().grader_api_token)
 
     @property
     def user_name(self):
@@ -112,23 +116,23 @@ class ExtensionBaseHandler(APIHandler):
         except HTTPClientError as e:
             self.log.error(e.response)
             raise HTTPError(e.code, reason=e.response.reason)
-        
+
     def write_error(self, status_code, **kwargs):
-            """APIHandler errors are JSON, not human pages"""
-            self.set_header("Content-Type", "application/json")
-            message = responses.get(status_code, "Unknown HTTP Error")
-            reply: dict = {
-                "message": message,
-            }
-            exc_info = kwargs.get("exc_info")
-            if exc_info:
-                e = exc_info[1]
-                if isinstance(e, HTTPError):
-                    reply["message"] = e.log_message or message
-                    reply["reason"] = e.reason
-                else:
-                    reply["message"] = "Unhandled error"
-                    reply["reason"] = None
-                    reply["traceback"] = "".join(traceback.format_exception(*exc_info))
-            self.log.warning("wrote error: %r", reply["message"], exc_info=True)
-            self.finish(json.dumps(reply))
+        """APIHandler errors are JSON, not human pages"""
+        self.set_header("Content-Type", "application/json")
+        message = responses.get(status_code, "Unknown HTTP Error")
+        reply: dict = {
+            "message": message,
+        }
+        exc_info = kwargs.get("exc_info")
+        if exc_info:
+            e = exc_info[1]
+            if isinstance(e, HTTPError):
+                reply["message"] = e.log_message or message
+                reply["reason"] = e.reason
+            else:
+                reply["message"] = "Unhandled error"
+                reply["reason"] = None
+                reply["traceback"] = "".join(traceback.format_exception(*exc_info))
+        self.log.warning("wrote error: %r", reply["message"], exc_info=True)
+        self.finish(json.dumps(reply))
