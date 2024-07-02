@@ -18,19 +18,16 @@ import {
 import * as React from 'react';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
-import { deleteAssignment } from '../../services/assignments.service';
+import { deleteAssignment, getAllAssignments } from '../../services/assignments.service';
 import {
   CreateDialog,
-  EditLectureDialog,
-  IEditLectureProps
+  EditLectureDialog
 } from '../util/dialog';
 import { getLecture, updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
 import {
-  useNavigate,
-  useNavigation,
-  useRouteLoaderData
+  useNavigate
 } from 'react-router-dom';
 import { ButtonTr, GraderTable } from '../util/table';
 import { DeadlineComponent } from '../util/deadline';
@@ -39,6 +36,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
 import { updateMenus } from '../../menu';
 import { useQuery } from '@tanstack/react-query';
+import { extractIdsFromBreadcrumbs } from '../util/breadcrumbs';
+import { AssignmentDetail } from '../../model/assignmentDetail';
 
 interface IAssignmentTableProps {
   lecture: Lecture;
@@ -156,19 +155,29 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
 };
 
 export const LectureComponent = () => {
-  const { lecture, assignments } = useRouteLoaderData('lecture') as {
-    lecture: Lecture;
-    assignments: Assignment[];
-    users: { instructors: string[]; tutors: string[]; students: string[] };
-  };
-  const navigation = useNavigation();
+  const { lectureId } = extractIdsFromBreadcrumbs();
 
-  const { data: lectureState = lecture, refetch: refetchLecture } = useQuery({
-    queryKey: ['lectureState'],
-    queryFn: () => getLecture(lecture.id, true)
+  const { data: lecture, refetch: refetchLecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
+    queryKey: ['lecture', lectureId],
+    queryFn: () => getLecture(lectureId, true),
+    enabled: !!lectureId
   });
-  const [assignmentsState, setAssignments] = React.useState(assignments);
+
+  const { data: assignments = [], isLoading: isLoadingAssignments } = useQuery<AssignmentDetail[]>({
+    queryKey: ['assignments', lecture, lectureId],
+    queryFn: () => getAllAssignments(lectureId),
+    enabled: !!lecture 
+  });
+
+ 
+  const [assignmentsState, setAssignments] = React.useState<Assignment[]>([]);
   const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (assignments.length > 0) {
+      setAssignments(assignments);
+    }
+  }, [assignments]);
 
   const handleOpenEditDialog = () => {
     setEditDialogOpen(true);
@@ -188,7 +197,7 @@ export const LectureComponent = () => {
     );
   };
 
-  if (navigation.state === 'loading') {
+  if (isLoadingLecture || isLoadingAssignments) {
     return (
       <div>
         <Card>
@@ -201,8 +210,8 @@ export const LectureComponent = () => {
   return (
     <Stack direction={'column'} sx={{ mt: 5, ml: 5, flex: 1 }}>
       <Typography variant={'h4'} sx={{ mr: 2 }}>
-        {lectureState.name}
-        {lectureState.complete ? (
+        {lecture.name}
+        {lecture.complete ? (
           <Typography
             sx={{
               display: 'inline-block',
@@ -243,7 +252,7 @@ export const LectureComponent = () => {
 
         <Stack direction="row" alignItems="center" spacing={2}>
           <CreateDialog
-            lecture={lectureState}
+            lecture={lecture}
             handleSubmit={assigment => {
               setAssignments((oldAssignments: Assignment[]) => [
                 ...oldAssignments,
@@ -252,7 +261,7 @@ export const LectureComponent = () => {
             }}
           />
           <EditLectureDialog
-            lecture={lectureState}
+            lecture={lecture}
             handleSubmit={handleUpdateLecture}
             open={isEditDialogOpen}
             handleClose={() => setEditDialogOpen(false)}
@@ -264,7 +273,7 @@ export const LectureComponent = () => {
         <Typography variant={'h6'}>Assignments</Typography>
       </Stack>
       <AssignmentTable
-        lecture={lectureState}
+        lecture={lecture}
         rows={assignmentsState}
         setAssignments={setAssignments}
       />

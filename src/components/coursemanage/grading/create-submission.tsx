@@ -3,7 +3,9 @@ import {
   AlertTitle,
   Box,
   Button,
+  Card,
   IconButton,
+  LinearProgress,
   Stack,
   TextField,
   Tooltip,
@@ -16,24 +18,23 @@ import { Submission } from '../../../model/submission';
 import { FilesList } from '../../util/file-list';
 import {
   lectureBasePath,
-  makeDir,
   makeDirs
 } from '../../../services/file.service';
-import { Link, useOutletContext, useRouteLoaderData } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { showDialog } from '../../util/dialog-provider';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
 import { Contents } from '@jupyterlab/services';
 import { GlobalObjects } from '../../../index';
 import { openBrowser } from '../overview/util';
-import ReplayIcon from '@mui/icons-material/Replay';
 import {
-  createSubmissionFiles,
-  pushSubmissionFiles
+  createSubmissionFiles
 } from '../../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
 import { GraderLoadingButton } from '../../util/loading-button';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { getLecture, getUsers } from '../../../services/lectures.service';
+import { extractIdsFromBreadcrumbs } from '../../util/breadcrumbs';
 
 export const CreateSubmission = () => {
   const { assignment, rows, setRows } = useOutletContext() as {
@@ -44,11 +45,27 @@ export const CreateSubmission = () => {
     manualGradeSubmission: Submission;
     setManualGradeSubmission: React.Dispatch<React.SetStateAction<Submission>>;
   };
-  const { lecture, assignments, users } = useRouteLoaderData('lecture') as {
-    lecture: Lecture;
-    assignments: Assignment[];
-    users: { instructors: string[]; tutors: string[]; students: string[] };
-  };
+
+  const { lectureId } = extractIdsFromBreadcrumbs();
+
+  const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
+    queryKey: ['lecture', lectureId],
+    queryFn: () => getLecture(lectureId, true),
+    enabled: !!lectureId
+  });
+
+  const { data: usersData, isLoading: isLoadingUsers } = useQuery<{
+    instructors: string[];
+    tutors: string[];
+    students: string[];
+  }>({
+    queryKey: ['users', lectureId],
+    queryFn: () => getUsers(lectureId),
+    enabled: !!lectureId, 
+  });
+
+  const users = usersData as { instructors: string[]; tutors: string[]; students: string[] };
+
 
   const { data: path } = useQuery({
     queryKey: ['path', lectureBasePath, lecture.code, assignment.id],
@@ -99,6 +116,17 @@ export const CreateSubmission = () => {
       );
     }
   }, [path]);
+
+ 
+  if (isLoadingLecture || isLoadingUsers) {
+    return (
+      <div>
+        <Card>
+          <LinearProgress />
+        </Card>
+      </div>
+    );
+  }
 
   const createSubmission = async () => {
     createSubmissionMutation.mutate();

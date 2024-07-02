@@ -7,7 +7,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Lecture } from '../../model/lecture';
-import { useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   FormControlLabel,
   FormGroup,
@@ -19,6 +19,8 @@ import {
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import { ButtonTr, GraderTable } from '../util/table';
+import { useQuery } from '@tanstack/react-query';
+import { getAllLectures } from '../../services/lectures.service';
 
 interface ILectureTableProps {
   rows: Lecture[];
@@ -63,11 +65,18 @@ const LectureTable = (props: ILectureTableProps) => {
  * @param props Props of the lecture file components
  */
 export const AssignmentManageComponent = () => {
-  const allLectures = useRouteLoaderData('root') as {
-    lectures: Lecture[];
-    completedLectures: Lecture[];
-  };
+  const { data: lectures = [] } = useQuery<Lecture[]>({
+    queryKey: ['lectures'],
+    queryFn: () => getAllLectures(false)
+  });
+
+  const { data: completedLectures = [] } = useQuery<Lecture[]>({
+    queryKey: ['completedLectures'],
+    queryFn: () => getAllLectures(true)
+  });
+  
   const [showComplete, setShowComplete] = useState(false);
+
 
   return (
     <Stack flexDirection={'column'} sx={{ m: 5, flex: 1, overflow: 'hidden' }}>
@@ -93,7 +102,7 @@ export const AssignmentManageComponent = () => {
 
       <LectureTable
         rows={
-          showComplete ? allLectures.completedLectures : allLectures.lectures
+          showComplete ? completedLectures : lectures
         }
       />
     </Stack>

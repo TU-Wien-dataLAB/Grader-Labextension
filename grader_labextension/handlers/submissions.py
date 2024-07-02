@@ -26,7 +26,7 @@ class SubmissionHandler(ExtensionBaseHandler):
     Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/submissions.
     """
 
-    @cache(max_age=15)
+    #@cache(max_age=15)
     async def get(self, lecture_id: int, assignment_id: int):
         """ Sends a GET-request to the grader service and returns submissions of a assignment
 
@@ -58,7 +58,7 @@ class SubmissionHandler(ExtensionBaseHandler):
     path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/submissions\/("
          r"?P<submission_id>\d*)\/logs\/?")
 class SubmissionLogsHandler(ExtensionBaseHandler):
-    @cache(max_age=15)
+    #@cache(max_age=15)
     async def get(self, lecture_id: int, assignment_id: int, submission_id: int):
         """Sends a GET-request to the grader service and returns the logs of a submission
 
@@ -177,7 +177,7 @@ class SubmissionObjectHandler(ExtensionBaseHandler):
     Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/submissions/{submission_id}.
     """
 
-    @cache(max_age=15)
+    #@cache(max_age=15)
     async def get(self, lecture_id: int, assignment_id: int, submission_id: int):
         """Sends a GET-request to the grader service and returns a submission
 

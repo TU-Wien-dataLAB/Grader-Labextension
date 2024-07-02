@@ -11,6 +11,7 @@ import { Lecture } from '../../model/lecture';
 import { Assignment } from '../../model/assignment';
 import { Submission } from '../../model/submission';
 import {
+  getAllSubmissions,
   getProperties,
   pullFeedback
 } from '../../services/submissions.service';
@@ -19,17 +20,37 @@ import { FilesList } from '../util/file-list';
 import { openBrowser } from '../coursemanage/overview/util';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { getFiles, lectureBasePath } from '../../services/file.service';
-import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { getLecture } from '../../services/lectures.service';
+import { getAssignment } from '../../services/assignments.service';
+import { extractIdsFromBreadcrumbs } from '../util/breadcrumbs';
 
 export const Feedback = () => {
-  const { lecture, assignment, submissions } = useRouteLoaderData(
-    'assignment'
-  ) as {
-    lecture: Lecture;
-    assignment: Assignment;
-    submissions: Submission[];
-  };
+  const { lectureId, assignmentId } = extractIdsFromBreadcrumbs();
+  const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
+    queryKey: ['lecture', lectureId],
+    queryFn: () => getLecture(lectureId), 
+    enabled: !!lectureId, 
+  });
+
+  const { data: assignment, isLoading: isLoadingAssignment } = useQuery<Assignment>({
+    queryKey: ['assignment', assignmentId],
+    queryFn: () => getAssignment(lectureId, assignmentId), 
+    enabled: !!lectureId && !!assignmentId, 
+  });
+
+  if (isLoadingAssignment || isLoadingLecture) {
+    return <div>Loading...</div>
+  }
+
+  const { data: submissions = [] } = useQuery<Submission[]>({
+    queryKey: ['submissions', lecture, assignment],
+    queryFn: () => getAllSubmissions(lecture.id, assignment.id, 'none', false),
+    enabled: !!lectureId && !!assignmentId, 
+  });
+
+  
   const assignmentLink = `/lecture/${lecture.id}/assignment/${assignment.id}`;
 
   const params = useParams();
@@ -149,6 +170,8 @@ export const Feedback = () => {
       <FilesList
         path={path}
         sx={{ m: 2, overflow: 'auto' }}
+        lecture={lecture}
+        assignment={assignment}
         checkboxes={false}
       />
 
