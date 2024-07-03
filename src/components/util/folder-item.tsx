@@ -75,8 +75,6 @@ const FolderItem = ({
     setOpen(!open);
   };
 
-  //console.log("Folder " + folder.name + " contents: " + folder.content.map(f => f.path));
-
   return (
     <>
       <ListItem disablePadding>

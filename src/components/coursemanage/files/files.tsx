@@ -10,6 +10,7 @@ import { Assignment } from '../../../model/assignment';
 import { Lecture } from '../../../model/lecture';
 import {
   generateAssignment,
+  getAssignment,
   pullAssignment,
   pushAssignment
 } from '../../../services/assignments.service';
@@ -42,8 +43,6 @@ import { openBrowser, openTerminal } from '../overview/util';
 import { PageConfig } from '@jupyterlab/coreutils';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
 import {
-  IGitLogObject,
-  getGitLog,
   getRemoteStatus,
   lectureBasePath
 } from '../../../services/file.service';
@@ -52,6 +51,9 @@ import { enqueueSnackbar } from 'notistack';
 import { GitLogModal } from './git-log';
 import { showDialog } from '../../util/dialog-provider';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getLecture } from '../../../services/lectures.service';
+import { loadString, storeString } from '../../../services/storage.service';
 
 /**
  * Props for FilesComponent.
@@ -70,17 +72,34 @@ export const Files = (props: IFilesProps) => {
   const navigate = useNavigate();
   const reloadPage = () => navigate(0);
 
-  const [assignment, setAssignment] = React.useState(props.assignment);
-  const [lecture, setLecture] = React.useState(props.lecture);
-  const [selectedDir, setSelectedDir] = React.useState('source');
-  const [gitLogs, setGitLog] = React.useState([] as IGitLogObject[]);
-  const [assignmentState, setAssignmentState] = React.useState(assignment);
+  const { data: assignment = props.assignment } = useQuery({
+    queryKey: ['assignment'],
+    queryFn: () => getAssignment(lecture.id, props.assignment.id, true)
+  });
 
-  const updateGitLog = () => {
-    getGitLog(lecture, assignment, RepoType.SOURCE, 10).then(logs =>
-      setGitLog(logs)
-    );
+  const { data: lecture = props.lecture } = useQuery({
+    queryKey: ['lecture'],
+    queryFn: () => getLecture(props.lecture.id, true)
+  });
+
+  const setSelectedDir = async (value: 'source' | 'release') => {
+    storeString('files-selected-dir', value);
+    await refetchSelectedDir();
   };
+
+  const { data: selectedDir = 'source', refetch: refetchSelectedDir } =
+    useQuery({
+      queryKey: ['selectedDir'],
+      queryFn: async () => {
+        const data = await loadString('files-selected-dir');
+        if (data) {
+          return data as 'source' | 'release';
+        } else {
+          return 'source';
+        }
+      }
+    });
+
   const updateRemoteStatus = async () => {
     const status = await getRemoteStatus(
       props.lecture,
@@ -92,17 +111,33 @@ export const Files = (props: IFilesProps) => {
       status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
     );
   };
-  React.useEffect(() => {
-    updateGitLog();
-  }, [assignmentState]);
 
   openBrowser(
     `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
   );
 
-  const [repoStatus, setRepoStatus] = React.useState(
-    null as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
-  );
+  const setRepoStatus = async (
+    value: 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+  ) => {
+    storeString('files-repo-status', value);
+    await refetchRepoStatus();
+  };
+
+  const { data: repoStatus, refetch: refetchRepoStatus } = useQuery({
+    queryKey: ['repoStatus'],
+    queryFn: async () => {
+      const data = await loadString('files-repo-status');
+      if (data) {
+        return data as
+          | 'up_to_date'
+          | 'pull_needed'
+          | 'push_needed'
+          | 'divergent';
+      } else {
+        return null;
+      }
+    }
+  });
 
   const [srcChangedTimestamp, setSrcChangeTimestamp] = React.useState(
     moment().valueOf()
@@ -134,6 +169,7 @@ export const Files = (props: IFilesProps) => {
           if (srcChangedTimestamp === null || srcChangedTimestamp < modified) {
             setSrcChangeTimestamp(modified);
           }
+          reloadPage();
         }
         reloadPage();
       },
@@ -187,7 +223,10 @@ export const Files = (props: IFilesProps) => {
    * Pushes files to the source und release repo.
    * @param commitMessage the commit message
    */
-  const handlePushAssignment = async (commitMessage: string, selectedFiles: string[]) => {
+  const handlePushAssignment = async (
+    commitMessage: string,
+    selectedFiles: string[]
+  ) => {
     // console.log("Files to commit: " + selectedFiles);
     showDialog(
       'Push Assignment',
@@ -195,7 +234,13 @@ export const Files = (props: IFilesProps) => {
       async () => {
         try {
           // Note: has to be in this order (release -> source)
-          await pushAssignment(lecture.id, assignment.id, 'release', commitMessage, selectedFiles);
+          await pushAssignment(
+            lecture.id,
+            assignment.id,
+            'release',
+            commitMessage,
+            selectedFiles
+          );
           await pushAssignment(
             lecture.id,
             assignment.id,
@@ -370,7 +415,13 @@ export const Files = (props: IFilesProps) => {
         </Box>
       </CardContent>
       <CardActions sx={{ marginTop: 'auto' }}>
-        <CommitDialog handleCommit={(msg, selectedFiles) => handlePushAssignment(msg, selectedFiles)} lecture={props.lecture} assignment={props.assignment}>
+        <CommitDialog
+          handleCommit={(msg, selectedFiles) =>
+            handlePushAssignment(msg, selectedFiles)
+          }
+          lecture={props.lecture}
+          assignment={props.assignment}
+        >
           <Tooltip
             title={`Commit Changes${
               isCommitOverwrite() ? ' (Overwrites remote files!)' : ''
@@ -414,7 +465,7 @@ export const Files = (props: IFilesProps) => {
             Add new
           </Button>
         </Tooltip>
-        <GitLogModal gitLogs={gitLogs} />
+        <GitLogModal lecture={lecture} assignment={assignment} />
         <Tooltip title={'Show in File-Browser'}>
           <IconButton
             sx={{ mt: -1, pt: 0, pb: 0 }}

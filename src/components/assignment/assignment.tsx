@@ -22,8 +22,9 @@ import { SubmissionList } from './submission-list';
 import { AssignmentStatus } from './assignment-status';
 import { Files } from './files/files';
 import WarningIcon from '@mui/icons-material/Warning';
-import { Outlet, useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import {
+  getAssignment,
   getAssignmentProperties,
   pullAssignment,
   pushAssignment,
@@ -32,7 +33,6 @@ import {
 import { getFiles, lectureBasePath } from '../../services/file.service';
 import {
   getAllSubmissions,
-  getProperties,
   submitAssignment
 } from '../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
@@ -48,6 +48,9 @@ import { openBrowser } from '../coursemanage/overview/util';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { Scope, UserPermissions } from '../../services/permission.service';
 import { GradeBook } from '../../services/gradebook';
+import { useQuery } from '@tanstack/react-query';
+import { getLecture } from '../../services/lectures.service';
+import { extractIdsFromBreadcrumbs } from '../util/breadcrumbs';
 
 const calculateActiveStep = (submissions: Submission[]) => {
   const hasFeedback = submissions.reduce(
@@ -69,6 +72,7 @@ const calculateActiveStep = (submissions: Submission[]) => {
 interface ISubmissionsLeft {
   subLeft: number;
 }
+
 const SubmissionsLeftChip = (props: ISubmissionsLeft) => {
   const output =
     props.subLeft + ' submission' + (props.subLeft === 1 ? ' left' : 's left');
@@ -81,60 +85,55 @@ const SubmissionsLeftChip = (props: ISubmissionsLeft) => {
  * Renders the components available in the extended assignment modal view
  */
 export const AssignmentComponent = () => {
-  const navigate = useNavigate();
-  const reloadPage = () => navigate(0);
+  const { lectureId, assignmentId } = extractIdsFromBreadcrumbs();
 
-  const { lecture, assignment, submissions } = useRouteLoaderData(
-    'assignment'
-  ) as {
-    lecture: Lecture;
-    assignment: Assignment;
-    submissions: Submission[];
-  };
+  const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
+    queryKey: ['lecture', lectureId],
+    queryFn: () => getLecture(lectureId), 
+    enabled: !!lectureId, 
+  });
 
-  const [fileList, setFileList] = React.useState([] as string[]);
+  const { data: assignment, isLoading: isLoadingAssignment } = useQuery<Assignment>({
+    queryKey: ['assignment', assignmentId],
+    queryFn: () => getAssignment(lectureId, assignmentId), 
+    enabled: !!lectureId && !!assignmentId, 
+  });
 
-  React.useEffect(() => {
-    getAssignmentProperties(lecture.id, assignment.id).then(properties => {
-      const gb = new GradeBook(properties);
-      setFileList([
-        ...gb.getNotebooks().map(n => n + '.ipynb'),
-        ...gb.getExtraFiles()
-      ]);
-    });
-  }, []);
+  const { data: submissions = [], refetch: refetchSubmissions } = useQuery<Submission[]>({
+    queryKey: ['submissions', lectureId, assignmentId],
+    queryFn: () => getAllSubmissions(lectureId, assignmentId, 'none', false),
+    enabled: !!lectureId && !!assignmentId,
+  });
 
-  const path = `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`;
-
-  /* Now we can divvy this into a useReducer  */
-  const [allSubmissions, setSubmissions] = React.useState(submissions);
-  const [files, setFiles] = React.useState([]);
+  const [fileList, setFileList] = React.useState<string[]>([]);
   const [activeStatus, setActiveStatus] = React.useState(0);
   const [subLeft, setSubLeft] = React.useState(0);
 
-  React.useEffect(() => {
-    getAllSubmissions(lecture.id, assignment.id, 'none', false).then(
-      response => {
-        setSubmissions(response);
-        if (assignment.max_submissions - response.length < 0) {
-          setSubLeft(0);
-        } else {
-          setSubLeft(assignment.max_submissions - response.length);
-        }
-      }
-    );
-    getFiles(path).then(files => {
-      // TODO: make it really explicit where & who pulls the asssignment
-      // files!
-      //if (files.length === 0) {
-      //    pullAssignment(lecture.id, assignment.id, 'assignment');
-      //}
-      setFiles(files);
-    });
+  const { data: files = [], refetch: refetchFiles } = useQuery({
+    queryKey: ['files', lectureId, assignmentId],
+    queryFn: () => getFiles(`${lectureBasePath}${lecture?.code}/assignments/${assignmentId}`),
+    enabled: !!lecture && !!assignment,
+  });
 
-    const active_step = calculateActiveStep(submissions);
-    setActiveStatus(active_step);
-  }, []);
+  React.useEffect(() => {
+    if (lecture && assignment) {
+      getAssignmentProperties(lecture.id, assignment.id).then(properties => {
+        const gb = new GradeBook(properties);
+        setFileList([
+          ...gb.getNotebooks().map(n => n + '.ipynb'),
+          ...gb.getExtraFiles()
+        ]);
+      });
+    }
+  }, [])
+
+
+
+  if (isLoadingAssignment || isLoadingLecture) {
+    return <div>Loading...</div>;
+  }
+
+  const path = `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`;
 
   const resetAssignmentHandler = async () => {
     showDialog(
@@ -153,7 +152,7 @@ export const AssignmentComponent = () => {
           enqueueSnackbar('Successfully Reset Assignment', {
             variant: 'success'
           });
-          reloadPage();
+          refetchFiles();
         } catch (e) {
           if (e instanceof Error) {
             enqueueSnackbar('Error Reset Assignment: ' + e.message, {
@@ -176,14 +175,17 @@ export const AssignmentComponent = () => {
       'This action will submit your current notebooks!',
       async () => {
         await submitAssignment(lecture, assignment, true).then(
-          response => {
-            console.log('Submitted');
-            setSubmissions([response, ...allSubmissions]);
-            if (subLeft - 1 < 0) {
-              setSubLeft(0);
-            } else {
-              setSubLeft(subLeft - 1);
-            }
+          () => {
+            refetchSubmissions().then(response => {
+              if (assignment.max_submissions - response.data.length < 0) {
+                setSubLeft(0);
+              } else {
+                setSubLeft(assignment.max_submissions - response.data.length);
+              }
+            });
+            const active_step = calculateActiveStep(submissions);
+            setActiveStatus(active_step);;
+            setSubLeft(Math.max(0, subLeft - 1));
             enqueueSnackbar('Successfully Submitted Assignment', {
               variant: 'success'
             });
@@ -210,6 +212,7 @@ export const AssignmentComponent = () => {
         })
     );
   };
+
   /**
    * Pulls from given repository by sending a request to the grader git service.
    * @param repo input which repository should be fetched
@@ -220,11 +223,7 @@ export const AssignmentComponent = () => {
         enqueueSnackbar('Successfully Pulled Repo', {
           variant: 'success'
         });
-        getFiles(
-          `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`
-        ).then(files => {
-          setFiles(files);
-        });
+        refetchFiles();
       },
       error => {
         enqueueSnackbar(error.message, {
@@ -235,7 +234,7 @@ export const AssignmentComponent = () => {
   };
 
   const isDeadlineOver = () => {
-    if (assignment.due_date === null) {
+    if (!assignment.due_date) {
       return false;
     }
     const time = new Date(assignment.due_date).getTime();
@@ -243,13 +242,10 @@ export const AssignmentComponent = () => {
   };
 
   const isLateSubmissionOver = () => {
-    if (assignment.due_date === null) {
+    if (!assignment.due_date) {
       return false;
     }
-    let late_submission = assignment.settings.late_submission;
-    if (late_submission === null || late_submission.length === 0) {
-      late_submission = [{ period: 'P0D', scaling: undefined }];
-    }
+    const late_submission = assignment.settings.late_submission || [{ period: 'P0D', scaling: undefined }];
     const late = moment(assignment.due_date)
       .add(moment.duration(late_submission[late_submission.length - 1].period))
       .toDate()
@@ -262,11 +258,7 @@ export const AssignmentComponent = () => {
   };
 
   const isMaxSubmissionReached = () => {
-    if (assignment.max_submissions === null) {
-      return false;
-    } else {
-      return assignment.max_submissions <= submissions.length;
-    }
+    return assignment.max_submissions !== null && assignment.max_submissions <= submissions.length;
   };
 
   const isAssignmentFetched = () => {
@@ -278,11 +270,7 @@ export const AssignmentComponent = () => {
     const scope = permissions[lecture.code];
     return scope >= Scope.tutor;
   };
-  const [reloadFilesToggle, setReloadFiles] = React.useState(false);
 
-  const reloadFiles = () => {
-    setReloadFiles(!reloadFilesToggle);
-  };
 
   return (
     <Box sx={{ flex: 1, overflow: 'auto' }}>
@@ -314,7 +302,7 @@ export const AssignmentComponent = () => {
               Files
             </Typography>
             <Tooltip title="Reload Files">
-              <IconButton aria-label="reload" onClick={() => reloadFiles()}>
+              <IconButton aria-label="reload" onClick={() => refetchFiles()}>
                 <ReplayIcon />
               </IconButton>
             </Tooltip>
@@ -428,7 +416,7 @@ export const AssignmentComponent = () => {
         <SubmissionList
           lecture={lecture}
           assignment={assignment}
-          submissions={allSubmissions}
+          submissions={submissions}
           sx={{ m: 2, mt: 1 }}
         />
       </Box>
