@@ -15,15 +15,10 @@ import { DialogProvider } from '../components/util/dialog-provider';
 import { GlobalObjects } from '../index';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './assignmentmanage';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 10 * (60 * 1000)
-    }
-  }
-});
 
 export class CourseManageView extends ReactWidget {
   /**
@@ -49,6 +44,7 @@ export class CourseManageView extends ReactWidget {
   render() {
     return (
       <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
         <ThemeProvider theme={createTheme({ palette: { mode: this.theme } })}>
           <CssBaseline />
           <SnackbarProvider

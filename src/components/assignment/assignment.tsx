@@ -33,7 +33,6 @@ import {
 import { getFiles, lectureBasePath } from '../../services/file.service';
 import {
   getAllSubmissions,
-  getSubmissions,
   submitAssignment
 } from '../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
@@ -86,9 +85,6 @@ const SubmissionsLeftChip = (props: ISubmissionsLeft) => {
  * Renders the components available in the extended assignment modal view
  */
 export const AssignmentComponent = () => {
-  const navigate = useNavigate();
-  const reloadPage = () => navigate(0);
-
   const { lectureId, assignmentId } = extractIdsFromBreadcrumbs();
 
   const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
@@ -106,7 +102,7 @@ export const AssignmentComponent = () => {
   const { data: submissions = [], refetch: refetchSubmissions } = useQuery<Submission[]>({
     queryKey: ['submissions', lectureId, assignmentId],
     queryFn: () => getAllSubmissions(lectureId, assignmentId, 'none', false),
-    enabled: !!lectureId && !!assignmentId, 
+    enabled: !!lectureId && !!assignmentId,
   });
 
   const [fileList, setFileList] = React.useState<string[]>([]);
@@ -119,31 +115,17 @@ export const AssignmentComponent = () => {
     enabled: !!lecture && !!assignment,
   });
 
-  const reloadFiles = () => {
-    refetchFiles();
-  };
-  
-  React.useEffect(() => {
-    if (lecture && assignment) {
-      getAssignmentProperties(lecture.id, assignment.id).then(properties => {
+  const { data: asssignemntProperties } = useQuery({
+      queryKey: ['assignmentProperties', lectureId, assignmentId],
+      queryFn: () => getAssignmentProperties(lecture.id, assignment.id).then(properties => {
         const gb = new GradeBook(properties);
         setFileList([
           ...gb.getNotebooks().map(n => n + '.ipynb'),
           ...gb.getExtraFiles()
         ]);
-      });
-    }
-    refetchSubmissions().then(response => {
-      if (assignment.max_submissions - response.data.length < 0) {
-        setSubLeft(0);
-      } else {
-        setSubLeft(assignment.max_submissions - response.data.length);
-      }
-    });
-    refetchFiles();
-    const active_step = calculateActiveStep(submissions);
-    setActiveStatus(active_step);
-  }, []);
+      })
+  });
+
 
 
   if (isLoadingAssignment || isLoadingLecture) {
@@ -169,7 +151,7 @@ export const AssignmentComponent = () => {
           enqueueSnackbar('Successfully Reset Assignment', {
             variant: 'success'
           });
-          reloadPage();
+          refetchFiles();
         } catch (e) {
           if (e instanceof Error) {
             enqueueSnackbar('Error Reset Assignment: ' + e.message, {
@@ -193,7 +175,15 @@ export const AssignmentComponent = () => {
       async () => {
         await submitAssignment(lecture, assignment, true).then(
           () => {
-            refetchSubmissions();
+            refetchSubmissions().then(response => {
+              if (assignment.max_submissions - response.data.length < 0) {
+                setSubLeft(0);
+              } else {
+                setSubLeft(assignment.max_submissions - response.data.length);
+              }
+            });
+            const active_step = calculateActiveStep(submissions);
+            setActiveStatus(active_step);;
             setSubLeft(Math.max(0, subLeft - 1));
             enqueueSnackbar('Successfully Submitted Assignment', {
               variant: 'success'
@@ -311,7 +301,7 @@ export const AssignmentComponent = () => {
               Files
             </Typography>
             <Tooltip title="Reload Files">
-              <IconButton aria-label="reload" onClick={() => reloadFiles()}>
+              <IconButton aria-label="reload" onClick={() => refetchFiles()}>
                 <ReplayIcon />
               </IconButton>
             </Tooltip>

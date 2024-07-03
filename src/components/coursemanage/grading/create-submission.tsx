@@ -4,11 +4,9 @@ import {
   Box,
   Button,
   Card,
-  IconButton,
   LinearProgress,
   Stack,
   TextField,
-  Tooltip,
   Typography
 } from '@mui/material';
 import * as React from 'react';
@@ -54,20 +52,16 @@ export const CreateSubmission = () => {
     enabled: !!lectureId
   });
 
-  const { data: usersData, isLoading: isLoadingUsers } = useQuery<{
-    instructors: string[];
-    tutors: string[];
-    students: string[];
-  }>({
-    queryKey: ['users', lectureId],
-    queryFn: () => getUsers(lectureId),
+  const { data: students = [], isLoading: isLoadingStudents } = useQuery<string[]>({
+    queryKey: ['students', lectureId],
+    queryFn: async () => {
+      const users = await getUsers(lectureId);
+      return users['students'];
+    },
     enabled: !!lectureId, 
   });
-
-  const users = usersData as { instructors: string[]; tutors: string[]; students: string[] };
-
-
-  const { data: path } = useQuery({
+  
+  const { data: path, refetch: reloadPath } = useQuery({
     queryKey: ['path', lectureBasePath, lecture.code, assignment.id],
     queryFn: () =>
       makeDirs(`${lectureBasePath}${lecture.code}`, [
@@ -118,7 +112,7 @@ export const CreateSubmission = () => {
   }, [path]);
 
  
-  if (isLoadingLecture || isLoadingUsers) {
+  if (isLoadingLecture || isLoadingStudents) {
     return (
       <div>
         <Card>
@@ -127,6 +121,7 @@ export const CreateSubmission = () => {
       </div>
     );
   }
+
 
   const createSubmission = async () => {
     createSubmissionMutation.mutate();
@@ -140,24 +135,25 @@ export const CreateSubmission = () => {
           If you want to create a submission for a student manually, make sure
           to follow these steps: <br />
           <br />
-          1. &ensp; By selecting a student for whom you want to create
+          1. &ensp; Choose a student for whom you want to create a
+          submission.
+          <br />
+          2. &ensp; By selecting the student for whom you want to create
           submission, directory 'create/{assignment.id}/student_id' is
           automatically opened in File Browser on your left-hand side.
           <br />
-          2. &ensp; Upload the desired files here. They will automatically
+          3. &ensp; Upload the desired files here. They will automatically
           appear in the Submission Files below.
-          <br />
-          3. &ensp; Choose the student for whom you want to create the
-          submission.
           <br />
           4. &ensp; Push the submission.
         </Alert>
         <Typography sx={{ m: 2, mb: 0 }}>Select a student</Typography>
         <Autocomplete
-          options={users['students']}
+          options={students}
           autoHighlight
           onChange={(event: any, newUserDir: string | null) => {
             setUserDir(newUserDir);
+            reloadPath();
           }}
           sx={{ m: 2 }}
           renderInput={params => (
@@ -166,7 +162,6 @@ export const CreateSubmission = () => {
               label="Select Student"
               inputProps={{
                 ...params.inputProps
-                // autoComplete: 'new-password',
               }}
             />
           )}

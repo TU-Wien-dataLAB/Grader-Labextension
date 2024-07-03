@@ -600,23 +600,13 @@ export const GradingComponent = () => {
     enabled: !!lectureId && !!assignmentId, 
   });
 
-  const { data: usersData, isLoading: isLoadingUsers } = useQuery<{
-    instructors: string[];
-    tutors: string[];
-    students: string[];
-  }>({
-    queryKey: ['users', lectureId],
-    queryFn: () => getUsers(lectureId),
-    enabled: !!lectureId, 
-  });
 
-  if (isLoadingLecture || isLoadingAssignment || isLoadingUsers) {
+  if (isLoadingLecture || isLoadingAssignment) {
     return <div>Loading...</div>;
   }
 
   const lecture = lectureData;
   const assignment = assignmentData;
-  const users = usersData as { instructors: string[]; tutors: string[]; students: string[] };
 
   return (
     <Stack direction={'column'} sx={{ flex: 1, overflow: 'hidden' }}>
