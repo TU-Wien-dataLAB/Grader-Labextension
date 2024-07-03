@@ -101,7 +101,6 @@ class GitRemoteFileStatusHandler(ExtensionBaseHandler):
     Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/remote-file-status/{repo}.
     """
 
-   # @cache(max_age=15)
     async def get(self, lecture_id: int, assignment_id: int, repo: str):
         if repo not in {"assignment", "source", "release"}:
             self.log.error(HTTPStatus.NOT_FOUND)
@@ -141,7 +140,6 @@ class GitRemoteStatusHandler(ExtensionBaseHandler):
     Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/remote_status/{repo}.
     """
 
-    #@cache(max_age=15)
     async def get(self, lecture_id: int, assignment_id: int, repo: str):
         if repo not in {"assignment", "source", "release"}:
             self.log.error(HTTPStatus.NOT_FOUND)
@@ -178,8 +176,6 @@ class GitLogHandler(ExtensionBaseHandler):
     """
     Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/log/{repo}.
     """
-
-    #@cache(max_age=15)
     async def get(self, lecture_id: int, assignment_id: int, repo: str):
         """
         Sends a GET request to the grader service to get the logs of a given repo.

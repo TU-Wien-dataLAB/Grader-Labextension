@@ -6,7 +6,6 @@
 
 import { FilterFileBrowserModel } from '@jupyterlab/filebrowser/lib/model';
 import { GlobalObjects } from '../index';
-import { renameFile } from '@jupyterlab/docmanager';
 import { Contents } from '@jupyterlab/services';
 import { Assignment } from '../model/assignment';
 import { HTTPMethod, request } from './request.service';
@@ -39,7 +38,6 @@ export interface File {
   content: File[];
 }
 
-// TODO: getFiles should return Promise<File[]>
 export const getFiles = async (path: string): Promise<File[]> => {
   if (path === null) {
     return [];

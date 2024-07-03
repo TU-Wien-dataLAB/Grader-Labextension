@@ -25,6 +25,7 @@ import { RepoType } from './repo-type';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import CheckIcon from '@mui/icons-material/Check';
 import PublishRoundedIcon from '@mui/icons-material/PublishRounded';
+import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 
 interface IFileItemProps {
   file: File;
@@ -54,21 +55,22 @@ const FileItem = ({
   };
 
   const [isSelected, setIsSelected] = React.useState(true);
-  const [fileRemoteStatus, setFileRemoteStatus] = React.useState(
-    null as 'up_to_date' | 'push_needed' | 'divergent'
-  );
 
-  React.useEffect(() => {
-    getRemoteFileStatus(
+
+  const fileStatusQueryOptions: UseQueryOptions<'up_to_date' | 'push_needed' | 'divergent', Error> = {
+    queryKey: ['fileStatus', lecture?.id, assignment?.id, file.path],
+    queryFn: () => getRemoteFileStatus(
       lecture,
       assignment,
       RepoType.SOURCE,
       getRelativePath(file.path, 'source'),
       true
-    ).then(status => {
-      setFileRemoteStatus(status as 'up_to_date' | 'push_needed' | 'divergent');
-    });
-  }, [assignment, lecture]);
+    ) as Promise<'up_to_date' | 'push_needed' | 'divergent'>,
+    enabled: !!lecture && !!assignment,
+  };
+
+  const { data: fileRemoteStatus } = useQuery(fileStatusQueryOptions);
+
 
   const getFleRemoteStatusText = (
     status: 'up_to_date' | 'push_needed' | 'divergent'

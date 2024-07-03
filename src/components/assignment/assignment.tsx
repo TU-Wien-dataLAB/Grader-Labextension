@@ -115,16 +115,17 @@ export const AssignmentComponent = () => {
     enabled: !!lecture && !!assignment,
   });
 
-  const { data: asssignemntProperties } = useQuery({
-      queryKey: ['assignmentProperties', lectureId, assignmentId],
-      queryFn: () => getAssignmentProperties(lecture.id, assignment.id).then(properties => {
+  React.useEffect(() => {
+    if (lecture && assignment) {
+      getAssignmentProperties(lecture.id, assignment.id).then(properties => {
         const gb = new GradeBook(properties);
         setFileList([
           ...gb.getNotebooks().map(n => n + '.ipynb'),
           ...gb.getExtraFiles()
         ]);
-      })
-  });
+      });
+    }
+  }, [])
 
 
 
