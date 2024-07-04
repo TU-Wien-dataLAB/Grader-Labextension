@@ -1,13 +1,8 @@
 import React from 'react';
 import {
-  Box,
   Card,
   List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
-  Tooltip,
   Typography
 } from '@mui/material';
 import { Contents } from '@jupyterlab/services';

@@ -11,8 +11,10 @@ import { Submission } from '../../model/submission';
 import {
   Box,
   Button,
+  Card,
   Chip,
   IconButton,
+  LinearProgress,
   Stack,
   Tooltip,
   Typography
@@ -109,13 +111,15 @@ export const AssignmentComponent = () => {
   const [activeStatus, setActiveStatus] = React.useState(0);
   const [subLeft, setSubLeft] = React.useState(0);
 
-  const { data: files = [], refetch: refetchFiles } = useQuery({
+  const { data: files, refetch: refetchFiles, isLoading: isLoadingFiles } = useQuery({
     queryKey: ['files', lectureId, assignmentId],
     queryFn: () => getFiles(`${lectureBasePath}${lecture?.code}/assignments/${assignmentId}`),
     enabled: !!lecture && !!assignment,
   });
 
+
   React.useEffect(() => {
+    console.log("PLEASE LOOK", files)
     if (lecture && assignment) {
       getAssignmentProperties(lecture.id, assignment.id).then(properties => {
         const gb = new GradeBook(properties);
@@ -125,12 +129,17 @@ export const AssignmentComponent = () => {
         ]);
       });
     }
-  }, [])
+  }, [lecture, assignment])
 
 
-
-  if (isLoadingAssignment || isLoadingLecture) {
-    return <div>Loading...</div>;
+  if (isLoadingAssignment || isLoadingLecture || isLoadingFiles) {
+    return (
+      <div>
+        <Card>
+          <LinearProgress />
+        </Card>
+      </div>
+    );
   }
 
   const path = `${lectureBasePath}${lecture.code}/assignments/${assignment.id}`;
