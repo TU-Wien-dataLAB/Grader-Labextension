@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import { FilterFileBrowserModel } from '@jupyterlab/filebrowser/lib/model';
+import { FileBrowserModel } from '@jupyterlab/filebrowser/lib/model';
 import { GlobalObjects } from '../index';
 import { Contents } from '@jupyterlab/services';
 import { Assignment } from '../model/assignment';
@@ -43,13 +43,15 @@ export const getFiles = async (path: string): Promise<File[]> => {
     return [];
   }
 
-  const model = new FilterFileBrowserModel({
-    auto: true,
-    manager: GlobalObjects.docManager
+  const model = new FileBrowserModel({
+    auto: false,
+    manager: GlobalObjects.docManager,
+    refreshInterval: -1
   });
 
   try {
     await model.cd(path);
+    await model.refresh();
   } catch (_) {
     return [];
   }
@@ -81,6 +83,7 @@ export const getFiles = async (path: string): Promise<File[]> => {
     }
     f = items.next();
   }
+
 
   console.log('getting files from path ' + path);
   return files;
@@ -124,12 +127,14 @@ export const openFile = async (path: string) => {
 export const makeDir = async (path: string, name: string) => {
   const newPath = PathExt.join(path, name);
   let exists = false;
-  const model = new FilterFileBrowserModel({
-    auto: true,
-    manager: GlobalObjects.docManager
+  const model = new FileBrowserModel({
+    auto: false,
+    manager: GlobalObjects.docManager,
+    refreshInterval: -1
   });
   try {
     await model.cd(path);
+    await model.refresh();
   } catch (_) {
     exists = false;
   }
