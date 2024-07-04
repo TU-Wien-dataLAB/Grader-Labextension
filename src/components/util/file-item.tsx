@@ -76,7 +76,7 @@ const FileItem = ({
     status: 'up_to_date' | 'push_needed' | 'divergent'
   ) => {
     if (status === 'up_to_date') {
-      return 'The local files is up to date with the file from remote repository.';
+      return 'The local file is up to date with the file from remote repository.';
     } else if (status === 'push_needed') {
       return 'You have made changes to this file locally, a push is needed.';
     } else {

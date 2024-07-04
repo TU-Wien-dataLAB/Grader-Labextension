@@ -51,7 +51,7 @@ import { enqueueSnackbar } from 'notistack';
 import { GitLogModal } from './git-log';
 import { showDialog } from '../../util/dialog-provider';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getLecture } from '../../../services/lectures.service';
 import { loadString, storeString } from '../../../services/storage.service';
 
@@ -72,15 +72,16 @@ export const Files = (props: IFilesProps) => {
   const navigate = useNavigate();
   const reloadPage = () => navigate(0);
 
-  const { data: assignment = props.assignment } = useQuery({
-    queryKey: ['assignment'],
-    queryFn: () => getAssignment(lecture.id, props.assignment.id, true)
-  });
-
   const { data: lecture = props.lecture } = useQuery({
     queryKey: ['lecture'],
     queryFn: () => getLecture(props.lecture.id, true)
   });
+
+  const { data: assignment = props.assignment } = useQuery({
+    queryKey: ['assignment', lecture.id, props.assignment.id],
+    queryFn: () => getAssignment(lecture.id, props.assignment.id, true)
+  });
+
 
   const setSelectedDir = async (value: 'source' | 'release') => {
     storeString('files-selected-dir', value);
@@ -169,13 +170,15 @@ export const Files = (props: IFilesProps) => {
           if (srcChangedTimestamp === null || srcChangedTimestamp < modified) {
             setSrcChangeTimestamp(modified);
           }
-          reloadPage();
         }
+      
         reloadPage();
+        openBrowser(
+          `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
+        );
       },
       this
     );
-
     getRemoteStatus(
       props.lecture,
       props.assignment,

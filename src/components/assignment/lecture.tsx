@@ -202,7 +202,7 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
                 status={row.status}
                 lecture={props.lecture}
                 assignment={row}
-              />
+                />
             </TableCell>
             <TableCell style={{ width: headerWidth(headers, 'Reset') }}>
               <IconButton
