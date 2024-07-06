@@ -176,19 +176,19 @@ export const Files = (props: IFilesProps) => {
         openBrowser(
           `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
         );
+        getRemoteStatus(
+          props.lecture,
+          props.assignment,
+          RepoType.SOURCE,
+          true
+        ).then(status => {
+          setRepoStatus(
+            status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+          );
+        });
       },
       this
     );
-    getRemoteStatus(
-      props.lecture,
-      props.assignment,
-      RepoType.SOURCE,
-      true
-    ).then(status => {
-      setRepoStatus(
-        status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
-      );
-    });
   }, [props.assignment, props.lecture]);
 
   /**
