@@ -37,6 +37,7 @@ import { updateMenus } from '../../menu';
 import { extractIdsFromBreadcrumbs } from '../util/breadcrumbs';
 import { useQuery } from '@tanstack/react-query';
 import { AssignmentDetail } from '../../model/assignmentDetail';
+import { queryClient } from '../../widgets/assignmentmanage';
 
 interface IAssignmentTableProps {
   lecture: Lecture;
@@ -200,6 +201,9 @@ export const LectureComponent = () => {
       async (response) => {
         await updateMenus(true);
         setLecture(response);
+        // Invalidate query key "lectures" and "completedLectures", so that we trigger refetch on lectures table and correct lecture name is shown in the table!
+        queryClient.invalidateQueries({ queryKey: ['lectures'] });
+        queryClient.invalidateQueries({ queryKey: ['completedLectures'] });  
       },
       (error) => {
         enqueueSnackbar(error.message, {
