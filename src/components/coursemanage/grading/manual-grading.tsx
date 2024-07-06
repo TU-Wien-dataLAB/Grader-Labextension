@@ -47,6 +47,7 @@ import { showDialog } from '../../util/dialog-provider';
 import InfoIcon from '@mui/icons-material/Info';
 import { GraderLoadingButton } from '../../util/loading-button';
 import { useQuery } from '@tanstack/react-query';
+import { queryClient } from '../../../widgets/assignmentmanage';
 
 const style = {
   position: 'absolute' as const,
@@ -206,6 +207,7 @@ export const ManualGrading = () => {
         enqueueSnackbar('Generating feedback for submission!', {
           variant: 'success'
         });
+        queryClient.invalidateQueries({ queryKey: ['submissionsAssignmentStudent']});
         reload();
       } catch (err) {
         console.error(err);

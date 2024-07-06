@@ -34,6 +34,7 @@ import { Link } from 'react-router-dom';
 import { openBrowser } from '../overview/util';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
+import { queryClient } from '../../../widgets/assignmentmanage';
 
 export const autogradeSubmissionsDialog = async handleAgree => {
   showDialog(
@@ -186,6 +187,7 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         enqueueSnackbar(`Generating feedback for ${numSelected} submissions!`, {
           variant: 'success'
         });
+        queryClient.invalidateQueries({ queryKey: ['submissionsAssignmentStudent']});
       } catch (err) {
         console.error(err);
         enqueueSnackbar('Error Generating Feedback', {

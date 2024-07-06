@@ -13,6 +13,7 @@ import { Submission } from '../../model/submission';
 import {
   getAllSubmissions,
   getProperties,
+  getSubmission,
   pullFeedback
 } from '../../services/submissions.service';
 import { GradeBook } from '../../services/gradebook';
@@ -28,54 +29,40 @@ import { extractIdsFromBreadcrumbs } from '../util/breadcrumbs';
 
 export const Feedback = () => {
   const { lectureId, assignmentId } = extractIdsFromBreadcrumbs();
+  const params = useParams();
+  const submissionId = +params['sid'];
+
   const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
     queryKey: ['lecture', lectureId],
-    queryFn: () => getLecture(lectureId), 
-    enabled: !!lectureId, 
-  });
+    queryFn: () => getLecture(lectureId),
+    enabled: !!lectureId
+   });
 
   const { data: assignment, isLoading: isLoadingAssignment } = useQuery<Assignment>({
     queryKey: ['assignment', assignmentId],
-    queryFn: () => getAssignment(lectureId, assignmentId), 
-    enabled: !!lectureId && !!assignmentId, 
+    queryFn: () => getAssignment(lectureId, assignmentId),
+    enabled: !!lecture && !!assignmentId
   });
 
-  if (isLoadingAssignment || isLoadingLecture) {
-    return <div>Loading...</div>
-  }
-
-  const { data: submissions = [] } = useQuery<Submission[]>({
-    queryKey: ['submissions', lecture, assignment],
-    queryFn: () => getAllSubmissions(lecture.id, assignment.id, 'none', false),
-    enabled: !!lectureId && !!assignmentId, 
+  const { data: submission, isLoading: isLoadingSubmission } = useQuery<Submission>({
+    queryKey: ['submission', lectureId, assignmentId, submissionId],
+    queryFn: () => getSubmission(lectureId, assignmentId, submissionId),
+    enabled: !!lecture && !!assignment
   });
-
-  
-  const assignmentLink = `/lecture/${lecture.id}/assignment/${assignment.id}`;
-
-  const params = useParams();
-  const submissionId = +params['sid'];
-  const submission = submissions.find(s => s.id === submissionId);
 
   const { data: gradeBook, refetch: refetchGradeBook } = useQuery({
-    queryKey: ['gradeBook', submission.id],
-    queryFn: () =>
-      getProperties(lecture.id, assignment.id, submission.id).then(
-        properties => new GradeBook(properties)
-      ),
+    queryKey: ['gradeBook', submissionId],
+    queryFn: () => submission ? getProperties(lectureId, assignmentId, submissionId).then(properties => new GradeBook(properties)) : Promise.resolve(null),
     enabled: !!submission
   });
 
+  const feedbackPath = `${lectureBasePath}${lecture?.code}/feedback/${assignmentId}/${submissionId}`;
   const { data: submissionFiles, refetch: refetchSubmissionFiles } = useQuery({
-    queryKey: ['submissionFiles'],
-    queryFn: () => getFiles(path)
+    queryKey: ['submissionFiles', feedbackPath],
+    queryFn: () => feedbackPath ? getFiles(feedbackPath) : Promise.resolve([]),
+    enabled: !!feedbackPath 
   });
 
-  const feedbackPath = `${lectureBasePath}${lecture.code}/feedback/${assignment.id}/${submission.id}`;
-  const { data: path = feedbackPath, refetch: refetchPath } = useQuery({
-    queryKey: ['path', submission.id],
-    queryFn: () => feedbackPath
-  });
 
   const reloadProperties = async () => {
     await refetchGradeBook();
@@ -84,6 +71,12 @@ export const Feedback = () => {
   React.useEffect(() => {
     reloadProperties();
   }, []);
+
+  if (isLoadingAssignment || isLoadingLecture || isLoadingSubmission) {
+    return <div>Loading...</div>;
+  }
+
+  const assignmentLink = `/lecture/${lecture.id}/assignment/${assignment.id}`;
 
   return (
     <Box sx={{ overflow: 'auto' }}>
@@ -168,7 +161,7 @@ export const Feedback = () => {
       <Typography sx={{ m: 2, mb: 0 }}>Feedback Files</Typography>
 
       <FilesList
-        path={path}
+        path={feedbackPath}
         sx={{ m: 2, overflow: 'auto' }}
         lecture={lecture}
         assignment={assignment}
@@ -191,13 +184,13 @@ export const Feedback = () => {
         >
           Pull Feedback
         </Button>
-        {path !== null && (
+        {feedbackPath !== null && (
           <Tooltip title={'Show files in JupyterLab file browser'}>
             <Button
               variant="outlined"
               size="small"
               color={'primary'}
-              onClick={() => openBrowser(path)}
+              onClick={() => openBrowser(feedbackPath)}
             >
               <OpenInBrowserIcon fontSize="small" sx={{ mr: 1 }} />
               Show in Filebrowser
