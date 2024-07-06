@@ -65,17 +65,21 @@ const LectureTable = (props: ILectureTableProps) => {
  * @param props Props of the lecture file components
  */
 export const AssignmentManageComponent = () => {
-  const { data: lectures = [] } = useQuery<Lecture[]>({
+  const { data: lectures, isLoading: isLoadingOngoingLectures } = useQuery<Lecture[]>({
     queryKey: ['lectures'],
     queryFn: () => getAllLectures(false)
   });
 
-  const { data: completedLectures = [] } = useQuery<Lecture[]>({
+  const { data: completedLectures, isLoading: isLoadingCompletedLectures } = useQuery<Lecture[]>({
     queryKey: ['completedLectures'],
     queryFn: () => getAllLectures(true)
   });
   
   const [showComplete, setShowComplete] = useState(false);
+
+  if (isLoadingCompletedLectures || isLoadingOngoingLectures) {
+    return <div>Loading...</div>
+  }
 
 
   return (
