@@ -168,9 +168,27 @@ export const LectureComponent = () => {
     enabled: !!lecture 
   });
 
+  React.useEffect(() => {
+    if (assignments.length > 0) {
+      setAssignments(assignments);
+    }
+  }, [assignments]);
+
+
   const [lectureState, setLecture] = React.useState(lecture);
-  const [assignmentsState, setAssignments] = React.useState(assignments);
+  const [assignmentsState, setAssignments] = React.useState<Assignment[]>([]);
   const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
+
+
+  if (isLoadingLecture || isLoadingAssignments) {
+    return (
+      <div>
+        <Card>
+          <LinearProgress />
+        </Card>
+      </div>
+    );
+  }
 
   const handleOpenEditDialog = () => {
     setEditDialogOpen(true);
@@ -192,15 +210,7 @@ export const LectureComponent = () => {
   };
 
 
-  if (isLoadingLecture || isLoadingAssignments) {
-    return (
-      <div>
-        <Card>
-          <LinearProgress />
-        </Card>
-      </div>
-    );
-  }
+
 
   return (
     <Stack direction={'column'} sx={{ mt: 5, ml: 5, flex: 1 }}>
