@@ -46,7 +46,7 @@ export const getFiles = async (path: string): Promise<File[]> => {
   const model = new FileBrowserModel({
     auto: false,
     manager: GlobalObjects.docManager,
-    refreshInterval: -1
+    refreshInterval: 0
   });
 
   try {
@@ -130,7 +130,7 @@ export const makeDir = async (path: string, name: string) => {
   const model = new FileBrowserModel({
     auto: false,
     manager: GlobalObjects.docManager,
-    refreshInterval: -1
+    refreshInterval: 1000000
   });
   try {
     await model.cd(path);

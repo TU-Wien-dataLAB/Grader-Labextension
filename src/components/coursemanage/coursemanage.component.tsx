@@ -60,17 +60,21 @@ const LectureTable = (props: ILectureTableProps) => {
 };
 
 export const CourseManageComponent = () => {
-  const { data: lectures = [] } = useQuery<Lecture[]>({
+  const { data: lectures, isLoading: isLoadingOngoingLectures } = useQuery<Lecture[]>({
     queryKey: ['lectures'],
     queryFn: () => getAllLectures(false)
   });
 
-  const { data: completedLectures = [] } = useQuery<Lecture[]>({
+  const { data: completedLectures, isLoading: isLoadingCompletedLectures } = useQuery<Lecture[]>({
     queryKey: ['completedLectures'],
     queryFn: () => getAllLectures(true)
   });
   
   const [showComplete, setShowComplete] = useState(false);
+
+  if (isLoadingCompletedLectures || isLoadingOngoingLectures) {
+    return <div>Loading...</div>
+  }
 
   return (
     <Stack direction={'column'} sx={{ mt: 5, ml: 5, flex: 1 }}>
