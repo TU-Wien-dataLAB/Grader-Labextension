@@ -102,7 +102,7 @@ export const AssignmentComponent = () => {
   });
 
   const { data: submissions = [], refetch: refetchSubmissions } = useQuery<Submission[]>({
-    queryKey: ['submissions', lectureId, assignmentId],
+    queryKey: ['submissionsAssignmentStudent', lectureId, assignmentId],
     queryFn: () => getAllSubmissions(lectureId, assignmentId, 'none', false),
     enabled: !!lectureId && !!assignmentId,
   });
@@ -119,7 +119,6 @@ export const AssignmentComponent = () => {
 
 
   React.useEffect(() => {
-    console.log("PLEASE LOOK", files)
     if (lecture && assignment) {
       getAssignmentProperties(lecture.id, assignment.id).then(properties => {
         const gb = new GradeBook(properties);
