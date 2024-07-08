@@ -221,6 +221,28 @@ class SubmissionObjectHandler(ExtensionBaseHandler):
             raise HTTPError(e.code, reason=e.response.reason)
         self.write("OK")
 
+    async def delete(self, lecture_id: int, assignment_id: int, submission_id: int):
+        """Sends a DELETE-request to the grader service to "soft"-delete a assignment
+
+        :param lecture_id: id of the lecture
+        :type lecture_id: int
+        :param assignment_id: id of the assignment
+        :type assignment_id: int
+        :param submission_id: id of the submission
+        :type submission_id: int
+        """
+
+        try:
+            await self.request_service.request(
+                method="DELETE",
+                endpoint=f"{self.service_base_url}/lectures/{lecture_id}/assignments/{assignment_id}/submissions/{submission_id}",
+                header=self.grader_authentication_header,
+                decode_response=False
+            )
+        except HTTPClientError as e:
+            raise HTTPError(e.code, reason=e.response.reason)
+            
+        self.write("OK")
 
 @register_handler(
     path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/submissions\/lti\/?"

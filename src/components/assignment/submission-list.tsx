@@ -28,13 +28,15 @@ import {
 } from '../../services/datetime.service';
 import CloudDoneRoundedIcon from '@mui/icons-material/CloudDoneRounded';
 import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { grey } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
 import { showDialog } from '../util/dialog-provider';
-import { restoreSubmission } from '../../services/submissions.service';
+import { deleteSubmission, restoreSubmission } from '../../services/submissions.service';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { enqueueSnackbar } from 'notistack';
+import { queryClient } from '../../widgets/assignmentmanage';
 
 /**
  * Props for SubmissionListComponent.
@@ -117,6 +119,47 @@ export const SubmissionList = (props: ISubmissionListProps) => {
                   }}
                 >
                   Restore
+                </Button>
+              }
+              {
+                <Button
+                  sx={{ ml: 3 }}
+                  startIcon={<DeleteIcon />}
+                  size="small"
+                  onClick={() => {
+                    showDialog(
+                      'Delete Submission',
+                      'Do you really want to delete this submission? After you delete it, you will not be able to revert the change. This does not effect number of submissions you have left if there is maximum number of submission allowed.',
+                      async () => {
+                        try {
+                          await deleteSubmission(
+                            props.lecture.id,
+                            props.assignment.id,
+                            value.id
+                          );
+                          queryClient.invalidateQueries({ queryKey: ['submissions']});
+                          queryClient.invalidateQueries({ queryKey: ['submissionsAssignmentStudent']});
+                          enqueueSnackbar('Successfully Deleted Submission', {
+                            variant: 'success'
+                          });
+                        } catch (e) {
+                          if (e instanceof Error) {
+                            enqueueSnackbar(
+                              'Error Delete Submission: ' + e.message,
+                              { variant: 'error' }
+                            );
+                          } else {
+                            console.error(
+                              'Error: cannot interpret type unkown as error',
+                              e
+                            );
+                          }
+                        }
+                      }
+                    );
+                  }}
+                  >
+                    Delete Submission
                 </Button>
               }
               {value.feedback_status === 'generated' ||

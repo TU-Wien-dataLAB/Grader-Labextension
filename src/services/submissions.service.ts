@@ -211,3 +211,15 @@ export function restoreSubmission(
     null
   );
 }
+
+export function deleteSubmission(
+  lectureId: number,
+  assignmentId: number,
+  submissionId: number
+): Promise<void> {
+  return request<void>(
+    HTTPMethod.DELETE,
+    `lectures/${lectureId}/assignments/${assignmentId}/submissions/${submissionId}`,
+    null
+  );
+}
