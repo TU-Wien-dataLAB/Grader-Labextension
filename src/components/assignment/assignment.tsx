@@ -116,8 +116,7 @@ export const AssignmentComponent = () => {
     queryFn: async () => {
       refetchSubmissions();
       const response = await getSubmissionCount(lectureId, assignmentId);
-      console.log("LOOK COUNT", response)
-      const remainingSubmissions = assignment.max_submissions - response;
+      const remainingSubmissions = assignment.max_submissions - response.submission_count;
       return remainingSubmissions <= 0 ? 0 : remainingSubmissions;
     }
   })

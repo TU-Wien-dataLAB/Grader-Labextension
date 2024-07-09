@@ -295,7 +295,7 @@ class SubmissionCountHandler(ExtensionBaseHandler):
                 header=self.grader_authentication_header,
                 response_callback=self.set_service_headers
             )
-            self.log.info(f"LOOK AT response {response}")
+            self.log.info(f"{response}")
         except HTTPClientError as e:
             self.log.error(e.response)
             raise HTTPError(e.code, reason=e.response.reason)

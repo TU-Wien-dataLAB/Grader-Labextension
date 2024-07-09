@@ -228,7 +228,7 @@ export function deleteSubmission(
 export async function getSubmissionCount(
   lectureId: number,
   assignmentId: number
-): Promise<number> {
+): Promise<{ submission_count: number }> {
   const url = `/lectures/${lectureId}/assignments/${assignmentId}/submissions/count`;
-  return request<number>(HTTPMethod.GET, url, null, false);
+  return request<{ submission_count: number }>(HTTPMethod.GET, url, null, false);
 }
