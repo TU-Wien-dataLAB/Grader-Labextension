@@ -163,7 +163,7 @@ export const LectureComponent = () => {
     enabled: !!lectureId
   });
 
-  const { data: assignments = [], isLoading: isLoadingAssignments } = useQuery<AssignmentDetail[]>({
+  const { data: assignments = [], isLoading: isLoadingAssignments, refetch: refetchAssignments } = useQuery<AssignmentDetail[]>({
     queryKey: ['assignments', lecture, lectureId],
     queryFn: () => getAllAssignments(lectureId),
     enabled: !!lecture 
@@ -212,9 +212,6 @@ export const LectureComponent = () => {
       }
     );
   };
-
-
-
 
   return (
     <Stack direction={'column'} sx={{ mt: 5, ml: 5, flex: 1 }}>
@@ -266,11 +263,8 @@ export const LectureComponent = () => {
         <Stack direction="row" alignItems="center" spacing={2}>
           <CreateDialog
             lecture={lectureState}
-            handleSubmit={assigment => {
-              setAssignments((oldAssignments: Assignment[]) => [
-                ...oldAssignments,
-                assigment
-              ]);
+            handleSubmit={async () => {
+              await refetchAssignments();
             }}
           />
           <EditLectureDialog

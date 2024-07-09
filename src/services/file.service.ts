@@ -46,7 +46,7 @@ export const getFiles = async (path: string): Promise<File[]> => {
   const model = new FileBrowserModel({
     auto: false,
     manager: GlobalObjects.docManager,
-    refreshInterval: 0
+    refreshInterval: 1000000
   });
 
   try {

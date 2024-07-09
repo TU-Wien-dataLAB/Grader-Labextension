@@ -46,7 +46,7 @@ import {
 } from '../../../services/storage.service';
 import { getAssignment } from '../../../services/assignments.service';
 import { useQuery } from '@tanstack/react-query';
-import { getLecture, getUsers } from '../../../services/lectures.service';
+import { getLecture } from '../../../services/lectures.service';
 import { extractIdsFromBreadcrumbs } from '../../util/breadcrumbs';
 
 /**

@@ -35,6 +35,7 @@ import {
 import { getFiles, lectureBasePath } from '../../services/file.service';
 import {
   getAllSubmissions,
+  getSubmissionCount,
   submitAssignment
 } from '../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
@@ -113,8 +114,10 @@ export const AssignmentComponent = () => {
   const { data: subLeft, isLoading: isLoadingSubLeft, refetch: refetchSubleft} = useQuery<number>({
     queryKey: ['subLeft'],
     queryFn: async () => {
-      const response = await refetchSubmissions();
-      const remainingSubmissions = assignment.max_submissions - response.data.length;
+      refetchSubmissions();
+      const response = await getSubmissionCount(lectureId, assignmentId);
+      console.log("LOOK COUNT", response)
+      const remainingSubmissions = assignment.max_submissions - response;
       return remainingSubmissions <= 0 ? 0 : remainingSubmissions;
     }
   })

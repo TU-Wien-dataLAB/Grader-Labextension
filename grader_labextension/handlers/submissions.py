@@ -270,3 +270,33 @@ class LtiSyncHandler(ExtensionBaseHandler):
             raise HTTPError(e.code, reason=json.loads(e.response.body).get("message", "Error while syncing grades"))
 
         self.write(json.dumps(response))
+
+@register_handler(
+    path=r"\/lectures\/(?P<lecture_id>\d*)\/assignments\/(?P<assignment_id>\d*)\/submissions\/count\/?"
+)
+class SubmissionCountHandler(ExtensionBaseHandler):
+    """
+        Tornado Handler class for http requests to /lectures/{lecture_id}/assignments/{assignment_id}/submissions/count.
+    """
+
+    async def get(self, lecture_id: int, assignment_id: int):
+        """ Returns the count of submissions made by the student for an assignment.
+
+        :param lecture_id: id of the lecture
+        :type lecture_id: int
+        :param assignment_id: id of the assignment
+        :type assignment_id: int
+        """
+
+        try:
+            response = await self.request_service.request(
+                method="GET",
+                endpoint=f"{self.service_base_url}/lectures/{lecture_id}/assignments/{assignment_id}/submissions/count",
+                header=self.grader_authentication_header,
+                response_callback=self.set_service_headers
+            )
+            self.log.info(f"LOOK AT response {response}")
+        except HTTPClientError as e:
+            self.log.error(e.response)
+            raise HTTPError(e.code, reason=e.response.reason)
+        self.write(json.dumps(response))

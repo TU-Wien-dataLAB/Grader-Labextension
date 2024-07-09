@@ -112,6 +112,7 @@ export function getAllSubmissions(
   return request<Submission[]>(HTTPMethod.GET, url, null, reload);
 }
 
+
 export function getFeedback(
   lecture: Lecture,
   assignment: Assignment,
@@ -222,4 +223,12 @@ export function deleteSubmission(
     `lectures/${lectureId}/assignments/${assignmentId}/submissions/${submissionId}`,
     null
   );
+}
+
+export async function getSubmissionCount(
+  lectureId: number,
+  assignmentId: number
+): Promise<number> {
+  const url = `/lectures/${lectureId}/assignments/${assignmentId}/submissions/count`;
+  return request<number>(HTTPMethod.GET, url, null, false);
 }
