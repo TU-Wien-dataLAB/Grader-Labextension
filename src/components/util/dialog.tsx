@@ -59,6 +59,7 @@ import { GraderLoadingButton } from './loading-button';
 import { FilesList } from './file-list';
 import { extractRelativePaths, getFiles, lectureBasePath } from '../../services/file.service';
 import InfoIcon from '@mui/icons-material/Info';
+import { queryClient } from '../../widgets/assignmentmanage';
 
 const gradingBehaviourHelp = `Specifies the behaviour when a students submits an assignment.\n
 No Automatic Grading: No action is taken on submit.\n
@@ -289,6 +290,7 @@ export const CreateDialog = (props: ICreateDialogProps) => {
           });
         }
       );
+      queryClient.invalidateQueries({ queryKey: ['assignments', props.lecture.id] });
       setOpen(false);
     }
   });

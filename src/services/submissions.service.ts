@@ -112,6 +112,7 @@ export function getAllSubmissions(
   return request<Submission[]>(HTTPMethod.GET, url, null, reload);
 }
 
+
 export function getFeedback(
   lecture: Lecture,
   assignment: Assignment,
@@ -210,4 +211,24 @@ export function restoreSubmission(
     `/lectures/${lectureId}/assignments/${assignmentId}/restore/${commitHash}`,
     null
   );
+}
+
+export function deleteSubmission(
+  lectureId: number,
+  assignmentId: number,
+  submissionId: number
+): Promise<void> {
+  return request<void>(
+    HTTPMethod.DELETE,
+    `lectures/${lectureId}/assignments/${assignmentId}/submissions/${submissionId}`,
+    null
+  );
+}
+
+export async function getSubmissionCount(
+  lectureId: number,
+  assignmentId: number
+): Promise<{ submission_count: number }> {
+  const url = `/lectures/${lectureId}/assignments/${assignmentId}/submissions/count`;
+  return request<{ submission_count: number }>(HTTPMethod.GET, url, null, false);
 }

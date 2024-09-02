@@ -35,6 +35,7 @@ import {
 import { getFiles, lectureBasePath } from '../../services/file.service';
 import {
   getAllSubmissions,
+  getSubmissionCount,
   submitAssignment
 } from '../../services/submissions.service';
 import { enqueueSnackbar } from 'notistack';
@@ -109,7 +110,16 @@ export const AssignmentComponent = () => {
 
   const [fileList, setFileList] = React.useState<string[]>([]);
   const [activeStatus, setActiveStatus] = React.useState(0);
-  const [subLeft, setSubLeft] = React.useState(0);
+
+  const { data: subLeft, isLoading: isLoadingSubLeft, refetch: refetchSubleft} = useQuery<number>({
+    queryKey: ['subLeft'],
+    queryFn: async () => {
+      refetchSubmissions();
+      const response = await getSubmissionCount(lectureId, assignmentId);
+      const remainingSubmissions = assignment.max_submissions - response.submission_count;
+      return remainingSubmissions <= 0 ? 0 : remainingSubmissions;
+    }
+  })
 
   const { data: files, refetch: refetchFiles, isLoading: isLoadingFiles } = useQuery({
     queryKey: ['files', lectureId, assignmentId],
@@ -128,10 +138,10 @@ export const AssignmentComponent = () => {
         ]);
       });
     }
-  }, [lecture, assignment])
+  }, [lecture, assignment]);
 
 
-  if (isLoadingAssignment || isLoadingLecture || isLoadingFiles) {
+  if (isLoadingAssignment || isLoadingLecture || isLoadingFiles || isLoadingSubLeft) {
     return (
       <div>
         <Card>
@@ -184,16 +194,9 @@ export const AssignmentComponent = () => {
       async () => {
         await submitAssignment(lecture, assignment, true).then(
           () => {
-            refetchSubmissions().then(response => {
-              if (assignment.max_submissions - response.data.length < 0) {
-                setSubLeft(0);
-              } else {
-                setSubLeft(assignment.max_submissions - response.data.length);
-              }
-            });
+            refetchSubleft();
             const active_step = calculateActiveStep(submissions);
-            setActiveStatus(active_step);;
-            setSubLeft(Math.max(0, subLeft - 1));
+            setActiveStatus(active_step);
             enqueueSnackbar('Successfully Submitted Assignment', {
               variant: 'success'
             });

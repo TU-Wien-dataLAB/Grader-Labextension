@@ -54,6 +54,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getLecture } from '../../../services/lectures.service';
 import { loadString, storeString } from '../../../services/storage.service';
+import { queryClient } from '../../../widgets/assignmentmanage';
 
 /**
  * Props for FilesComponent.
@@ -251,7 +252,7 @@ export const Files = (props: IFilesProps) => {
             commitMessage,
             selectedFiles
           );
-
+          queryClient.invalidateQueries({ queryKey: ['assignments', props.lecture.id] });
           enqueueSnackbar('Successfully Pushed Assignment', {
             variant: 'success'
           });
