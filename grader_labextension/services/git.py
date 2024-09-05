@@ -44,7 +44,7 @@ class RemoteFileStatus(enum.Enum):
     divergent = 3
 
 class GitService(Configurable):
-    git_access_token = Unicode(os.environ.get("JUPYTERHUB_API_TOKEN"), allow_none=False).tag(config=True)
+    git_access_token = Unicode(os.environ.get("GRADER_API_TOKEN"), allow_none=False).tag(config=True)
     git_service_url = Unicode(
         f'{os.environ.get("GRADER_HOST_URL", "http://127.0.0.1:4010")}{os.environ.get("GRADER_GIT_BASE_URL", "/services/grader/git")}',
         allow_none=False).tag(config=True)
