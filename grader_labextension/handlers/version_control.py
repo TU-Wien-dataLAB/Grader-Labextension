@@ -67,6 +67,7 @@ class GenerateHandler(ExtensionBaseHandler):
             copy_files=True,  # Always copy files from source to release
         )
         generator.force = True
+        generator.log = self.log
 
         try:
             # delete contents of output directory since we might have chosen to disallow files
@@ -399,6 +400,7 @@ class PushHandler(ExtensionBaseHandler):
                 copy_files=True,  # Always copy files from source to release
             )
             generator.force = True
+            generator.log = self.log
 
             try:
                 # delete contents of output directory since we might have chosen to disallow files
