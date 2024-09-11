@@ -140,6 +140,16 @@ export const Files = (props: IFilesProps) => {
       }
     }
   });
+  getRemoteStatus(
+    props.lecture,
+    props.assignment,
+    RepoType.SOURCE,
+    true
+  ).then(status => {
+    setRepoStatus(
+      status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+    );
+  });
 
   const [srcChangedTimestamp, setSrcChangeTimestamp] = React.useState(
     moment().valueOf()
@@ -172,7 +182,7 @@ export const Files = (props: IFilesProps) => {
             setSrcChangeTimestamp(modified);
           }
         }
-      
+
         reloadPage();
         openBrowser(
           `${lectureBasePath}${lecture.code}/${selectedDir}/${assignment.id}`
@@ -256,7 +266,16 @@ export const Files = (props: IFilesProps) => {
           enqueueSnackbar('Successfully Pushed Assignment', {
             variant: 'success'
           });
-          reloadPage();
+          getRemoteStatus(
+            props.lecture,
+            props.assignment,
+            RepoType.SOURCE,
+            true
+          ).then(status => {
+            setRepoStatus(
+              status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+            );
+          });
         } catch (err) {
           if (err instanceof Error) {
             enqueueSnackbar('Error Pushing Assignment: ' + err.message, {
@@ -347,7 +366,16 @@ export const Files = (props: IFilesProps) => {
           enqueueSnackbar('Successfully Pulled Assignment', {
             variant: 'success'
           });
-          reloadPage();
+          getRemoteStatus(
+            props.lecture,
+            props.assignment,
+            RepoType.SOURCE,
+            true
+          ).then(status => {
+            setRepoStatus(
+              status as 'up_to_date' | 'pull_needed' | 'push_needed' | 'divergent'
+            );
+          });
         } catch (err) {
           if (err instanceof Error) {
             enqueueSnackbar('Error Pulling Assignment: ' + err.message, {
