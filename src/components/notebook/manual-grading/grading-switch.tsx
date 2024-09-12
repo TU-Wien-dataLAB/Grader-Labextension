@@ -163,7 +163,7 @@ export class GradingModeSwitch extends React.Component<IModeSwitchProps> {
               try {
                 currentLayout.removeWidget(w);
               } catch(error: any) {
-                console.log("Could not remove widget:" + w)
+                console.log("Could not remove widget of cell:" + w.cell.id)
                 console.log("Error: " + error)
               }
             }

@@ -67,6 +67,7 @@ const FileItem = ({
       true
     ) as Promise<'up_to_date' | 'push_needed' | 'divergent'>,
     enabled: !!lecture && !!assignment,
+    staleTime: 3000
   };
 
   const { data: fileRemoteStatus } = useQuery(fileStatusQueryOptions);
