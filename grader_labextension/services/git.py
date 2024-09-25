@@ -254,6 +254,7 @@ class GitService(Configurable):
         Args:
             src (str): path where the to be copied files reside
         """
+        ignore = shutil.ignore_patterns(".git", "__pycache__")
         if(selected_files):
             self.log.info(f"Copying only selected files from {src} to {self.path}")
             for item in os.listdir(src):
@@ -266,7 +267,6 @@ class GitService(Configurable):
                         shutil.copy2(s, d)
         else:    
             self.log.info(f"Copying repository contents from {src} to {self.path}")
-            ignore = shutil.ignore_patterns(".git", "__pycache__")
             if sys.version_info.major == 3 and sys.version_info.minor >= 8:
                 shutil.copytree(src, self.path, ignore=ignore, dirs_exist_ok=True)
             else:
