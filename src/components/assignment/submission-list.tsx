@@ -32,7 +32,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { grey } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
 import { showDialog } from '../util/dialog-provider';
-import { deleteSubmission, restoreSubmission } from '../../services/submissions.service';
+import {
+  deleteSubmission,
+  restoreSubmission
+} from '../../services/submissions.service';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
 import { enqueueSnackbar } from 'notistack';
@@ -45,6 +48,7 @@ interface ISubmissionListProps {
   lecture: Lecture;
   assignment: Assignment;
   submissions: Submission[];
+  subLeft: number;
   sx?: SxProps<Theme>;
 }
 
@@ -121,15 +125,20 @@ export const SubmissionList = (props: ISubmissionListProps) => {
                   Restore
                 </Button>
               }
-              {
+              {value.feedback_status === 'not_generated' && (
                 <Button
                   sx={{ ml: 3 }}
                   startIcon={<DeleteIcon />}
                   size="small"
                   onClick={() => {
+                    const warningMessage = props.subLeft === 0 && props.submissions.length === 1
+                        ? '<strong>This is your last submission left. If you delete it, you won’t be able to submit again and you will be graded with 0 points.<strong></strong>'
+                        : '';
                     showDialog(
                       'Delete Submission',
-                      'Do you really want to delete this submission? After you delete it, you will not be able to revert the change. This does not effect number of submissions you have left if there is maximum number of submission allowed.',
+                      'Do you really want to delete this submission? After you delete it, you will not be able to revert the change. This does not effect number of submissions ' +
+                        'you have left if there is maximum number of submission allowed.<br><br>' +
+                        warningMessage,
                       async () => {
                         try {
                           await deleteSubmission(
@@ -137,8 +146,12 @@ export const SubmissionList = (props: ISubmissionListProps) => {
                             props.assignment.id,
                             value.id
                           );
-                          queryClient.invalidateQueries({ queryKey: ['submissions']});
-                          queryClient.invalidateQueries({ queryKey: ['submissionsAssignmentStudent']});
+                          queryClient.invalidateQueries({
+                            queryKey: ['submissions']
+                          });
+                          queryClient.invalidateQueries({
+                            queryKey: ['submissionsAssignmentStudent']
+                          });
                           enqueueSnackbar('Successfully Deleted Submission', {
                             variant: 'success'
                           });
@@ -158,10 +171,10 @@ export const SubmissionList = (props: ISubmissionListProps) => {
                       }
                     );
                   }}
-                  >
-                    Delete Submission
+                >
+                  Delete Submission
                 </Button>
-              }
+              )}
               {value.feedback_status === 'generated' ||
               value.feedback_status === 'feedback_outdated' ? (
                 <Button

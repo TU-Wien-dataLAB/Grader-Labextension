@@ -92,41 +92,55 @@ export const AssignmentComponent = () => {
 
   const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
     queryKey: ['lecture', lectureId],
-    queryFn: () => getLecture(lectureId), 
-    enabled: !!lectureId, 
+    queryFn: () => getLecture(lectureId),
+    enabled: !!lectureId
   });
 
-  const { data: assignment, isLoading: isLoadingAssignment } = useQuery<Assignment>({
-    queryKey: ['assignment', assignmentId],
-    queryFn: () => getAssignment(lectureId, assignmentId), 
-    enabled: !!lectureId && !!assignmentId, 
-  });
+  const { data: assignment, isLoading: isLoadingAssignment } =
+    useQuery<Assignment>({
+      queryKey: ['assignment', assignmentId],
+      queryFn: () => getAssignment(lectureId, assignmentId),
+      enabled: !!lectureId && !!assignmentId
+    });
 
-  const { data: submissions = [], refetch: refetchSubmissions } = useQuery<Submission[]>({
+  const { data: submissions = [], refetch: refetchSubmissions } = useQuery<
+    Submission[]
+  >({
     queryKey: ['submissionsAssignmentStudent', lectureId, assignmentId],
     queryFn: () => getAllSubmissions(lectureId, assignmentId, 'none', false),
-    enabled: !!lectureId && !!assignmentId,
+    enabled: !!lectureId && !!assignmentId
   });
 
   const [fileList, setFileList] = React.useState<string[]>([]);
   const [activeStatus, setActiveStatus] = React.useState(0);
 
-  const { data: subLeft, isLoading: isLoadingSubLeft, refetch: refetchSubleft} = useQuery<number>({
+  const {
+    data: subLeft,
+    isLoading: isLoadingSubLeft,
+    refetch: refetchSubleft
+  } = useQuery<number>({
     queryKey: ['subLeft'],
     queryFn: async () => {
       refetchSubmissions();
       const response = await getSubmissionCount(lectureId, assignmentId);
-      const remainingSubmissions = assignment.max_submissions - response.submission_count;
+      const remainingSubmissions =
+        assignment.max_submissions - response.submission_count;
       return remainingSubmissions <= 0 ? 0 : remainingSubmissions;
     }
-  })
-
-  const { data: files, refetch: refetchFiles, isLoading: isLoadingFiles } = useQuery({
-    queryKey: ['files', lectureId, assignmentId],
-    queryFn: () => getFiles(`${lectureBasePath}${lecture?.code}/assignments/${assignmentId}`),
-    enabled: !!lecture && !!assignment,
   });
 
+  const {
+    data: files,
+    refetch: refetchFiles,
+    isLoading: isLoadingFiles
+  } = useQuery({
+    queryKey: ['files', lectureId, assignmentId],
+    queryFn: () =>
+      getFiles(
+        `${lectureBasePath}${lecture?.code}/assignments/${assignmentId}`
+      ),
+    enabled: !!lecture && !!assignment
+  });
 
   React.useEffect(() => {
     if (lecture && assignment) {
@@ -140,8 +154,12 @@ export const AssignmentComponent = () => {
     }
   }, [lecture, assignment]);
 
-
-  if (isLoadingAssignment || isLoadingLecture || isLoadingFiles || isLoadingSubLeft) {
+  if (
+    isLoadingAssignment ||
+    isLoadingLecture ||
+    isLoadingFiles ||
+    isLoadingSubLeft
+  ) {
     return (
       <div>
         <Card>
@@ -256,7 +274,9 @@ export const AssignmentComponent = () => {
     if (!assignment.due_date) {
       return false;
     }
-    const late_submission = assignment.settings.late_submission || [{ period: 'P0D', scaling: undefined }];
+    const late_submission = assignment.settings.late_submission || [
+      { period: 'P0D', scaling: undefined }
+    ];
     const late = moment(assignment.due_date)
       .add(moment.duration(late_submission[late_submission.length - 1].period))
       .toDate()
@@ -269,7 +289,10 @@ export const AssignmentComponent = () => {
   };
 
   const isMaxSubmissionReached = () => {
-    return assignment.max_submissions !== null && assignment.max_submissions <= submissions.length;
+    return (
+      assignment.max_submissions !== null &&
+      assignment.max_submissions <= submissions.length
+    );
   };
 
   const isAssignmentFetched = () => {
@@ -281,7 +304,6 @@ export const AssignmentComponent = () => {
     const scope = permissions[lecture.code];
     return scope >= Scope.tutor;
   };
-
 
   return (
     <Box sx={{ flex: 1, overflow: 'auto' }}>
@@ -428,6 +450,7 @@ export const AssignmentComponent = () => {
           lecture={lecture}
           assignment={assignment}
           submissions={submissions}
+          subLeft = {subLeft}
           sx={{ m: 2, mt: 1 }}
         />
       </Box>
