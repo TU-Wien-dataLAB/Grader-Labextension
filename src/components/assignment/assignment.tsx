@@ -277,6 +277,11 @@ export const AssignmentComponent = () => {
     const late_submission = assignment.settings.late_submission || [
       { period: 'P0D', scaling: undefined }
     ];
+    // no late_submission entry found
+    if (late_submission.length == 0) {
+      return false
+    }
+
     const late = moment(assignment.due_date)
       .add(moment.duration(late_submission[late_submission.length - 1].period))
       .toDate()
