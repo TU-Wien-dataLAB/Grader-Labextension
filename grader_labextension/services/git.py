@@ -7,6 +7,7 @@
 import enum
 import logging
 import subprocess
+from pathlib import Path
 from typing import List, Dict, Union, Tuple
 from urllib.parse import urlparse, ParseResultBytes
 
@@ -206,7 +207,7 @@ class GitService(Configurable):
         # self.log.info("Committing repository")
         # self._run_command(f'git commit -m "{m}"', cwd=self.path)
         if selected_files:
-            for file_path in selected_files:
+            for file_path in (f for f in selected_files if (Path(self.path) / f).exists()):
                 self.log.info(f"Adding file {file_path} and committing in {self.path}")
                 self._run_command(f'sh -c \'git add "{file_path}"\'', cwd=self.path)
         else:
@@ -255,7 +256,7 @@ class GitService(Configurable):
             src (str): path where the to be copied files reside
         """
         ignore = shutil.ignore_patterns(".git", "__pycache__")
-        if(selected_files):
+        if selected_files:
             self.log.info(f"Copying only selected files from {src} to {self.path}")
             for item in os.listdir(src):
                 if item in selected_files:
