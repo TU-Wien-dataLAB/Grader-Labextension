@@ -29,12 +29,18 @@ export namespace Assignment {
     User: 'user' as TypeEnum,
     Group: 'group' as TypeEnum
   };
-  export type StatusEnum = 'created' | 'pushed' | 'released' | 'complete';
+  export type StatusEnum =
+    | 'created'
+    | 'pushed'
+    | 'released'
+    | 'complete'
+    | 'release_scheduled';
   export const StatusEnum = {
     Created: 'created' as StatusEnum,
     Pushed: 'pushed' as StatusEnum,
     Released: 'released' as StatusEnum,
-    Complete: 'complete' as StatusEnum
+    Complete: 'complete' as StatusEnum,
+    Scheduled: 'release_scheduled' as StatusEnum
   };
   export type AutomaticGradingEnum = 'unassisted' | 'auto' | 'full_auto';
   export const AutomaticGradingEnum = {

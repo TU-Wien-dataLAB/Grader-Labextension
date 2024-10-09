@@ -127,18 +127,15 @@ export function pushAssignment(
     });
     url += '?' + searchParams;
   }
-  
+
   if (selectedFiles && selectedFiles.length > 0) {
     selectedFiles.forEach(file => {
       url += `&selected-files=${encodeURIComponent(file)}`;
     });
   }
 
-  console.log("url is here: " + url);
-
   return request<void>(HTTPMethod.PUT, url, null);
 }
-
 
 export function pullAssignment(
   lectureId: number,

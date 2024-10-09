@@ -35,7 +35,6 @@ import {
   Typography,
   Snackbar,
   Modal,
-  Alert,
   AlertTitle
 } from '@mui/material';
 import { Assignment } from '../../model/assignment';
@@ -57,7 +56,11 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { updateMenus } from '../../menu';
 import { GraderLoadingButton } from './loading-button';
 import { FilesList } from './file-list';
-import { extractRelativePaths, getFiles, lectureBasePath } from '../../services/file.service';
+import {
+  extractRelativePaths,
+  getFiles,
+  lectureBasePath
+} from '../../services/file.service';
 import InfoIcon from '@mui/icons-material/Info';
 import { queryClient } from '../../widgets/assignmentmanage';
 
@@ -131,7 +134,6 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
     setOpen(true);
   };
 
-
   return (
     <div>
       <EditLectureNameTooltip
@@ -162,8 +164,13 @@ export const EditLectureDialog = (props: IEditLectureProps) => {
           <SettingsIcon />
         </IconButton>
       </EditLectureNameTooltip>
-      <Dialog open={open || openDialog}
-              onBackdropClick={() => { setOpen(false); handleClose(); }}>
+      <Dialog
+        open={open || openDialog}
+        onBackdropClick={() => {
+          setOpen(false);
+          handleClose();
+        }}
+      >
         <DialogTitle>Edit Lecture</DialogTitle>
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
@@ -247,6 +254,20 @@ export default function NewAssignmentCard(props: INewAssignmentCardProps) {
   );
 }
 
+const [openSnackbar, setOpenSnackBar] = React.useState(false);
+
+const handleOpenSnackBar = () => {
+  setOpenSnackBar(true);
+};
+
+const handleCloseSnackBar = () => {
+  setOpenSnackBar(false);
+};
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 interface ICreateDialogProps {
   lecture: Lecture;
   handleSubmit: (assigment: Assignment) => void;
@@ -290,26 +311,14 @@ export const CreateDialog = (props: ICreateDialogProps) => {
           });
         }
       );
-      queryClient.invalidateQueries({ queryKey: ['assignments', props.lecture.id] });
+      queryClient.invalidateQueries({
+        queryKey: ['assignments', props.lecture.id]
+      });
       setOpen(false);
     }
   });
 
   const [openDialog, setOpen] = React.useState(false);
-
-  const [openSnackbar, setOpenSnackBar] = React.useState(false);
-
-  const handleOpenSnackBar = () => {
-    setOpenSnackBar(true);
-  };
-
-  const handleCloseSnackBar = () => {
-    setOpenSnackBar(false);
-  };
-
-  const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
 
   return (
     <>
@@ -516,26 +525,30 @@ const InfoModal = () => {
         <InfoIcon />
       </IconButton>
       <Modal open={open} onClose={handleClose}>
-        <Box 
-        sx={{ position: 'absolute' as const,
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '80%',
-              bgcolor: 'background.paper',
-              boxShadow: 3,
-              pt: 2,
-              px: 4,
-              pb: 3
-            }}
+        <Box
+          sx={{
+            position: 'absolute' as const,
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80%',
+            bgcolor: 'background.paper',
+            boxShadow: 3,
+            pt: 2,
+            px: 4,
+            pb: 3
+          }}
         >
           <h2>Selecting Files to Push</h2>
           <Alert severity="info" sx={{ m: 2 }}>
             <AlertTitle>Info</AlertTitle>
-            If you have made changes to multiple files in your source directory and wish to push only specific 
-            files to the remote repository, you can toggle the 'Select files to commit' button. This allows you to
-            choose the files you want to push. Your students will then be able to view only the changes in files you have selected.
-            If you do not use this option, all changed files from the source repository will be pushed, and students will see all the changes.
+            If you have made changes to multiple files in your source directory
+            and wish to push only specific files to the remote repository, you
+            can toggle the 'Select files to commit' button. This allows you to
+            choose the files you want to push. Your students will then be able
+            to view only the changes in files you have selected. If you do not
+            use this option, all changed files from the source repository will
+            be pushed, and students will see all the changes.
           </Alert>
           <Button onClick={handleClose}>Close</Button>
         </Box>
@@ -543,7 +556,6 @@ const InfoModal = () => {
     </React.Fragment>
   );
 };
-
 
 export interface ICommitDialogProps {
   handleCommit: (msg: string, selectedFiles?: string[]) => void;
@@ -604,19 +616,24 @@ export const CommitDialog = (props: ICommitDialogProps) => {
         <Stack direction={'row'} justifyContent={'space-between'}>
           <DialogTitle>Commit Files</DialogTitle>
           <InfoModal />
-        </Stack>  
+        </Stack>
         <DialogContent>
-        <Button onClick={toggleFilesList} sx={{ mb: 2 }}>
-            {filesListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowRightIcon />}
+          <Button onClick={toggleFilesList} sx={{ mb: 2 }}>
+            {filesListVisible ? (
+              <KeyboardArrowUpIcon />
+            ) : (
+              <KeyboardArrowRightIcon />
+            )}
             Choose files to commit
           </Button>
           {filesListVisible && (
-            <FilesList  
-            path={path} 
-            lecture={props.lecture}
-            assignment={props.assignment}
-            checkboxes={true} 
-            onFileSelectChange={handleFileSelectChange} />
+            <FilesList
+              path={path}
+              lecture={props.lecture}
+              assignment={props.assignment}
+              checkboxes={true}
+              onFileSelectChange={handleFileSelectChange}
+            />
           )}
           <TextField
             sx={{ mt: 2, width: '100%' }}
@@ -717,6 +734,97 @@ export const ReleaseDialog = (props: IReleaseDialogProps) => {
             onClick={async () => {
               await props.handleCommit(message);
               await props.handleRelease();
+              setCommitOpen(false);
+            }}
+          >
+            <span>Commit and Release</span>
+          </GraderLoadingButton>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export interface IScheduledReleaseDialogProps extends ICommitDialogProps {
+  handleScheduledRelease: (time: Date) => Promise<void>;
+}
+
+export const ScheduledReleaseDialog = (props: IScheduledReleaseDialogProps) => {
+  const [scheduledTime, setScheduledTime] = React.useState<Date | null>(null);
+  const [commitOpen, setCommitOpen] = React.useState(false);
+  const [message, setMessage] = React.useState('');
+
+  const agreeMessage = `Do you want to schedule the release of assignment "${props.assignment.name}"?`;
+
+  return (
+    <div>
+      <Box
+        onClick={() => {
+          showDialog('Schedule Assignment Release', agreeMessage, () => {
+            setCommitOpen(true);
+          });
+        }}
+      >
+        Schedule Release
+      </Box>
+      <Dialog
+        open={commitOpen}
+        onClose={() => setCommitOpen(false)}
+        fullWidth={true}
+        maxWidth={'sm'}
+      >
+        <DialogTitle>Schedule Release</DialogTitle>
+        <DialogContent>
+          <DateTimePicker
+            label="Release Date and Time"
+            value={scheduledTime}
+            onChange={date => {
+              setScheduledTime(date);
+              if (new Date(date).getTime() < Date.now()) {
+                handleOpenSnackBar();
+              }
+            }}
+          />
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackBar}
+          >
+            <Alert
+              onClose={handleCloseSnackBar}
+              severity="error"
+              sx={{ width: '100%' }}
+            >
+              You can't chose date in the past for scheduled release time!
+            </Alert>
+          </Snackbar>
+          <TextField
+            sx={{ mt: 2, width: '100%' }}
+            label="Commit Message"
+            placeholder="Commit Message"
+            value={message}
+            onChange={event => setMessage(event.target.value)}
+            multiline
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="primary"
+            variant="outlined"
+            onClick={() => {
+              setCommitOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <GraderLoadingButton
+            color="primary"
+            variant="contained"
+            type="submit"
+            disabled={message === ''}
+            onClick={async () => {
+              await props.handleCommit(message);
+              await props.handleScheduledRelease(scheduledTime);
               setCommitOpen(false);
             }}
           >

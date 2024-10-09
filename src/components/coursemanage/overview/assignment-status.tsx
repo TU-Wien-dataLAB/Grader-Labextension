@@ -20,7 +20,7 @@ import NewReleasesRoundedIcon from '@mui/icons-material/NewReleasesRounded';
 import TaskIcon from '@mui/icons-material/Task';
 import UndoIcon from '@mui/icons-material/Undo';
 import TerminalIcon from '@mui/icons-material/Terminal';
-import { ReleaseDialog } from '../../util/dialog';
+import { ReleaseDialog, ScheduledReleaseDialog } from '../../util/dialog';
 import {
   getAssignment,
   pushAssignment,
@@ -70,8 +70,7 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
     });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async (status: 'pushed' | 'released' | 'complete') => {
-      const updatedAssignment = { ...props.assignment, status };
+    mutationFn: async (updatedAssignment: Assignment) => {
       return updateAssignment(props.lecture.id, updatedAssignment);
     },
     onError: (error: any) => {
@@ -90,20 +89,44 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
    * @param status assignment status
    * @param success alert color if successful
    * @param error alert color if not successful
+   * @param scheduledTime if assignment is scheduled for release in future
    */
   const updateAssignmentStatus = async (
-    status: 'pushed' | 'released' | 'complete',
+    status: 'pushed' | 'released' | 'complete' | 'release_scheduled',
     success: string,
-    error: string
+    error: string,
+    scheduledTime?: Date
   ) => {
     try {
-      await updateStatusMutation.mutateAsync(status);
+      const updatedAssignment = {
+        ...props.assignment,
+        status,
+        scheduled_release: scheduledTime
+          ? scheduledTime.toISOString()
+          : undefined // Set the scheduled date if provided
+      };
+
+      await updateStatusMutation.mutateAsync(updatedAssignment);
       await refetchAssignment();
-      queryClient.invalidateQueries({ queryKey: ['assignments', props.lecture.id] });
+      queryClient.invalidateQueries({
+        queryKey: ['assignments', props.lecture.id]
+      });
       enqueueSnackbar(success, { variant: 'success' });
     } catch (err) {
       enqueueSnackbar(error, { variant: 'error' });
     }
+  };
+
+  /**
+   * Handles assignment status change to "scheduled_release".
+   */
+  const handleScheduledReleaseAssignment = async (scheduledTime: Date) => {
+    await updateAssignmentStatus(
+      'release_scheduled',
+      'Successfully Scheduled Assignment Release',
+      'Error Scheduling Assignment Release',
+      scheduledTime
+    );
   };
   /**
    * Handles assignment status change to "released" status
@@ -170,6 +193,13 @@ export const AssignmentStatus = (props: IAssignmentStatusProps) => {
               </Button>
             </Tooltip>
           </ReleaseDialog>
+          <ScheduledReleaseDialog
+            assignment={assignment}
+            handleScheduledRelease={handleScheduledReleaseAssignment}
+            handleCommit={handlePushAssignment}
+          >
+            Schedule Release
+          </ScheduledReleaseDialog>
         </Box>
       )
     },
