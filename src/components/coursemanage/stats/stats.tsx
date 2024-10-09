@@ -56,13 +56,13 @@ export const StatsComponent = () => {
 
   const { data: allSubmissions = [], isLoading: isLoadingAllSubmissions } = useQuery({
     queryKey: ['allSubmissions', lectureId, assignmentId],
-    queryFn: () => getAllSubmissions(lectureId, assignmentId, 'none', false),
+    queryFn: () => getAllSubmissions(lectureId, assignmentId, 'none', true),
     enabled: !!lectureId && !!assignmentId, 
   });
 
   const { data: latestSubmissions = [], isLoading: isLoadingLatestSubmissions } = useQuery({
     queryKey: ['latestSubmissions', lectureId, assignmentId],
-    queryFn: () => getAllSubmissions(lectureId, assignmentId, 'latest', false),
+    queryFn: () => getAllSubmissions(lectureId, assignmentId, 'latest', true),
     enabled: !!lectureId && !!assignmentId, 
   });
 
