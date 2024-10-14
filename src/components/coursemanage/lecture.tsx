@@ -18,9 +18,9 @@ import {
 import * as React from 'react';
 import { Assignment } from '../../model/assignment';
 import { Lecture } from '../../model/lecture';
-import { deleteAssignment } from '../../services/assignments.service';
-import { CreateDialog, EditLectureDialog, IEditLectureProps } from '../util/dialog';
-import { updateLecture } from '../../services/lectures.service';
+import { deleteAssignment, getAllAssignments } from '../../services/assignments.service';
+import { CreateDialog, EditLectureDialog } from '../util/dialog';
+import { getLecture, updateLecture } from '../../services/lectures.service';
 import { red, grey } from '@mui/material/colors';
 import { enqueueSnackbar } from 'notistack';
 import {
@@ -34,6 +34,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { showDialog } from '../util/dialog-provider';
 import { updateMenus } from '../../menu';
+import { extractIdsFromBreadcrumbs } from '../util/breadcrumbs';
+import { useQuery } from '@tanstack/react-query';
+import { AssignmentDetail } from '../../model/assignmentDetail';
+import { queryClient } from '../../widgets/assignmentmanage';
 
 interface IAssignmentTableProps {
   lecture: Lecture;
@@ -151,16 +155,41 @@ const AssignmentTable = (props: IAssignmentTableProps) => {
 };
 
 export const LectureComponent = () => {
-  const { lecture, assignments } = useRouteLoaderData('lecture') as {
-    lecture: Lecture;
-    assignments: Assignment[];
-    users: { instructors: string[]; tutors: string[]; students: string[] };
-  };
-  const navigation = useNavigation();
+  const { lectureId } = extractIdsFromBreadcrumbs();
+
+  const { data: lecture, isLoading: isLoadingLecture } = useQuery<Lecture>({
+    queryKey: ['lecture', lectureId],
+    queryFn: () => getLecture(lectureId, true),
+    enabled: !!lectureId
+  });
+
+  const { data: assignments = [], isLoading: isLoadingAssignments, refetch: refetchAssignments } = useQuery<AssignmentDetail[]>({
+    queryKey: ['assignments', lecture, lectureId],
+    queryFn: () => getAllAssignments(lectureId),
+    enabled: !!lecture 
+  });
+
+  React.useEffect(() => {
+    if (assignments.length > 0) {
+      setAssignments(assignments);
+    }
+  }, [assignments]);
+
 
   const [lectureState, setLecture] = React.useState(lecture);
-  const [assignmentsState, setAssignments] = React.useState(assignments);
+  const [assignmentsState, setAssignments] = React.useState<Assignment[]>([]);
   const [isEditDialogOpen, setEditDialogOpen] = React.useState(false);
+
+
+  if (isLoadingLecture || isLoadingAssignments) {
+    return (
+      <div>
+        <Card>
+          <LinearProgress />
+        </Card>
+      </div>
+    );
+  }
 
   const handleOpenEditDialog = () => {
     setEditDialogOpen(true);
@@ -172,6 +201,9 @@ export const LectureComponent = () => {
       async (response) => {
         await updateMenus(true);
         setLecture(response);
+        // Invalidate query key "lectures" and "completedLectures", so that we trigger refetch on lectures table and correct lecture name is shown in the table!
+        queryClient.invalidateQueries({ queryKey: ['lectures'] });
+        queryClient.invalidateQueries({ queryKey: ['completedLectures'] });  
       },
       (error) => {
         enqueueSnackbar(error.message, {
@@ -180,17 +212,6 @@ export const LectureComponent = () => {
       }
     );
   };
-
-
-  if (navigation.state === 'loading') {
-    return (
-      <div>
-        <Card>
-          <LinearProgress />
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <Stack direction={'column'} sx={{ mt: 5, ml: 5, flex: 1 }}>
@@ -222,8 +243,17 @@ export const LectureComponent = () => {
           >
           {lecture.code === lecture.name ? (
             <Alert severity="info">
-              The name of the lecture is identical to the lecture code. You should give it a meaningful title that accurately reflects its content.{' '}
-              <span style={{ cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={handleOpenEditDialog}>
+              The name of the lecture is identical to the lecture code. You
+              should give it a meaningful title that accurately reflects its
+              content.{' '}
+              <span
+                style={{
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  fontWeight: 'bold'
+                }}
+                onClick={handleOpenEditDialog}
+              >
                 Rename Lecture.
               </span>
             </Alert>
@@ -233,11 +263,8 @@ export const LectureComponent = () => {
         <Stack direction="row" alignItems="center" spacing={2}>
           <CreateDialog
             lecture={lectureState}
-            handleSubmit={assigment => {
-              setAssignments((oldAssignments: Assignment[]) => [
-                ...oldAssignments,
-                assigment
-              ]);
+            handleSubmit={async () => {
+              await refetchAssignments();
             }}
           />
           <EditLectureDialog
@@ -248,7 +275,6 @@ export const LectureComponent = () => {
           />
         </Stack>
       </Stack>
-
 
       <Stack>
         <Typography variant={'h6'}>Assignments</Typography>
